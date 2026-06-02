@@ -7,22 +7,13 @@
 <style>
 body { margin:0; font-family:Arial; background:#f4f4f4; }
 
-/* NAV */
-nav {
-  background:#000;
-  padding:12px;
-  text-align:center;
-}
+nav { background:#000; padding:12px; text-align:center; }
 nav button {
-  color:white;
-  background:none;
-  border:none;
-  margin:10px;
-  font-size:16px;
-  cursor:pointer;
+  color:white; background:none; border:none;
+  margin:10px; font-size:16px; cursor:pointer;
 }
 
-/* HOME */
+/* INICIO */
 #inicio {
   height:100vh;
   display:flex;
@@ -34,16 +25,8 @@ nav button {
   position:relative;
 }
 
-.frases {
-  position:absolute;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
-
 .frases span {
   position:absolute;
-  font-size:18px;
   opacity:0.2;
   animation:flotar 12s linear infinite;
 }
@@ -53,25 +36,8 @@ nav button {
   to { transform:translateY(-100vh); }
 }
 
-#inicio h1 {
-  font-size:40px;
-}
-
-#inicio button {
-  padding:12px 20px;
-  background:#000;
-  color:white;
-  border:none;
-  border-radius:8px;
-  margin-top:20px;
-}
-
 /* PRODUCTOS */
-.grid {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-}
+.grid { display:flex; flex-wrap:wrap; justify-content:center; }
 
 .producto {
   background:white;
@@ -81,7 +47,6 @@ nav button {
   width:220px;
   text-align:center;
   box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  position:relative;
 }
 
 .producto img {
@@ -91,19 +56,7 @@ nav button {
   border-radius:10px;
 }
 
-.badge {
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:red;
-  color:white;
-  padding:4px 8px;
-  font-size:12px;
-  border-radius:6px;
-}
-
-.stock { font-size:13px; margin-top:5px; }
-.low { color:red; font-weight:bold; }
+.stock.low { color:red; font-weight:bold; }
 
 button {
   background:#000;
@@ -112,10 +65,7 @@ button {
   padding:8px;
   width:100%;
   margin-top:8px;
-  border-radius:6px;
 }
-
-select { width:100%; padding:6px; margin-top:5px; }
 
 </style>
 </head>
@@ -128,20 +78,16 @@ select { width:100%; padding:6px; margin-top:5px; }
 <button onclick="ver('carrito')">Carrito (<span id="count">0</span>)</button>
 </nav>
 
-<!-- INICIO -->
 <div id="inicio">
-  <div class="frases" id="frases"></div>
-  <h1>Beauty and Cheap 💄</h1>
-  <p>Maquillaje bonito, precios inteligentes</p>
-  <button onclick="ver('productos')">Comprar ahora</button>
+<h1>Beauty and Cheap 💄</h1>
+<p>Glow sin gastar de más ✨</p>
+<button onclick="ver('productos')">Comprar</button>
 </div>
 
-<!-- PRODUCTOS -->
 <div id="productos" class="grid" style="display:none;"></div>
 
-<!-- CARRITO -->
 <div id="carrito" style="display:none; padding:20px;">
-<h2>Tu carrito 🛒</h2>
+<h2>Carrito 🛒</h2>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
 <button onclick="comprar()">Comprar por WhatsApp</button>
@@ -149,28 +95,38 @@ select { width:100%; padding:6px; margin-top:5px; }
 
 <script>
 
-// FRASES FLOTANDO (ESTILO PRO)
-let frases = [
-"Tu piel, tu poder ✨",
-"Glow natural siempre 💖",
-"Menos filtro, más skincare",
-"Confianza en cada look 💄",
-"Belleza sin gastar de más",
-"Cuida tu piel, ama tu reflejo",
-"Makeup is art 🎨",
-"Pequeños detalles, gran cambio"
-];
-
-let contFrases = document.getElementById("frases");
-
-for(let i=0;i<20;i++){
-let span = document.createElement("span");
-span.textContent = frases[Math.floor(Math.random()*frases.length)];
-span.style.left = Math.random()*100 + "%";
-span.style.animationDuration = (8 + Math.random()*10) + "s";
-span.style.fontSize = (14 + Math.random()*10) + "px";
-contFrases.appendChild(span);
+// IMÁGENES REALES
+const img = {
+cuticle:{
+peach:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-peach.jpg",
+strawberry:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-strawberry.jpg",
+rose:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-rose.jpg"
+},
+egg:{
+black:"https://www.shopmissa.com/cdn/shop/products/brush-cleaning-egg-black.jpg",
+purple:"https://www.shopmissa.com/cdn/shop/products/brush-cleaning-egg-purple.jpg"
+},
+wipes:"https://www.shopmissa.com/cdn/shop/products/makeup-remover-wipes.jpg",
+lipstick:"https://www.shopmissa.com/cdn/shop/products/retro-chic-lipstick-mod.jpg",
+foot:{
+chamomile:"https://www.shopmissa.com/cdn/shop/products/chamomile-foot-mask.jpg",
+peeling:"https://www.shopmissa.com/cdn/shop/products/foot-peeling-mask.jpg",
+rose:"https://www.shopmissa.com/cdn/shop/products/rose-foot-mask.jpg"
+},
+acne:"https://www.shopmissa.com/cdn/shop/products/acne-patches.jpg",
+lip:{
+kuu:"https://www.shopmissa.com/cdn/shop/products/magical-lip-stain-kuu.jpg",
+hime:"https://www.shopmissa.com/cdn/shop/products/magical-lip-stain-hime.jpg"
+},
+headband:{
+pink:"https://www.shopmissa.com/cdn/shop/products/headband-pink-ears.jpg",
+purple:"https://www.shopmissa.com/cdn/shop/products/headband-purple-ears.jpg"
+},
+blender:{
+pink:"https://www.shopmissa.com/cdn/shop/products/pink-blender.jpg",
+black:"https://www.shopmissa.com/cdn/shop/products/black-blender.jpg"
 }
+};
 
 // STOCK
 let stock = {
@@ -187,84 +143,69 @@ blender:{pink:1, black:1}
 
 // PRECIOS
 let precios = {
-cuticle:55,
-egg:55,
-wipes:60,
-lipstick:65,
-foot:70,
-acne:60,
-lip:70,
-headband:70,
-blender:45
+cuticle:55, egg:55, wipes:60, lipstick:65,
+foot:70, acne:60, lip:70, headband:70, blender:45
 };
 
-let carrito = [];
-let total = 0;
-
-// PRODUCTOS
 let productos = [
-{tipo:"cuticle", nombre:"Aceite para cutícula hidratante ✨", opciones:["peach","strawberry","rose"]},
-{tipo:"egg", nombre:"Limpiador de brochas compacto", opciones:["black","purple"]},
-{tipo:"wipes", nombre:"Toallitas desmaquillantes suaves 🧴"},
-{tipo:"lipstick", nombre:"Labial matte elegante 💄"},
-{tipo:"foot", nombre:"Mascarilla para pies spa", opciones:["chamomile","peeling","rose"]},
-{tipo:"acne", nombre:"Parches anti acné invisibles"},
-{tipo:"lip", nombre:"Tinta labial larga duración 💋", opciones:["kuu","hime"]},
-{tipo:"headband", nombre:"Diadema facial kawaii 🐰", opciones:["pink","purple"], badge:true},
-{tipo:"blender", nombre:"Esponja maquillaje profesional", opciones:["pink","black"], badge:true}
+{tipo:"cuticle", opciones:["peach","strawberry","rose"]},
+{tipo:"egg", opciones:["black","purple"]},
+{tipo:"wipes"},
+{tipo:"lipstick"},
+{tipo:"foot", opciones:["chamomile","peeling","rose"]},
+{tipo:"acne"},
+{tipo:"lip", opciones:["kuu","hime"]},
+{tipo:"headband", opciones:["pink","purple"]},
+{tipo:"blender", opciones:["pink","black"]}
 ];
 
-// GENERAR PRODUCTOS
-let cont = document.getElementById("productos");
+let carrito=[], total=0;
+
+let cont=document.getElementById("productos");
 
 productos.forEach(p=>{
-let div = document.createElement("div");
-div.className="producto";
+let d=document.createElement("div");
+d.className="producto";
 
-let badge = p.badge ? `<div class="badge">🔥 Popular</div>` : "";
+let image = p.opciones ? img[p.tipo][p.opciones[0]] : img[p.tipo];
 
-let img = `img/${p.tipo}${p.opciones ? "-"+p.opciones[0] : ""}.jpg`;
-
-let select = "";
+let select="";
 if(p.opciones){
-select = `<select onchange="cambiar('${p.tipo}')">
+select=`<select onchange="cambiar('${p.tipo}')">
 ${p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("")}
 </select>`;
 }
 
-div.innerHTML = `
-${badge}
-<img id="img-${p.tipo}" src="${img}">
-<p>${p.nombre}</p>
+d.innerHTML=`
+<img id="img-${p.tipo}" src="${image}">
+<p>${p.tipo}</p>
 <p>$${precios[p.tipo]}</p>
 ${select}
-<p id="stock-${p.tipo}" class="stock"></p>
+<p id="stock-${p.tipo}"></p>
 <button onclick="add('${p.tipo}')">Agregar</button>
 `;
 
-cont.appendChild(div);
+cont.appendChild(d);
 });
 
-// FUNCIONES (igual que antes)
 function cambiar(tipo){
-let val = event.target.value;
-document.getElementById("img-"+tipo).src = `img/${tipo}-${val}.jpg`;
+let val=event.target.value;
+document.getElementById("img-"+tipo).src=img[tipo][val];
 }
 
 function add(tipo){
-let variante=null;
-let select=document.querySelector(`#productos select[onchange*="${tipo}"]`);
-if(select) variante=select.value;
+let sel=document.querySelector(`#productos select[onchange*="${tipo}"]`);
+let v=sel?sel.value:null;
 
 if(typeof stock[tipo]==="object"){
-if(stock[tipo][variante]<=0) return alert("Agotado 😢");
-stock[tipo][variante]--;
+if(stock[tipo][v]<=0)return alert("Agotado");
+stock[tipo][v]--;
 }else{
-if(stock[tipo]<=0) return alert("Agotado 😢");
+if(stock[tipo]<=0)return alert("Agotado");
 stock[tipo]--;
 }
 
-carrito.push({tipo,variante,precio:precios[tipo]});
+carrito.push({tipo,v,precio:precios[tipo]});
 total+=precios[tipo];
 render();
 }
@@ -273,23 +214,18 @@ function render(){
 document.getElementById("count").textContent=carrito.length;
 document.getElementById("total").textContent=total;
 
-let lista=document.getElementById("lista");
-lista.innerHTML="";
-
+let l=document.getElementById("lista");
+l.innerHTML="";
 carrito.forEach((p,i)=>{
-let li=document.createElement("li");
-li.innerHTML=`${p.tipo} ${p.variante||""} - $${p.precio}
-<button onclick="del(${i})">❌</button>`;
-lista.appendChild(li);
+l.innerHTML+=`<li>${p.tipo} ${p.v||""} $${p.precio}
+<button onclick="del(${i})">❌</button></li>`;
 });
-
-mostrarStock();
 }
 
 function del(i){
 let p=carrito[i];
 if(typeof stock[p.tipo]==="object"){
-stock[p.tipo][p.variante]++;
+stock[p.tipo][p.v]++;
 }else{
 stock[p.tipo]++;
 }
@@ -298,41 +234,21 @@ carrito.splice(i,1);
 render();
 }
 
-function mostrarStock(){
-Object.keys(stock).forEach(t=>{
-let el=document.getElementById("stock-"+t);
-if(!el) return;
-
-let totalStock=typeof stock[t]==="object"
-?Object.values(stock[t]).reduce((a,b)=>a+b,0)
-:stock[t];
-
-if(totalStock<=2){
-el.innerHTML="🔥 Últimas piezas";
-el.className="stock low";
-}else{
-el.innerHTML="Disponible";
-}
-});
-}
-
 function comprar(){
-let msg="Hola! Quiero este pedido 😍%0A%0A";
+let msg="Pedido:%0A";
 carrito.forEach(p=>{
-msg+=`✨ ${p.tipo} ${p.variante||""} - $${p.precio}%0A`;
+msg+=`${p.tipo} ${p.v||""} $${p.precio}%0A`;
 });
-msg+=`%0ATotal: $${total}`;
+msg+=`Total $${total}`;
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
 }
 
 function ver(s){
-["inicio","productos","carrito"].forEach(id=>{
-document.getElementById(id).style.display="none";
+["inicio","productos","carrito"].forEach(x=>{
+document.getElementById(x).style.display="none";
 });
-document.getElementById(s).style.display = s==="productos" ? "flex" : "block";
+document.getElementById(s).style.display = s==="productos"?"flex":"block";
 }
-
-mostrarStock();
 
 </script>
 
