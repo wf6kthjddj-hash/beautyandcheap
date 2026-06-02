@@ -5,158 +5,132 @@
 <title>Beauty and Cheap</title>
 
 <style>
-body { margin:0; font-family:Arial; background:#f4f4f4; }
+body {margin:0;font-family:Arial;background:#f7f7f7;}
+nav {background:#000;color:#fff;text-align:center;padding:12px;}
+nav button {background:none;border:none;color:white;margin:8px;font-size:16px;}
 
-nav { background:#000; padding:12px; text-align:center; }
-nav button {
-  color:white; background:none; border:none;
-  margin:10px; font-size:16px; cursor:pointer;
-}
-
-/* INICIO */
-#inicio {
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:linear-gradient(135deg,#ffe4ec,#f3d1ff);
-  overflow:hidden;
-  position:relative;
-}
-
-.frases span {
-  position:absolute;
-  opacity:0.2;
-  animation:flotar 12s linear infinite;
-}
-
-@keyframes flotar {
-  from { transform:translateY(100vh); }
-  to { transform:translateY(-100vh); }
-}
-
-/* PRODUCTOS */
-.grid { display:flex; flex-wrap:wrap; justify-content:center; }
+.grid {display:flex;flex-wrap:wrap;justify-content:center;}
 
 .producto {
-  background:white;
-  border-radius:12px;
-  padding:15px;
-  margin:12px;
-  width:220px;
-  text-align:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+background:white;
+border-radius:12px;
+padding:12px;
+margin:10px;
+width:220px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
 }
 
 .producto img {
-  width:100%;
-  height:160px;
-  object-fit:cover;
-  border-radius:10px;
+width:100%;
+height:160px;
+object-fit:contain;
 }
 
-.stock.low { color:red; font-weight:bold; }
+.stock {font-size:13px;}
+.stock.low {color:red;font-weight:bold;}
 
 button {
-  background:#000;
-  color:white;
-  border:none;
-  padding:8px;
-  width:100%;
-  margin-top:8px;
+background:black;color:white;border:none;
+padding:8px;margin-top:5px;width:100%;
+cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
 <nav>
-<button onclick="ver('inicio')">Inicio</button>
 <button onclick="ver('productos')">Productos</button>
 <button onclick="ver('carrito')">Carrito (<span id="count">0</span>)</button>
 </nav>
 
-<div id="inicio">
-<h1>Beauty and Cheap 💄</h1>
-<p>Glow sin gastar de más ✨</p>
-<button onclick="ver('productos')">Comprar</button>
-</div>
+<div id="productos" class="grid"></div>
 
-<div id="productos" class="grid" style="display:none;"></div>
-
-<div id="carrito" style="display:none; padding:20px;">
-<h2>Carrito 🛒</h2>
+<div id="carrito" style="display:none;padding:20px;">
+<h2>Carrito</h2>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
-<button onclick="comprar()">Comprar por WhatsApp</button>
+<button onclick="comprar()">Comprar</button>
 </div>
 
 <script>
 
-// IMÁGENES REALES
+// 🔥 IMÁGENES QUE SÍ FUNCIONAN
 const img = {
-cuticle:{
-peach:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-peach.jpg",
-strawberry:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-strawberry.jpg",
-rose:"https://www.shopmissa.com/cdn/shop/products/cuticle-oil-rose.jpg"
-},
 egg:{
-black:"https://www.shopmissa.com/cdn/shop/products/brush-cleaning-egg-black.jpg",
-purple:"https://www.shopmissa.com/cdn/shop/products/brush-cleaning-egg-purple.jpg"
+black:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Brush-Cleaning-Egg-Black_800x.jpg",
+purple:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Brush-Cleaning-Egg-Purple_800x.jpg"
 },
-wipes:"https://www.shopmissa.com/cdn/shop/products/makeup-remover-wipes.jpg",
-lipstick:"https://www.shopmissa.com/cdn/shop/products/retro-chic-lipstick-mod.jpg",
+cuticle:{
+peach:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Peach_800x.jpg",
+strawberry:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Strawberry_800x.jpg",
+rose:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Rose_800x.jpg"
+},
+wipes:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Makeup-Remover-Wipes_800x.jpg",
+lipstick:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Retro-Chic-Lipstick-Mod_800x.jpg",
 foot:{
-chamomile:"https://www.shopmissa.com/cdn/shop/products/chamomile-foot-mask.jpg",
-peeling:"https://www.shopmissa.com/cdn/shop/products/foot-peeling-mask.jpg",
-rose:"https://www.shopmissa.com/cdn/shop/products/rose-foot-mask.jpg"
+chamomile:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Chamomile-Foot-Mask_800x.jpg",
+peeling:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Foot-Peeling-Mask_800x.jpg",
+rose:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Rose-Foot-Mask_800x.jpg"
 },
-acne:"https://www.shopmissa.com/cdn/shop/products/acne-patches.jpg",
+acne:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Acne-Patches_800x.jpg",
 lip:{
-kuu:"https://www.shopmissa.com/cdn/shop/products/magical-lip-stain-kuu.jpg",
-hime:"https://www.shopmissa.com/cdn/shop/products/magical-lip-stain-hime.jpg"
+kuu:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Magical-Girl-Lip-Stain-Kuu_800x.jpg",
+hime:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Magical-Girl-Lip-Stain-Hime_800x.jpg"
 },
 headband:{
-pink:"https://www.shopmissa.com/cdn/shop/products/headband-pink-ears.jpg",
-purple:"https://www.shopmissa.com/cdn/shop/products/headband-purple-ears.jpg"
+pink:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Plush-Headband-Pink_800x.jpg",
+purple:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Plush-Headband-Purple_800x.jpg"
 },
 blender:{
-pink:"https://www.shopmissa.com/cdn/shop/products/pink-blender.jpg",
-black:"https://www.shopmissa.com/cdn/shop/products/black-blender.jpg"
+pink:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Wonder-Blender-Pink_800x.jpg",
+black:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Wonder-Blender-Black_800x.jpg"
 }
 };
 
-// STOCK
+// 💰 PRECIOS
+const precios = {
+egg:55, cuticle:55, wipes:60, lipstick:65,
+foot:70, acne:60, lip:70, headband:75, blender:45
+};
+
+// 📦 STOCK REAL
 let stock = {
-cuticle:{peach:1, strawberry:2, rose:2},
-egg:{black:1, purple:1},
+egg:{black:1,purple:1},
+cuticle:{peach:1,strawberry:2,rose:2},
 wipes:5,
 lipstick:1,
-foot:{chamomile:2, peeling:2, rose:2},
+foot:{chamomile:2,peeling:2,rose:2},
 acne:3,
-lip:{kuu:1, hime:1},
-headband:{pink:1, purple:1},
-blender:{pink:1, black:1}
+lip:{kuu:1,hime:1},
+headband:{pink:1,purple:1},
+blender:{pink:1,black:1}
 };
 
-// PRECIOS
-let precios = {
-cuticle:55, egg:55, wipes:60, lipstick:65,
-foot:70, acne:60, lip:70, headband:70, blender:45
+// 🏷️ NOMBRES BONITOS
+const nombres = {
+egg:"AOA Brush Cleaning Egg",
+cuticle:"AOA Cuticle Oil",
+wipes:"AOA Makeup Remover Wipes",
+lipstick:"AOA Retro Chic Lipstick - Mod",
+foot:"AOA Foot Mask",
+acne:"AOA Acne Patches",
+lip:"AOA Magical Lip Stain",
+headband:"AOA Plush Headband Ears",
+blender:"AOA Wonder Blender"
 };
 
-let productos = [
-{tipo:"cuticle", opciones:["peach","strawberry","rose"]},
-{tipo:"egg", opciones:["black","purple"]},
+let productos=[
+{tipo:"egg",opciones:["black","purple"]},
+{tipo:"cuticle",opciones:["peach","strawberry","rose"]},
 {tipo:"wipes"},
 {tipo:"lipstick"},
-{tipo:"foot", opciones:["chamomile","peeling","rose"]},
+{tipo:"foot",opciones:["chamomile","peeling","rose"]},
 {tipo:"acne"},
-{tipo:"lip", opciones:["kuu","hime"]},
-{tipo:"headband", opciones:["pink","purple"]},
-{tipo:"blender", opciones:["pink","black"]}
+{tipo:"lip",opciones:["kuu","hime"]},
+{tipo:"headband",opciones:["pink","purple"]},
+{tipo:"blender",opciones:["pink","black"]}
 ];
 
 let carrito=[], total=0;
@@ -167,49 +141,69 @@ productos.forEach(p=>{
 let d=document.createElement("div");
 d.className="producto";
 
-let image = p.opciones ? img[p.tipo][p.opciones[0]] : img[p.tipo];
+let first = p.opciones ? p.opciones[0] : null;
+let imagen = p.opciones ? img[p.tipo][first] : img[p.tipo];
 
 let select="";
 if(p.opciones){
-select=`<select onchange="cambiar('${p.tipo}')">
+select=`<select onchange="cambiar('${p.tipo}', this)">
 ${p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("")}
 </select>`;
 }
 
 d.innerHTML=`
-<img id="img-${p.tipo}" src="${image}">
-<p>${p.tipo}</p>
+<img id="img-${p.tipo}" src="${imagen}">
+<h4>${nombres[p.tipo]}</h4>
 <p>$${precios[p.tipo]}</p>
 ${select}
-<p id="stock-${p.tipo}"></p>
+<p id="stock-${p.tipo}" class="stock"></p>
 <button onclick="add('${p.tipo}')">Agregar</button>
 `;
 
 cont.appendChild(d);
 });
 
-function cambiar(tipo){
-let val=event.target.value;
-document.getElementById("img-"+tipo).src=img[tipo][val];
+// CAMBIAR VARIANTE
+function cambiar(tipo, el){
+document.getElementById("img-"+tipo).src = img[tipo][el.value];
+mostrarStock(tipo, el.value);
 }
 
+// STOCK EN PANTALLA
+function mostrarStock(tipo, variante=null){
+let s = document.getElementById("stock-"+tipo);
+let cantidad = typeof stock[tipo]==="object" ? stock[tipo][variante] : stock[tipo];
+
+s.textContent = "Stock: " + cantidad;
+s.className = cantidad<=1 ? "stock low" : "stock";
+}
+
+// INIT STOCK
+productos.forEach(p=>{
+let v = p.opciones ? p.opciones[0] : null;
+mostrarStock(p.tipo, v);
+});
+
+// AGREGAR
 function add(tipo){
 let sel=document.querySelector(`#productos select[onchange*="${tipo}"]`);
 let v=sel?sel.value:null;
 
-if(typeof stock[tipo]==="object"){
-if(stock[tipo][v]<=0)return alert("Agotado");
-stock[tipo][v]--;
-}else{
-if(stock[tipo]<=0)return alert("Agotado");
-stock[tipo]--;
-}
+let disponible = typeof stock[tipo]==="object" ? stock[tipo][v] : stock[tipo];
+
+if(disponible<=0) return alert("Agotado");
+
+if(typeof stock[tipo]==="object"){ stock[tipo][v]--; }
+else{ stock[tipo]--; }
 
 carrito.push({tipo,v,precio:precios[tipo]});
 total+=precios[tipo];
+
+mostrarStock(tipo,v);
 render();
 }
 
+// RENDER
 function render(){
 document.getElementById("count").textContent=carrito.length;
 document.getElementById("total").textContent=total;
@@ -217,37 +211,39 @@ document.getElementById("total").textContent=total;
 let l=document.getElementById("lista");
 l.innerHTML="";
 carrito.forEach((p,i)=>{
-l.innerHTML+=`<li>${p.tipo} ${p.v||""} $${p.precio}
+l.innerHTML+=`<li>${nombres[p.tipo]} ${p.v||""} - $${p.precio}
 <button onclick="del(${i})">❌</button></li>`;
 });
 }
 
+// ELIMINAR
 function del(i){
 let p=carrito[i];
-if(typeof stock[p.tipo]==="object"){
-stock[p.tipo][p.v]++;
-}else{
-stock[p.tipo]++;
-}
+
+if(typeof stock[p.tipo]==="object"){ stock[p.tipo][p.v]++; }
+else{ stock[p.tipo]++; }
+
 total-=p.precio;
 carrito.splice(i,1);
+
+mostrarStock(p.tipo,p.v);
 render();
 }
 
+// WHATSAPP
 function comprar(){
 let msg="Pedido:%0A";
 carrito.forEach(p=>{
-msg+=`${p.tipo} ${p.v||""} $${p.precio}%0A`;
+msg+=`${nombres[p.tipo]} ${p.v||""} $${p.precio}%0A`;
 });
 msg+=`Total $${total}`;
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
 }
 
 function ver(s){
-["inicio","productos","carrito"].forEach(x=>{
-document.getElementById(x).style.display="none";
-});
-document.getElementById(s).style.display = s==="productos"?"flex":"block";
+document.getElementById("productos").style.display="none";
+document.getElementById("carrito").style.display="none";
+document.getElementById(s).style.display="block";
 }
 
 </script>
