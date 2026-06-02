@@ -3,145 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <title>Beauty & Cheap</title>
-
 <style>
-body{
-  margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:#f6f6f6;
-}
-
-/* HEADER */
-header{
-  background:white;
-  padding:20px;
-  text-align:center;
-  font-size:26px;
-  letter-spacing:3px;
-  border-bottom:1px solid #eee;
-}
-
-/* HERO */
-.hero{
-  height:180px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-  color:white;
-  background:linear-gradient(270deg,#ff1493,#ff69b4,#ff85c1);
-  background-size:600% 600%;
-  animation:move 10s infinite;
-}
-
-@keyframes move{
-  0%{background-position:0%}
-  50%{background-position:100%}
-  100%{background-position:0%}
-}
-
-/* GRID */
-.products{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  padding:20px;
-}
-
-/* CARD */
-.card{
-  background:white;
-  border-radius:16px;
-  padding:15px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-5px);
-}
-
-.card img{
-  width:100%;
-  height:180px;
-  object-fit:contain;
-}
-
-h4{
-  font-size:15px;
-  margin:10px 0;
-}
-
-.price{
-  font-weight:bold;
-}
-
-/* SELECT */
-select{
-  width:100%;
-  padding:8px;
-  margin-top:5px;
-}
-
-/* STOCK */
-.stock{
-  font-size:13px;
-  margin-top:5px;
-}
-
-.low{
-  color:red;
-  font-weight:bold;
-}
-
-/* BUTTON */
-button{
-  width:100%;
-  margin-top:10px;
-  padding:10px;
-  background:black;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-/* CART */
-.cart{
-  position:fixed;
-  right:0;
-  top:0;
-  width:280px;
-  height:100%;
-  background:white;
-  box-shadow:-4px 0 15px rgba(0,0,0,0.1);
-  padding:15px;
-  overflow:auto;
-}
-
-.whatsapp{
-  background:#25D366;
-  margin-top:10px;
-}
+body{font-family:Arial;margin:0;background:#fafafa;color:#333}
+header{background:#111;color:#fff;padding:15px;text-align:center;font-size:22px}
+nav{display:flex;justify-content:center;gap:20px;background:#222;padding:10px}
+nav button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer}
+.section{display:none;padding:20px}
+.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.card{background:#fff;border-radius:10px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:10px}
+button.buy{background:#111;color:#fff;border:none;padding:8px;margin-top:10px;width:100%;cursor:pointer}
+select{width:100%;padding:5px;margin-top:5px}
+.cart{position:fixed;right:0;top:0;width:280px;height:100%;background:#fff;border-left:1px solid #ccc;padding:10px;overflow:auto}
 </style>
-
 </head>
 
 <body>
 
-<header>BEAUTY & CHEAP</header>
+<header>Beauty & Cheap 💄</header>
 
-<div class="hero">
-✨ Glow up diario — Maquillaje accesible ✨
+<nav>
+<button onclick="show('home')">Inicio</button>
+<button onclick="show('shop')">Tienda</button>
+</nav>
+
+<div id="home" class="section active">
+<h2>✨ Tu glow empieza aquí ✨</h2>
+<p>Maquillaje accesible, cute y de calidad. Porque verte bien no debe costar caro 💋</p>
 </div>
 
-<div class="products" id="products"></div>
+<div id="shop" class="section">
+<div class="grid" id="products"></div>
+</div>
 
 <div class="cart">
 <h3>🛒 Carrito</h3>
-<div id="cartItems"></div>
-<h4>Total: $<span id="total">0</span></h4>
-<button class="whatsapp" onclick="comprar()">Comprar por WhatsApp</button>
+<ul id="cart"></ul>
+<p>Total: $<span id="total">0</span></p>
 </div>
 
 <script>
@@ -205,10 +104,10 @@ stock:{rose:2}
 },
 
 {
-name:"AOA Invisible Acne Patches 10mm",
+name:"AOA Skin Invisible Acne Patches 10mm",
 price:65,
 img:"acne_patches.jpg",
-options:["Único"],
+options:["10mm"],
 stock:{default:3}
 },
 
@@ -241,94 +140,67 @@ stock:{pink:1,black:1}
 let cart=[];
 let total=0;
 
-/* RENDER */
-function renderProducts(){
+function render(){
 const container=document.getElementById("products");
 container.innerHTML="";
 
 products.forEach((p,i)=>{
+let opt=p.options.map(o=>`<option>${o}</option>`).join("");
 
-let opts=p.options.map(o=>`<option>${o}</option>`).join("");
-
-let div=document.createElement("div");
-div.className="card";
-
-div.innerHTML=`
-<img src="${p.img}">
+container.innerHTML+=`
+<div class="card">
+<img src="images/${p.img}">
 <h4>${p.name}</h4>
-<p class="price">$${p.price}</p>
-
-<select id="opt-${i}" onchange="updateStock(${i})">
-${opts}
-</select>
-
-<p id="stock-${i}" class="stock"></p>
-
-<button onclick="addToCart(${i})">Agregar</button>
+<p>$${p.price}</p>
+<select id="opt${i}">${opt}</select>
+<p id="stock${i}"></p>
+<button class="buy" onclick="add(${i})">Agregar</button>
+</div>
 `;
 
-container.appendChild(div);
 updateStock(i);
 });
 }
 
-/* STOCK */
 function updateStock(i){
 let p=products[i];
-let val=document.getElementById(`opt-${i}`).value.toLowerCase();
-
-let s=p.stock[val] ?? p.stock.default;
-
-let el=document.getElementById(`stock-${i}`);
-el.innerText="Quedan "+s+" piezas";
-
-el.className="stock";
-if(s<=1) el.classList.add("low");
+let sel=document.getElementById("opt"+i).value.toLowerCase().split(" ")[0];
+let stock=p.stock[sel] ?? p.stock.default;
+document.getElementById("stock"+i).innerText="Stock: "+stock;
 }
 
-/* ADD */
-function addToCart(i){
+function add(i){
 let p=products[i];
-let val=document.getElementById(`opt-${i}`).value.toLowerCase();
+let sel=document.getElementById("opt"+i).value.toLowerCase().split(" ")[0];
 
-let key=p.stock[val]!==undefined?val:"default";
+if((p.stock[sel] ?? p.stock.default)<=0){
+alert("Agotado 😢");
+return;
+}
 
-if(p.stock[key]<=0) return alert("Agotado");
+p.stock[sel]--;
+updateStock(i);
 
-p.stock[key]--;
-cart.push({name:p.name+" - "+val,price:p.price});
+cart.push(p.name+" ("+sel+") - $"+p.price);
 total+=p.price;
 
-renderProducts();
-renderCart();
-}
-
-/* CART */
-function renderCart(){
-let c=document.getElementById("cartItems");
-c.innerHTML="";
-
-cart.forEach(item=>{
-c.innerHTML+=`<p>${item.name} - $${item.price}</p>`;
-});
-
+document.getElementById("cart").innerHTML=cart.map(c=>"<li>"+c+"</li>").join("");
 document.getElementById("total").innerText=total;
 }
 
-/* WHATSAPP */
-function comprar(){
-let msg="Hola! Quiero pedir:%0A";
-
-cart.forEach(i=>{
-msg+=i.name+"%0A";
-});
-
-msg+="Total: $"+total;
-
-window.open("https://wa.me/52664XXXXXXXX?text="+msg);
+function show(sec){
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(sec).classList.add("active");
 }
 
-renderProducts();
+render();
+
+document.addEventListener("change", e=>{
+if(e.target.tagName==="SELECT"){
+let i=e.target.id.replace("opt","");
+updateStock(i);
+}
+});
 
 </script>
 
