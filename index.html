@@ -20,6 +20,7 @@ text-align:center;
 font-size:22px;
 }
 
+/* NAV (igual que el tuyo) */
 nav{
 display:flex;
 justify-content:center;
@@ -75,7 +76,7 @@ padding:5px;
 margin-top:5px;
 }
 
-/* CART ORIGINAL STYLE (FLOTANTE SIMPLE) */
+/* 🛒 CARRITO DESPLEGABLE (SOLO AQUÍ CAMBIADO) */
 .cart{
 position:fixed;
 right:0;
@@ -86,6 +87,14 @@ background:#fff;
 border-left:1px solid #ccc;
 padding:10px;
 overflow:auto;
+
+transform:translateX(100%);
+transition:0.3s ease;
+z-index:9999;
+}
+
+.cart.open{
+transform:translateX(0);
 }
 
 </style>
@@ -93,7 +102,10 @@ overflow:auto;
 
 <body>
 
-<header>Beauty & Cheap 💄</header>
+<header>
+Beauty & Cheap 💄
+<button onclick="toggleCart()">🛒</button>
+</header>
 
 <nav>
 <button onclick="show('home')">Inicio</button>
@@ -109,7 +121,7 @@ overflow:auto;
 <div class="grid" id="products"></div>
 </div>
 
-<!-- CART -->
+<!-- 🛒 CART (MISMO CONTENIDO, SOLO AHORA DESPLEGABLE) -->
 <div class="cart">
 <h3>🛒 Carrito</h3>
 <ul id="cart"></ul>
@@ -118,9 +130,8 @@ overflow:auto;
 
 <script>
 
-/* 🔥 PRODUCTOS COMPLETOS (TODOS LOS TUYOS) */
+/* 🔥 PRODUCTOS (NO TOCADO) */
 const products=[
-
 {
 name:"AOA Brush Cleaning Egg",
 price:45,
@@ -224,7 +235,6 @@ options:[
 ],
 stock:{pink:1,black:1}
 }
-
 ];
 
 let cart=[];
@@ -261,7 +271,7 @@ updateStock(i);
 });
 }
 
-/* STOCK REAL */
+/* STOCK */
 function getStock(p,key){
 return p.stock[key] ?? 0;
 }
@@ -311,9 +321,14 @@ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(sec).classList.add("active");
 }
 
+/* 🛒 TOGGLE CARRITO (NUEVO) */
+function toggleCart(){
+document.querySelector(".cart").classList.toggle("open");
+}
+
 render();
 
-/* FIX STOCK CHANGE */
+/* FIX SELECT */
 document.addEventListener("change",e=>{
 if(e.target.tagName==="SELECT"){
 let i=e.target.id.replace("opt","");
