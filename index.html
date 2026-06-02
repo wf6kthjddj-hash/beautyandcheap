@@ -7,71 +7,127 @@
 <style>
 body{
   margin:0;
-  font-family:Arial;
-  background:#fff0f5;
+  font-family:'Segoe UI',sans-serif;
+  background:#f8f8f8;
 }
 
+/* HEADER */
 header{
-  background:linear-gradient(45deg,#ff69b4,#ff1493);
-  color:white;
-  text-align:center;
+  background:white;
   padding:20px;
-  font-size:28px;
-}
-
-.hero{
   text-align:center;
-  padding:40px;
-  font-size:20px;
-  animation:fade 5s infinite alternate;
+  font-size:26px;
+  letter-spacing:3px;
+  border-bottom:1px solid #eee;
 }
 
-@keyframes fade{
-  from{opacity:0.5}
-  to{opacity:1}
+/* HERO */
+.hero{
+  height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  color:white;
+  background:linear-gradient(270deg,#ff1493,#ff69b4,#ff85c1);
+  background-size:600% 600%;
+  animation:move 10s infinite;
 }
 
+@keyframes move{
+  0%{background-position:0%}
+  50%{background-position:100%}
+  100%{background-position:0%}
+}
+
+/* GRID */
 .products{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:20px;
   padding:20px;
 }
 
+/* CARD */
 .card{
   background:white;
-  border-radius:15px;
-  padding:10px;
-  text-align:center;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
+  border-radius:16px;
+  padding:15px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+  transition:.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
 }
 
 .card img{
   width:100%;
-  height:150px;
-  object-fit:cover;
-  border-radius:10px;
+  height:180px;
+  object-fit:contain;
 }
 
+/* TEXT */
+h4{
+  font-size:15px;
+  margin:10px 0;
+}
+
+.price{
+  font-weight:bold;
+  margin:5px 0;
+}
+
+/* SELECT */
+select{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+}
+
+/* STOCK */
+.stock{
+  font-size:13px;
+  margin-top:5px;
+}
+
+.low{
+  color:red;
+  font-weight:bold;
+}
+
+/* BUTTON */
 button{
-  background:#ff1493;
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  background:black;
   color:white;
   border:none;
-  padding:10px;
-  border-radius:10px;
   cursor:pointer;
+  border-radius:8px;
 }
 
+/* CART */
 .cart{
   position:fixed;
   right:0;
   top:0;
-  width:250px;
+  width:280px;
   height:100%;
   background:white;
-  border-left:2px solid #ccc;
-  padding:10px;
+  box-shadow:-4px 0 15px rgba(0,0,0,0.1);
+  padding:15px;
   overflow:auto;
+}
+
+.cart h3{
+  margin-top:0;
+}
+
+.whatsapp{
+  background:#25D366;
+  margin-top:10px;
 }
 
 </style>
@@ -79,100 +135,187 @@ button{
 
 <body>
 
-<header>💖 Beauty & Cheap 💖</header>
+<header>BEAUTY & CHEAP</header>
 
 <div class="hero">
-✨ Glow up todos los días ✨<br>
-💄 Maquillaje bonito, precios mejores 💄
+✨ Maquillaje bonito. Precios irresistibles. ✨
 </div>
 
 <div class="products" id="products"></div>
 
 <div class="cart">
 <h3>🛒 Carrito</h3>
-<div id="cart"></div>
+<div id="cartItems"></div>
 <h4>Total: $<span id="total">0</span></h4>
+<button class="whatsapp" onclick="comprar()">Comprar por WhatsApp</button>
 </div>
 
 <script>
 
-const products = [
+const products=[
 
-{ name:"AOA Brush Cleaning Egg - Black", price:45, stock:1, img:"images/egg_black.jpg"},
-{ name:"AOA Brush Cleaning Egg - Purple", price:45, stock:1, img:"images/egg_purple.jpg"},
+{
+name:"AOA Brush Cleaning Egg",
+price:45,
+img:"egg_black.jpg",
+options:["Black","Purple"],
+stock:{black:1,purple:1}
+},
 
-{ name:"AOA Cuticle Revitalizing Pen - Peach", price:55, stock:1, img:"images/cuticle_peach.jpg"},
-{ name:"AOA Cuticle Revitalizing Pen - Strawberry", price:55, stock:2, img:"images/cuticle_strawberry.jpg"},
-{ name:"AOA Cuticle Revitalizing Pen - Rose", price:55, stock:2, img:"images/cuticle_rose.jpg"},
+{
+name:"AOA Cuticle Revitalizing Pen",
+price:55,
+img:"cuticle_peach.jpg",
+options:["Peach","Strawberry","Rose"],
+stock:{peach:1,strawberry:2,rose:2}
+},
 
-{ name:"AOA Makeup Remover Wipes - Unscented", price:50, stock:5, img:"images/wipes.jpg"},
+{
+name:"AOA Makeup Remover Wipes",
+price:50,
+img:"wipes.jpg",
+options:["Único"],
+stock:{default:5}
+},
 
-{ name:"AOA Retro Chic Lipstick - Mod", price:70, stock:1, img:"images/lipstick_mod.jpg"},
+{
+name:"AOA Retro Chic Lipstick",
+price:70,
+img:"lipstick_mod.jpg",
+options:["Mod"],
+stock:{mod:1}
+},
 
-{ name:"AOA Skin Chamomile Foot Mask", price:65, stock:2, img:"images/foot_chamomile.jpg"},
-{ name:"AOA Skin Foot Peeling Mask", price:75, stock:2, img:"images/foot_peeling.jpg"},
-{ name:"AOA Skin Rose Foot Mask", price:65, stock:2, img:"images/foot_rose.jpg"},
+{
+name:"AOA Foot Masks",
+price:65,
+img:"foot_chamomile.jpg",
+options:["Chamomile","Peeling","Rose"],
+stock:{chamomile:2,peeling:2,rose:2}
+},
 
-{ name:"AOA Invisible Acne Patches 10mm", price:65, stock:3, img:"images/acne_patches.jpg"},
+{
+name:"AOA Acne Patches",
+price:65,
+img:"acne_patches.jpg",
+options:["Único"],
+stock:{default:3}
+},
 
-{ name:"AOA Magical Girl Lip Stain - Kuu", price:75, stock:1, img:"images/lip_kuu.jpg"},
-{ name:"AOA Magical Girl Lip Stain - Hime", price:75, stock:1, img:"images/lip_hime.jpg"},
+{
+name:"AOA Magical Girl Lip Stain",
+price:75,
+img:"lip_kuu.jpg",
+options:["Kuu","Hime"],
+stock:{kuu:1,hime:1}
+},
 
-{ name:"AOA Plush Headband - Pink Ears", price:45, stock:1, img:"images/headband_pink_ears.jpg"},
-{ name:"AOA Plush Headband - Purple Ears", price:45, stock:1, img:"images/headband_purple_ears.jpg"},
+{
+name:"AOA Plush Headband",
+price:45,
+img:"headband_pink_ears.jpg",
+options:["Pink","Purple"],
+stock:{pink:1,purple:1}
+},
 
-{ name:"AOA Wonder Blender - Pink", price:45, stock:1, img:"images/blender_pink.jpg"},
-{ name:"AOA Wonder Blender - Black", price:45, stock:1, img:"images/blender_black.jpg"}
+{
+name:"AOA Wonder Blender",
+price:45,
+img:"blender_pink.jpg",
+options:["Pink","Black"],
+stock:{pink:1,black:1}
+}
 
 ];
 
-let cart = [];
+let cart=[];
+let total=0;
 
+/* RENDER PRODUCTOS */
 function renderProducts(){
-  const container = document.getElementById("products");
-  container.innerHTML="";
+const container=document.getElementById("products");
+container.innerHTML="";
 
-  products.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.className="card";
+products.forEach((p,i)=>{
 
-    div.innerHTML=`
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <p>$${p.price}</p>
-      <p>Quedan ${p.stock}</p>
-      <button onclick="addToCart(${i})">Agregar</button>
-    `;
+let opts=p.options.map(o=>`<option>${o}</option>`).join("");
 
-    container.appendChild(div);
-  });
+let div=document.createElement("div");
+div.className="card";
+
+div.innerHTML=`
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p class="price">$${p.price}</p>
+
+<select id="opt-${i}" onchange="updateStock(${i})">
+${opts}
+</select>
+
+<p id="stock-${i}" class="stock"></p>
+
+<button onclick="addToCart(${i})">Agregar</button>
+`;
+
+container.appendChild(div);
+updateStock(i);
+});
 }
 
+/* STOCK */
+function updateStock(i){
+let p=products[i];
+let val=document.getElementById(`opt-${i}`).value.toLowerCase();
+
+let s=p.stock[val] ?? p.stock.default;
+
+let el=document.getElementById(`stock-${i}`);
+el.innerText="Quedan "+s+" piezas";
+
+el.className="stock";
+if(s<=1) el.classList.add("low");
+}
+
+/* AGREGAR */
 function addToCart(i){
-  if(products[i].stock<=0) return;
+let p=products[i];
+let val=document.getElementById(`opt-${i}`).value.toLowerCase();
 
-  products[i].stock--;
-  cart.push(products[i]);
+let key=p.stock[val]!==undefined?val:"default";
 
-  renderProducts();
-  renderCart();
+if(p.stock[key]<=0) return alert("Agotado");
+
+p.stock[key]--;
+cart.push({name:p.name+" - "+val,price:p.price});
+total+=p.price;
+
+renderProducts();
+renderCart();
 }
 
+/* CARRITO */
 function renderCart(){
-  const c=document.getElementById("cart");
-  const total=document.getElementById("total");
+let c=document.getElementById("cartItems");
+c.innerHTML="";
 
-  c.innerHTML="";
-  let sum=0;
+cart.forEach((item,i)=>{
+c.innerHTML+=`<p>${item.name} - $${item.price}</p>`;
+});
 
-  cart.forEach((p,i)=>{
-    sum+=p.price;
-    c.innerHTML+=`
-      <p>${p.name} - $${p.price}</p>
-    `;
-  });
+document.getElementById("total").innerText=total;
+}
 
-  total.innerText=sum;
+/* WHATSAPP */
+function comprar(){
+let msg="Hola! Quiero pedir:%0A";
+
+cart.forEach(i=>{
+msg+=i.name+"%0A";
+});
+
+msg+="Total: $"+total;
+
+window.open("https://wa.me/52664XXXXXXXX?text="+msg);
 }
 
 renderProducts();
