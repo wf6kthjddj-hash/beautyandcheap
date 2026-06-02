@@ -12,10 +12,10 @@ nav button { color:white; background:none; border:none; margin:10px; font-size:1
 .seccion { display:none; padding:20px; }
 .activa { display:block; }
 
-.producto { border:1px solid #ccc; padding:10px; margin:10px; }
+.producto { border:1px solid #ccc; padding:10px; margin:10px; width:200px; display:inline-block; }
+.producto img { width:100%; height:150px; object-fit:cover; }
 
-button { padding:8px; cursor:pointer; }
-
+button { padding:8px; cursor:pointer; margin-top:5px; }
 </style>
 </head>
 
@@ -27,33 +27,72 @@ button { padding:8px; cursor:pointer; }
   <button onclick="mostrar('carrito')">Carrito (<span id="contador">0</span>)</button>
 </nav>
 
-<!-- INICIO -->
 <div id="inicio" class="seccion activa">
-  <h1>Bienvenida a Beauty and Cheap 💄</h1>
-  <p>Los mejores productos al mejor precio</p>
+  <h1>Beauty and Cheap 💄</h1>
+  <p>Compra inteligente. Vende con estilo 😉</p>
 </div>
+
+<div id="productos" class="seccion">
+
+<h2>Productos</h2>
 
 <!-- PRODUCTOS -->
-<div id="productos" class="seccion">
-  <h2>Productos</h2>
 
-  <div class="producto">
-    <p>Labial 💋 - $50</p>
-    <button onclick="agregar('Labial',50)">Agregar</button>
-  </div>
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?makeup,brush">
+<p>Brush Cleaning Egg - $55</p>
+<button onclick="agregar('Brush Cleaning Egg',55)">Agregar</button>
+</div>
 
-  <div class="producto">
-    <p>Brocha - $35</p>
-    <button onclick="agregar('Brocha',35)">Agregar</button>
-  </div>
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?lipstick">
+<p>Retro Lipstick - $65</p>
+<button onclick="agregar('Lipstick',65)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?lip,tint">
+<p>Lip Stain - $70</p>
+<button onclick="agregar('Lip Stain',70)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?nails,oil">
+<p>Cuticle Oil - $55</p>
+<button onclick="agregar('Cuticle Oil',55)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?face,mask">
+<p>Foot Mask - $65</p>
+<button onclick="agregar('Foot Mask',65)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?skincare">
+<p>Acne Patches - $60</p>
+<button onclick="agregar('Acne Patches',60)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?makeup,sponge">
+<p>Beauty Blender - $45</p>
+<button onclick="agregar('Blender',45)">Agregar</button>
+</div>
+
+<div class="producto">
+<img src="https://source.unsplash.com/200x200/?spa,headband">
+<p>Headband - $70</p>
+<button onclick="agregar('Headband',70)">Agregar</button>
+</div>
 
 </div>
 
-<!-- CARRITO -->
 <div id="carrito" class="seccion">
-  <h2>Tu carrito 🛒</h2>
-  <ul id="lista"></ul>
-  <p>Total: $<span id="total">0</span></p>
+<h2>Tu carrito 🛒</h2>
+<ul id="lista"></ul>
+<p>Total: $<span id="total">0</span></p>
+<button onclick="vaciar()">Vaciar carrito</button>
 </div>
 
 <script>
@@ -61,7 +100,6 @@ button { padding:8px; cursor:pointer; }
 let carrito = [];
 let total = 0;
 
-// cambiar secciones
 function mostrar(seccion) {
   document.querySelectorAll('.seccion').forEach(div => {
     div.classList.remove('activa');
@@ -69,17 +107,37 @@ function mostrar(seccion) {
   document.getElementById(seccion).classList.add('activa');
 }
 
-// agregar productos
 function agregar(nombre, precio) {
   carrito.push({nombre, precio});
   total += precio;
+  actualizar();
+}
 
+function eliminar(index) {
+  total -= carrito[index].precio;
+  carrito.splice(index,1);
+  actualizar();
+}
+
+function vaciar() {
+  carrito = [];
+  total = 0;
+  actualizar();
+}
+
+function actualizar() {
   document.getElementById("contador").textContent = carrito.length;
   document.getElementById("total").textContent = total;
 
-  let li = document.createElement("li");
-  li.textContent = nombre + " - $" + precio;
-  document.getElementById("lista").appendChild(li);
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  carrito.forEach((item, index) => {
+    let li = document.createElement("li");
+    li.innerHTML = item.nombre + " - $" + item.precio + 
+    ` <button onclick="eliminar(${index})">❌</button>`;
+    lista.appendChild(li);
+  });
 }
 
 </script>
