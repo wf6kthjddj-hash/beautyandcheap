@@ -8,7 +8,7 @@
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
-  background:#f8f8f8;
+  background:#f6f6f6;
 }
 
 /* HEADER */
@@ -23,11 +23,11 @@ header{
 
 /* HERO */
 .hero{
-  height:200px;
+  height:180px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:22px;
+  font-size:20px;
   color:white;
   background:linear-gradient(270deg,#ff1493,#ff69b4,#ff85c1);
   background-size:600% 600%;
@@ -67,7 +67,6 @@ header{
   object-fit:contain;
 }
 
-/* TEXT */
 h4{
   font-size:15px;
   margin:10px 0;
@@ -75,7 +74,6 @@ h4{
 
 .price{
   font-weight:bold;
-  margin:5px 0;
 }
 
 /* SELECT */
@@ -104,8 +102,8 @@ button{
   background:black;
   color:white;
   border:none;
-  cursor:pointer;
   border-radius:8px;
+  cursor:pointer;
 }
 
 /* CART */
@@ -121,16 +119,12 @@ button{
   overflow:auto;
 }
 
-.cart h3{
-  margin-top:0;
-}
-
 .whatsapp{
   background:#25D366;
   margin-top:10px;
 }
-
 </style>
+
 </head>
 
 <body>
@@ -138,7 +132,7 @@ button{
 <header>BEAUTY & CHEAP</header>
 
 <div class="hero">
-✨ Maquillaje bonito. Precios irresistibles. ✨
+✨ Glow up diario — Maquillaje accesible ✨
 </div>
 
 <div class="products" id="products"></div>
@@ -171,7 +165,7 @@ stock:{peach:1,strawberry:2,rose:2}
 },
 
 {
-name:"AOA Makeup Remover Wipes",
+name:"AOA Makeup Remover Wipes - Unscented",
 price:50,
 img:"wipes.jpg",
 options:["Único"],
@@ -179,7 +173,7 @@ stock:{default:5}
 },
 
 {
-name:"AOA Retro Chic Lipstick",
+name:"AOA Retro Chic Lipstick - Mod",
 price:70,
 img:"lipstick_mod.jpg",
 options:["Mod"],
@@ -187,15 +181,31 @@ stock:{mod:1}
 },
 
 {
-name:"AOA Foot Masks",
+name:"AOA Skin Chamomile Foot Sheet Mask",
 price:65,
 img:"foot_chamomile.jpg",
-options:["Chamomile","Peeling","Rose"],
-stock:{chamomile:2,peeling:2,rose:2}
+options:["Chamomile"],
+stock:{chamomile:2}
 },
 
 {
-name:"AOA Acne Patches",
+name:"AOA Skin Foot Peeling Mask",
+price:75,
+img:"foot_peeling.jpg",
+options:["Peeling"],
+stock:{peeling:2}
+},
+
+{
+name:"AOA Skin Rose Foot Sheet Mask",
+price:65,
+img:"foot_rose.jpg",
+options:["Rose"],
+stock:{rose:2}
+},
+
+{
+name:"AOA Invisible Acne Patches 10mm",
 price:65,
 img:"acne_patches.jpg",
 options:["Único"],
@@ -211,10 +221,10 @@ stock:{kuu:1,hime:1}
 },
 
 {
-name:"AOA Plush Headband",
+name:"AOA Soft + Plush Headband",
 price:45,
 img:"headband_pink_ears.jpg",
-options:["Pink","Purple"],
+options:["Pink Ears","Purple Ears"],
 stock:{pink:1,purple:1}
 },
 
@@ -231,7 +241,7 @@ stock:{pink:1,black:1}
 let cart=[];
 let total=0;
 
-/* RENDER PRODUCTOS */
+/* RENDER */
 function renderProducts(){
 const container=document.getElementById("products");
 container.innerHTML="";
@@ -276,7 +286,7 @@ el.className="stock";
 if(s<=1) el.classList.add("low");
 }
 
-/* AGREGAR */
+/* ADD */
 function addToCart(i){
 let p=products[i];
 let val=document.getElementById(`opt-${i}`).value.toLowerCase();
@@ -293,12 +303,12 @@ renderProducts();
 renderCart();
 }
 
-/* CARRITO */
+/* CART */
 function renderCart(){
 let c=document.getElementById("cartItems");
 c.innerHTML="";
 
-cart.forEach((item,i)=>{
+cart.forEach(item=>{
 c.innerHTML+=`<p>${item.name} - $${item.price}</p>`;
 });
 
