@@ -7,10 +7,25 @@
 <style>
 body { font-family: Arial; margin:0; background:#f4f4f4; }
 
-nav { background:#000; padding:12px; text-align:center; }
-nav button { color:white; background:none; border:none; margin:10px; font-size:16px; }
+nav {
+  background:#000;
+  padding:12px;
+  text-align:center;
+}
+nav button {
+  color:white;
+  background:none;
+  border:none;
+  margin:10px;
+  font-size:16px;
+  cursor:pointer;
+}
 
-.grid { display:flex; flex-wrap:wrap; justify-content:center; }
+.grid {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
 
 .producto {
   background:white;
@@ -20,6 +35,7 @@ nav button { color:white; background:none; border:none; margin:10px; font-size:1
   width:220px;
   text-align:center;
   box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  position:relative;
 }
 
 .producto img {
@@ -27,6 +43,17 @@ nav button { color:white; background:none; border:none; margin:10px; font-size:1
   height:160px;
   object-fit:cover;
   border-radius:10px;
+}
+
+.badge {
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:red;
+  color:white;
+  padding:4px 8px;
+  font-size:12px;
+  border-radius:6px;
 }
 
 .stock { font-size:13px; margin-top:5px; }
@@ -57,7 +84,7 @@ select { width:100%; padding:6px; margin-top:5px; }
 <div id="productos" class="grid"></div>
 
 <div id="carrito" style="display:none; padding:20px;">
-<h2>Carrito</h2>
+<h2>Tu carrito 🛒</h2>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
 <button onclick="comprar()">Comprar por WhatsApp</button>
@@ -65,48 +92,55 @@ select { width:100%; padding:6px; margin-top:5px; }
 
 <script>
 
-// STOCK
+// STOCK REAL
 let stock = {
 cuticle:{peach:1, strawberry:2, rose:2},
-blender:{pink:1, black:1},
-headband:{pink:1, purple:1},
-lip:{kuu:1, hime:1},
 egg:{black:1, purple:1},
 wipes:5,
-foot:{chamomile:2, rose:2, peeling:2},
+lipstick:1,
+foot:{chamomile:2, peeling:2, rose:2},
 acne:3,
-lipstick:1
+lip:{kuu:1, hime:1},
+headband:{pink:1, purple:1},
+blender:{pink:1, black:1}
+};
+
+// PRECIOS (ya pensados para vender)
+let precios = {
+cuticle:55,
+egg:55,
+wipes:65,
+lipstick:65,
+foot:70,
+acne:60,
+lip:70,
+headband:70,
+blender:45
 };
 
 let carrito = [];
 let total = 0;
 
-// PRODUCTOS
+// PRODUCTOS CON NOMBRES QUE VENDEN
 let productos = [
 
-{nombre:"Cuticle Oil", precio:55, tipo:"cuticle",
-opciones:["peach","strawberry","rose"]},
+{tipo:"cuticle", nombre:"Aceite para cutícula hidratante ✨", opciones:["peach","strawberry","rose"]},
 
-{nombre:"Wonder Blender", precio:45, tipo:"blender",
-opciones:["pink","black"]},
+{tipo:"egg", nombre:"Limpiador de brochas compacto", opciones:["black","purple"]},
 
-{nombre:"Headband Orejitas", precio:70, tipo:"headband",
-opciones:["pink","purple"]},
+{tipo:"wipes", nombre:"Toallitas desmaquillantes (pack)"},
 
-{nombre:"Lip Stain", precio:70, tipo:"lip",
-opciones:["kuu","hime"]},
+{tipo:"lipstick", nombre:"Labial matte elegante 💄"},
 
-{nombre:"Brush Cleaner", precio:55, tipo:"egg",
-opciones:["black","purple"]},
+{tipo:"foot", nombre:"Mascarilla para pies spa", opciones:["chamomile","peeling","rose"]},
 
-{nombre:"Foot Mask", precio:70, tipo:"foot",
-opciones:["chamomile","rose","peeling"]},
+{tipo:"acne", nombre:"Parches anti acné invisibles"},
 
-{nombre:"Wipes", precio:65, tipo:"wipes"},
+{tipo:"lip", nombre:"Tinta labial larga duración 💋", opciones:["kuu","hime"]},
 
-{nombre:"Acne Patch", precio:60, tipo:"acne"},
+{tipo:"headband", nombre:"Diadema facial kawaii 🐰", opciones:["pink","purple"], badge:true},
 
-{nombre:"Lipstick Mod", precio:65, tipo:"lipstick"}
+{tipo:"blender", nombre:"Esponja maquillaje profesional", opciones:["pink","black"], badge:true}
 
 ];
 
@@ -118,22 +152,25 @@ productos.forEach(p=>{
 let div = document.createElement("div");
 div.className="producto";
 
-let img = `<img id="img-${p.tipo}" src="img/${p.tipo}-${p.opciones ? p.opciones[0] : ''}.jpg">`;
+let badge = p.badge ? `<div class="badge">🔥 Popular</div>` : "";
+
+let img = `img/${p.tipo}${p.opciones ? "-"+p.opciones[0] : ""}.jpg`;
 
 let select = "";
-
 if(p.opciones){
-select = `<select onchange="cambiar('${p.tipo}')">` +
-p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("") +
-`</select>`;
+select = `<select onchange="cambiar('${p.tipo}')">
+${p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("")}
+</select>`;
 }
 
 div.innerHTML = `
-${img}
-<p>${p.nombre} - $${p.precio}</p>
+${badge}
+<img id="img-${p.tipo}" src="${img}">
+<p>${p.nombre}</p>
+<p>$${precios[p.tipo]}</p>
 ${select}
 <p id="stock-${p.tipo}" class="stock"></p>
-<button onclick="add('${p.tipo}',${p.precio})">Agregar</button>
+<button onclick="add('${p.tipo}')">Agregar</button>
 `;
 
 cont.appendChild(div);
@@ -142,28 +179,27 @@ cont.appendChild(div);
 
 // CAMBIAR IMAGEN
 function cambiar(tipo){
-let sel = document.querySelector(`#img-${tipo}`);
 let val = event.target.value;
-sel.src = `img/${tipo}-${val}.jpg`;
+document.getElementById("img-"+tipo).src = `img/${tipo}-${val}.jpg`;
 }
 
 // AGREGAR
-function add(tipo,precio){
+function add(tipo){
 
 let variante = null;
-let s = document.querySelector(`#productos select[onchange*="${tipo}"]`);
-if(s) variante = s.value;
+let select = document.querySelector(`#productos select[onchange*="${tipo}"]`);
+if(select) variante = select.value;
 
 if(typeof stock[tipo] === "object"){
-if(stock[tipo][variante] <= 0) return alert("Agotado");
+if(stock[tipo][variante] <= 0) return alert("Agotado 😢");
 stock[tipo][variante]--;
 }else{
-if(stock[tipo] <= 0) return alert("Agotado");
+if(stock[tipo] <= 0) return alert("Agotado 😢");
 stock[tipo]--;
 }
 
-carrito.push({tipo,variante,precio});
-total += precio;
+carrito.push({tipo,variante,precio:precios[tipo]});
+total += precios[tipo];
 
 render();
 }
@@ -201,37 +237,43 @@ carrito.splice(i,1);
 render();
 }
 
-// STOCK UI
+// STOCK CON URGENCIA
 function mostrarStock(){
-
-Object.keys(stock).forEach(tipo=>{
-let el = document.getElementById("stock-"+tipo);
+Object.keys(stock).forEach(t=>{
+let el = document.getElementById("stock-"+t);
 if(!el) return;
 
-if(typeof stock[tipo] === "object"){
-let txt = Object.entries(stock[tipo])
-.map(([k,v])=>`${k}:${v}`).join(" | ");
-el.innerHTML = txt;
+let totalStock = typeof stock[t] === "object"
+? Object.values(stock[t]).reduce((a,b)=>a+b,0)
+: stock[t];
+
+if(totalStock <= 2){
+el.innerHTML = "🔥 Últimas piezas";
+el.className="stock low";
 }else{
-el.innerHTML = "Disponibles: "+stock[tipo];
+el.innerHTML = "Disponible";
 }
 });
 }
 
-// WHATSAPP
+// WHATSAPP QUE VENDE
 function comprar(){
-let msg="Pedido:%0A";
+let msg="Hola! Quiero hacer este pedido 😍%0A%0A";
+
 carrito.forEach(p=>{
-msg+=`- ${p.tipo} ${p.variante || ""} $${p.precio}%0A`;
+msg+=`✨ ${p.tipo} ${p.variante || ""} - $${p.precio}%0A`;
 });
-msg+=`Total: $${total}`;
+
+msg+=`%0ATotal: $${total}%0A`;
+msg+=`¿Sigue disponible? 🙌`;
+
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
 }
 
 // CAMBIAR VISTA
-function ver(sec){
-document.getElementById("productos").style.display = sec==="productos"?"flex":"none";
-document.getElementById("carrito").style.display = sec==="carrito"?"block":"none";
+function ver(s){
+document.getElementById("productos").style.display = s==="productos"?"flex":"none";
+document.getElementById("carrito").style.display = s==="carrito"?"block":"none";
 }
 
 mostrarStock();
