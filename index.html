@@ -5,210 +5,177 @@
 <title>Beauty & Cheap</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#fff;}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#fff0f5;
+}
 
 header{
-background:#ff1493;
-color:white;
-padding:40px;
-text-align:center;
-font-size:24px;
+  background:linear-gradient(45deg,#ff69b4,#ff1493);
+  color:white;
+  text-align:center;
+  padding:20px;
+  font-size:28px;
 }
 
 .hero{
-height:200px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:linear-gradient(270deg,#ff69b4,#ff1493,#ff85c1);
-background-size:600% 600%;
-animation:bg 8s ease infinite;
-color:white;
-font-size:22px;
+  text-align:center;
+  padding:40px;
+  font-size:20px;
+  animation:fade 5s infinite alternate;
 }
 
-@keyframes bg{
-0%{background-position:0%}
-50%{background-position:100%}
-100%{background-position:0%}
+@keyframes fade{
+  from{opacity:0.5}
+  to{opacity:1}
 }
 
-.grid{display:flex;flex-wrap:wrap;justify-content:center;}
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px;
+  padding:20px;
+}
 
 .card{
-background:white;
-width:220px;
-margin:10px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-padding:10px;
-text-align:center;
+  background:white;
+  border-radius:15px;
+  padding:10px;
+  text-align:center;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 .card img{
-width:100%;
-height:150px;
-object-fit:contain;
+  width:100%;
+  height:150px;
+  object-fit:cover;
+  border-radius:10px;
 }
 
 button{
-background:#ff1493;
-color:white;
-border:none;
-padding:8px;
-width:100%;
-margin-top:5px;
+  background:#ff1493;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
 }
 
-.stock{font-size:13px;}
-.low{color:red;font-weight:bold;}
-
-#cart{
-position:fixed;
-right:0;
-top:0;
-width:250px;
-background:white;
-height:100%;
-padding:10px;
-box-shadow:-4px 0 10px rgba(0,0,0,0.2);
+.cart{
+  position:fixed;
+  right:0;
+  top:0;
+  width:250px;
+  height:100%;
+  background:white;
+  border-left:2px solid #ccc;
+  padding:10px;
+  overflow:auto;
 }
+
 </style>
 </head>
 
 <body>
 
-<header>💄 Beauty & Cheap</header>
+<header>💖 Beauty & Cheap 💖</header>
 
-<div class="hero">✨ Skincare • Makeup • Glow ✨</div>
+<div class="hero">
+✨ Glow up todos los días ✨<br>
+💄 Maquillaje bonito, precios mejores 💄
+</div>
 
-<div class="grid" id="productos"></div>
+<div class="products" id="products"></div>
 
-<div id="cart">
-<h3>Carrito</h3>
-<ul id="lista"></ul>
-<p>Total $<span id="total">0</span></p>
-<button onclick="comprar()">Comprar</button>
+<div class="cart">
+<h3>🛒 Carrito</h3>
+<div id="cart"></div>
+<h4>Total: $<span id="total">0</span></h4>
 </div>
 
 <script>
 
-// 🔥 IMÁGENES ESTABLES (MISS A)
-const img={
-egg_black:"https://www.shopmissa.com/cdn/shop/products/eggblack.jpg",
-egg_purple:"https://www.shopmissa.com/cdn/shop/products/eggpurple.jpg",
-cuticle_peach:"https://www.shopmissa.com/cdn/shop/products/cuticlepeach.jpg",
-cuticle_strawberry:"https://www.shopmissa.com/cdn/shop/products/cuticlestrawberry.jpg",
-cuticle_rose:"https://www.shopmissa.com/cdn/shop/products/cuticlerose.jpg",
-wipes:"https://www.shopmissa.com/cdn/shop/products/removerwipes.jpg",
-lipstick:"https://www.shopmissa.com/cdn/shop/products/lipstickmod.jpg",
-foot_chamomile:"https://www.shopmissa.com/cdn/shop/products/chamomilefoot.jpg",
-foot_peeling:"https://www.shopmissa.com/cdn/shop/products/footpeel.jpg",
-foot_rose:"https://www.shopmissa.com/cdn/shop/products/rosefoot.jpg",
-acne:"https://www.shopmissa.com/cdn/shop/products/acnepatch.jpg",
-lip_kuu:"https://www.shopmissa.com/cdn/shop/products/kuu.jpg",
-lip_hime:"https://www.shopmissa.com/cdn/shop/products/hime.jpg",
-headband_pink:"https://www.shopmissa.com/cdn/shop/products/headbandpink.jpg",
-headband_purple:"https://www.shopmissa.com/cdn/shop/products/headbandpurple.jpg",
-blender_pink:"https://www.shopmissa.com/cdn/shop/products/blenderpink.jpg",
-blender_black:"https://www.shopmissa.com/cdn/shop/products/blenderblack.jpg"
-};
+const products = [
 
-// ⚠️ SI ALGUNA FALLA, YA NO TE DEJO SOLA → la reemplazo
+{ name:"AOA Brush Cleaning Egg - Black", price:45, stock:1, img:"images/egg_black.jpg"},
+{ name:"AOA Brush Cleaning Egg - Purple", price:45, stock:1, img:"images/egg_purple.jpg"},
 
-const precio=65;
+{ name:"AOA Cuticle Revitalizing Pen - Peach", price:55, stock:1, img:"images/cuticle_peach.jpg"},
+{ name:"AOA Cuticle Revitalizing Pen - Strawberry", price:55, stock:2, img:"images/cuticle_strawberry.jpg"},
+{ name:"AOA Cuticle Revitalizing Pen - Rose", price:55, stock:2, img:"images/cuticle_rose.jpg"},
 
-let stock={
-egg_black:1,egg_purple:1,
-cuticle_peach:1,cuticle_strawberry:2,cuticle_rose:2,
-wipes:5,
-lipstick:1,
-foot_chamomile:2,foot_peeling:2,foot_rose:2,
-acne:3,
-lip_kuu:1,lip_hime:1,
-headband_pink:1,headband_purple:1,
-blender_pink:1,blender_black:1
-};
+{ name:"AOA Makeup Remover Wipes - Unscented", price:50, stock:5, img:"images/wipes.jpg"},
 
-const nombres={
-egg_black:"AOA Brush Cleaning Egg Negro",
-egg_purple:"AOA Brush Cleaning Egg Morado",
-cuticle_peach:"Cuticle Pen Peach",
-cuticle_strawberry:"Cuticle Pen Strawberry",
-cuticle_rose:"Cuticle Pen Rose",
-wipes:"Makeup Remover Wipes",
-lipstick:"Retro Chic Lipstick Mod",
-foot_chamomile:"Foot Mask Chamomile",
-foot_peeling:"Foot Peeling Mask",
-foot_rose:"Foot Mask Rose",
-acne:"Acne Patches",
-lip_kuu:"Lip Stain Kuu",
-lip_hime:"Lip Stain Hime",
-headband_pink:"Headband Rosa Orejas",
-headband_purple:"Headband Morado Orejas",
-blender_pink:"Blender Rosa",
-blender_black:"Blender Negro"
-};
+{ name:"AOA Retro Chic Lipstick - Mod", price:70, stock:1, img:"images/lipstick_mod.jpg"},
 
-let carrito=[],total=0;
+{ name:"AOA Skin Chamomile Foot Mask", price:65, stock:2, img:"images/foot_chamomile.jpg"},
+{ name:"AOA Skin Foot Peeling Mask", price:75, stock:2, img:"images/foot_peeling.jpg"},
+{ name:"AOA Skin Rose Foot Mask", price:65, stock:2, img:"images/foot_rose.jpg"},
 
-let cont=document.getElementById("productos");
+{ name:"AOA Invisible Acne Patches 10mm", price:65, stock:3, img:"images/acne_patches.jpg"},
 
-Object.keys(nombres).forEach(id=>{
-let d=document.createElement("div");
-d.className="card";
+{ name:"AOA Magical Girl Lip Stain - Kuu", price:75, stock:1, img:"images/lip_kuu.jpg"},
+{ name:"AOA Magical Girl Lip Stain - Hime", price:75, stock:1, img:"images/lip_hime.jpg"},
 
-d.innerHTML=`
-<img src="${img[id]}">
-<h4>${nombres[id]}</h4>
-<p>$${precio}</p>
-<p class="stock" id="s-${id}"></p>
-<button onclick="add('${id}')">Agregar</button>
-`;
+{ name:"AOA Plush Headband - Pink Ears", price:45, stock:1, img:"images/headband_pink_ears.jpg"},
+{ name:"AOA Plush Headband - Purple Ears", price:45, stock:1, img:"images/headband_purple_ears.jpg"},
 
-cont.appendChild(d);
-mostrar(id);
-});
+{ name:"AOA Wonder Blender - Pink", price:45, stock:1, img:"images/blender_pink.jpg"},
+{ name:"AOA Wonder Blender - Black", price:45, stock:1, img:"images/blender_black.jpg"}
 
-function mostrar(id){
-let s=document.getElementById("s-"+id);
-s.textContent="Quedan "+stock[id]+" piezas";
-if(stock[id]<=1)s.className="stock low";
+];
+
+let cart = [];
+
+function renderProducts(){
+  const container = document.getElementById("products");
+  container.innerHTML="";
+
+  products.forEach((p,i)=>{
+    const div=document.createElement("div");
+    div.className="card";
+
+    div.innerHTML=`
+      <img src="${p.img}">
+      <h4>${p.name}</h4>
+      <p>$${p.price}</p>
+      <p>Quedan ${p.stock}</p>
+      <button onclick="addToCart(${i})">Agregar</button>
+    `;
+
+    container.appendChild(div);
+  });
 }
 
-function add(id){
-if(stock[id]<=0)return alert("Agotado");
-stock[id]--;
-carrito.push(id);
-total+=precio;
-mostrar(id);
-render();
+function addToCart(i){
+  if(products[i].stock<=0) return;
+
+  products[i].stock--;
+  cart.push(products[i]);
+
+  renderProducts();
+  renderCart();
 }
 
-function render(){
-let l=document.getElementById("lista");
-l.innerHTML="";
-carrito.forEach((id,i)=>{
-l.innerHTML+=`<li>${nombres[id]} <button onclick="del(${i})">❌</button></li>`;
-});
-document.getElementById("total").textContent=total;
+function renderCart(){
+  const c=document.getElementById("cart");
+  const total=document.getElementById("total");
+
+  c.innerHTML="";
+  let sum=0;
+
+  cart.forEach((p,i)=>{
+    sum+=p.price;
+    c.innerHTML+=`
+      <p>${p.name} - $${p.price}</p>
+    `;
+  });
+
+  total.innerText=sum;
 }
 
-function del(i){
-let id=carrito[i];
-stock[id]++;
-total-=precio;
-carrito.splice(i,1);
-mostrar(id);
-render();
-}
-
-function comprar(){
-let msg="Pedido:%0A";
-carrito.forEach(id=>msg+=nombres[id]+"%0A");
-msg+="Total $"+total;
-window.open("https://wa.me/52664TU_NUMERO?text="+msg);
-}
+renderProducts();
 
 </script>
 
