@@ -5,8 +5,9 @@
 <title>Beauty and Cheap</title>
 
 <style>
-body { font-family: Arial; margin:0; background:#f4f4f4; }
+body { margin:0; font-family:Arial; background:#f4f4f4; }
 
+/* NAV */
 nav {
   background:#000;
   padding:12px;
@@ -21,6 +22,51 @@ nav button {
   cursor:pointer;
 }
 
+/* HOME */
+#inicio {
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:linear-gradient(135deg,#ffe4ec,#f3d1ff);
+  overflow:hidden;
+  position:relative;
+}
+
+.frases {
+  position:absolute;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+.frases span {
+  position:absolute;
+  font-size:18px;
+  opacity:0.2;
+  animation:flotar 12s linear infinite;
+}
+
+@keyframes flotar {
+  from { transform:translateY(100vh); }
+  to { transform:translateY(-100vh); }
+}
+
+#inicio h1 {
+  font-size:40px;
+}
+
+#inicio button {
+  padding:12px 20px;
+  background:#000;
+  color:white;
+  border:none;
+  border-radius:8px;
+  margin-top:20px;
+}
+
+/* PRODUCTOS */
 .grid {
   display:flex;
   flex-wrap:wrap;
@@ -77,12 +123,23 @@ select { width:100%; padding:6px; margin-top:5px; }
 <body>
 
 <nav>
+<button onclick="ver('inicio')">Inicio</button>
 <button onclick="ver('productos')">Productos</button>
 <button onclick="ver('carrito')">Carrito (<span id="count">0</span>)</button>
 </nav>
 
-<div id="productos" class="grid"></div>
+<!-- INICIO -->
+<div id="inicio">
+  <div class="frases" id="frases"></div>
+  <h1>Beauty and Cheap 💄</h1>
+  <p>Maquillaje bonito, precios inteligentes</p>
+  <button onclick="ver('productos')">Comprar ahora</button>
+</div>
 
+<!-- PRODUCTOS -->
+<div id="productos" class="grid" style="display:none;"></div>
+
+<!-- CARRITO -->
 <div id="carrito" style="display:none; padding:20px;">
 <h2>Tu carrito 🛒</h2>
 <ul id="lista"></ul>
@@ -92,7 +149,30 @@ select { width:100%; padding:6px; margin-top:5px; }
 
 <script>
 
-// STOCK REAL
+// FRASES FLOTANDO (ESTILO PRO)
+let frases = [
+"Tu piel, tu poder ✨",
+"Glow natural siempre 💖",
+"Menos filtro, más skincare",
+"Confianza en cada look 💄",
+"Belleza sin gastar de más",
+"Cuida tu piel, ama tu reflejo",
+"Makeup is art 🎨",
+"Pequeños detalles, gran cambio"
+];
+
+let contFrases = document.getElementById("frases");
+
+for(let i=0;i<20;i++){
+let span = document.createElement("span");
+span.textContent = frases[Math.floor(Math.random()*frases.length)];
+span.style.left = Math.random()*100 + "%";
+span.style.animationDuration = (8 + Math.random()*10) + "s";
+span.style.fontSize = (14 + Math.random()*10) + "px";
+contFrases.appendChild(span);
+}
+
+// STOCK
 let stock = {
 cuticle:{peach:1, strawberry:2, rose:2},
 egg:{black:1, purple:1},
@@ -105,11 +185,11 @@ headband:{pink:1, purple:1},
 blender:{pink:1, black:1}
 };
 
-// PRECIOS (ya pensados para vender)
+// PRECIOS
 let precios = {
 cuticle:55,
 egg:55,
-wipes:65,
+wipes:60,
 lipstick:65,
 foot:70,
 acne:60,
@@ -121,34 +201,23 @@ blender:45
 let carrito = [];
 let total = 0;
 
-// PRODUCTOS CON NOMBRES QUE VENDEN
+// PRODUCTOS
 let productos = [
-
 {tipo:"cuticle", nombre:"Aceite para cutícula hidratante ✨", opciones:["peach","strawberry","rose"]},
-
 {tipo:"egg", nombre:"Limpiador de brochas compacto", opciones:["black","purple"]},
-
-{tipo:"wipes", nombre:"Toallitas desmaquillantes (pack)"},
-
+{tipo:"wipes", nombre:"Toallitas desmaquillantes suaves 🧴"},
 {tipo:"lipstick", nombre:"Labial matte elegante 💄"},
-
 {tipo:"foot", nombre:"Mascarilla para pies spa", opciones:["chamomile","peeling","rose"]},
-
 {tipo:"acne", nombre:"Parches anti acné invisibles"},
-
 {tipo:"lip", nombre:"Tinta labial larga duración 💋", opciones:["kuu","hime"]},
-
 {tipo:"headband", nombre:"Diadema facial kawaii 🐰", opciones:["pink","purple"], badge:true},
-
 {tipo:"blender", nombre:"Esponja maquillaje profesional", opciones:["pink","black"], badge:true}
-
 ];
 
-// GENERAR TIENDA
+// GENERAR PRODUCTOS
 let cont = document.getElementById("productos");
 
 productos.forEach(p=>{
-
 let div = document.createElement("div");
 div.className="producto";
 
@@ -174,47 +243,42 @@ ${select}
 `;
 
 cont.appendChild(div);
-
 });
 
-// CAMBIAR IMAGEN
+// FUNCIONES (igual que antes)
 function cambiar(tipo){
 let val = event.target.value;
 document.getElementById("img-"+tipo).src = `img/${tipo}-${val}.jpg`;
 }
 
-// AGREGAR
 function add(tipo){
+let variante=null;
+let select=document.querySelector(`#productos select[onchange*="${tipo}"]`);
+if(select) variante=select.value;
 
-let variante = null;
-let select = document.querySelector(`#productos select[onchange*="${tipo}"]`);
-if(select) variante = select.value;
-
-if(typeof stock[tipo] === "object"){
-if(stock[tipo][variante] <= 0) return alert("Agotado 😢");
+if(typeof stock[tipo]==="object"){
+if(stock[tipo][variante]<=0) return alert("Agotado 😢");
 stock[tipo][variante]--;
 }else{
-if(stock[tipo] <= 0) return alert("Agotado 😢");
+if(stock[tipo]<=0) return alert("Agotado 😢");
 stock[tipo]--;
 }
 
 carrito.push({tipo,variante,precio:precios[tipo]});
-total += precios[tipo];
-
+total+=precios[tipo];
 render();
 }
 
-// RENDER
 function render(){
-document.getElementById("count").textContent = carrito.length;
-document.getElementById("total").textContent = total;
+document.getElementById("count").textContent=carrito.length;
+document.getElementById("total").textContent=total;
 
-let lista = document.getElementById("lista");
+let lista=document.getElementById("lista");
 lista.innerHTML="";
 
 carrito.forEach((p,i)=>{
-let li = document.createElement("li");
-li.innerHTML = `${p.tipo} ${p.variante || ""} - $${p.precio}
+let li=document.createElement("li");
+li.innerHTML=`${p.tipo} ${p.variante||""} - $${p.precio}
 <button onclick="del(${i})">❌</button>`;
 lista.appendChild(li);
 });
@@ -222,58 +286,50 @@ lista.appendChild(li);
 mostrarStock();
 }
 
-// ELIMINAR
 function del(i){
-let p = carrito[i];
-
-if(typeof stock[p.tipo] === "object"){
+let p=carrito[i];
+if(typeof stock[p.tipo]==="object"){
 stock[p.tipo][p.variante]++;
 }else{
 stock[p.tipo]++;
 }
-
-total -= p.precio;
+total-=p.precio;
 carrito.splice(i,1);
 render();
 }
 
-// STOCK CON URGENCIA
 function mostrarStock(){
 Object.keys(stock).forEach(t=>{
-let el = document.getElementById("stock-"+t);
+let el=document.getElementById("stock-"+t);
 if(!el) return;
 
-let totalStock = typeof stock[t] === "object"
-? Object.values(stock[t]).reduce((a,b)=>a+b,0)
-: stock[t];
+let totalStock=typeof stock[t]==="object"
+?Object.values(stock[t]).reduce((a,b)=>a+b,0)
+:stock[t];
 
-if(totalStock <= 2){
-el.innerHTML = "🔥 Últimas piezas";
+if(totalStock<=2){
+el.innerHTML="🔥 Últimas piezas";
 el.className="stock low";
 }else{
-el.innerHTML = "Disponible";
+el.innerHTML="Disponible";
 }
 });
 }
 
-// WHATSAPP QUE VENDE
 function comprar(){
-let msg="Hola! Quiero hacer este pedido 😍%0A%0A";
-
+let msg="Hola! Quiero este pedido 😍%0A%0A";
 carrito.forEach(p=>{
-msg+=`✨ ${p.tipo} ${p.variante || ""} - $${p.precio}%0A`;
+msg+=`✨ ${p.tipo} ${p.variante||""} - $${p.precio}%0A`;
 });
-
-msg+=`%0ATotal: $${total}%0A`;
-msg+=`¿Sigue disponible? 🙌`;
-
+msg+=`%0ATotal: $${total}`;
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
 }
 
-// CAMBIAR VISTA
 function ver(s){
-document.getElementById("productos").style.display = s==="productos"?"flex":"none";
-document.getElementById("carrito").style.display = s==="carrito"?"block":"none";
+["inicio","productos","carrito"].forEach(id=>{
+document.getElementById(id).style.display="none";
+});
+document.getElementById(s).style.display = s==="productos" ? "flex" : "block";
 }
 
 mostrarStock();
