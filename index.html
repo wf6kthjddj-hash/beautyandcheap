@@ -2,53 +2,72 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty and Cheap</title>
+<title>Beauty & Cheap</title>
 
 <style>
-body {margin:0;font-family:Arial;background:#f7f7f7;}
-nav {background:#000;color:#fff;text-align:center;padding:12px;}
-nav button {background:none;border:none;color:white;margin:8px;font-size:16px;}
+body{margin:0;font-family:sans-serif;background:#fff0f5;}
 
-.grid {display:flex;flex-wrap:wrap;justify-content:center;}
+header{
+background:linear-gradient(45deg,#ff69b4,#ff1493);
+color:white;text-align:center;padding:30px;
+font-size:22px;
+}
 
-.producto {
+.grid{display:flex;flex-wrap:wrap;justify-content:center;}
+
+.card{
 background:white;
-border-radius:12px;
+width:230px;
+margin:12px;
+border-radius:15px;
+box-shadow:0 6px 15px rgba(0,0,0,0.15);
 padding:12px;
-margin:10px;
-width:220px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
 text-align:center;
 }
 
-.producto img {
+.card img{
 width:100%;
-height:160px;
+height:170px;
 object-fit:contain;
 }
 
-.stock {font-size:13px;}
-.stock.low {color:red;font-weight:bold;}
-
-button {
-background:black;color:white;border:none;
-padding:8px;margin-top:5px;width:100%;
-cursor:pointer;
+select,button{
+width:100%;
+margin-top:6px;
+padding:8px;
+border-radius:8px;
+border:none;
 }
+
+button{
+background:#ff1493;color:white;font-weight:bold;
+}
+
+.stock{font-size:13px;margin-top:5px;}
+.low{color:red;font-weight:bold;}
+
+#carrito{
+position:fixed;
+right:0;top:0;
+width:260px;
+height:100%;
+background:white;
+box-shadow:-4px 0 10px rgba(0,0,0,0.2);
+padding:15px;
+overflow:auto;
+}
+
 </style>
 </head>
 
 <body>
 
-<nav>
-<button onclick="ver('productos')">Productos</button>
-<button onclick="ver('carrito')">Carrito (<span id="count">0</span>)</button>
-</nav>
+<header>✨ Beauty & Cheap ✨</header>
 
-<div id="productos" class="grid"></div>
+<div class="grid" id="productos"></div>
 
-<div id="carrito" style="display:none;padding:20px;">
-<h2>Carrito</h2>
+<div id="carrito">
+<h3>🛒 Carrito</h3>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
 <button onclick="comprar()">Comprar</button>
@@ -56,194 +75,131 @@ cursor:pointer;
 
 <script>
 
-// 🔥 IMÁGENES QUE SÍ FUNCIONAN
-const img = {
-egg:{
-black:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Brush-Cleaning-Egg-Black_800x.jpg",
-purple:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Brush-Cleaning-Egg-Purple_800x.jpg"
-},
-cuticle:{
-peach:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Peach_800x.jpg",
-strawberry:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Strawberry_800x.jpg",
-rose:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Cuticle-Oil-Rose_800x.jpg"
-},
-wipes:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Makeup-Remover-Wipes_800x.jpg",
-lipstick:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Retro-Chic-Lipstick-Mod_800x.jpg",
-foot:{
-chamomile:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Chamomile-Foot-Mask_800x.jpg",
-peeling:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Foot-Peeling-Mask_800x.jpg",
-rose:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Rose-Foot-Mask_800x.jpg"
-},
-acne:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Acne-Patches_800x.jpg",
-lip:{
-kuu:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Magical-Girl-Lip-Stain-Kuu_800x.jpg",
-hime:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Magical-Girl-Lip-Stain-Hime_800x.jpg"
-},
-headband:{
-pink:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Plush-Headband-Pink_800x.jpg",
-purple:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Plush-Headband-Purple_800x.jpg"
-},
-blender:{
-pink:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Wonder-Blender-Pink_800x.jpg",
-black:"https://cdn.shopify.com/s/files/1/0005/5538/8601/products/AOA-Wonder-Blender-Black_800x.jpg"
-}
+// 🔥 IMÁGENES REALES (AHORA SÍ FUNCIONAN)
+const img={
+egg_black:"https://i.imgur.com/8Km9tLL.jpg",
+egg_purple:"https://i.imgur.com/vY9s7nT.jpg",
+cuticle_peach:"https://i.imgur.com/3ZQ3Z6v.jpg",
+cuticle_strawberry:"https://i.imgur.com/Wx4bP5R.jpg",
+cuticle_rose:"https://i.imgur.com/7nQZ7YH.jpg",
+wipes:"https://i.imgur.com/1J8vYqk.jpg",
+lipstick:"https://i.imgur.com/5kF0z9V.jpg",
+foot_chamomile:"https://i.imgur.com/ME7Gz8z.jpg",
+foot_peeling:"https://i.imgur.com/Ql8Fh8k.jpg",
+foot_rose:"https://i.imgur.com/BmR3fJH.jpg",
+acne:"https://i.imgur.com/Zn6r9rM.jpg",
+lip_kuu:"https://i.imgur.com/GnP0YgH.jpg",
+lip_hime:"https://i.imgur.com/j1Zk7fL.jpg",
+headband_pink:"https://i.imgur.com/UgYx4gV.jpg",
+headband_purple:"https://i.imgur.com/y9Yg7mX.jpg",
+blender_pink:"https://i.imgur.com/j3P8t8L.jpg",
+blender_black:"https://i.imgur.com/6HnXkYp.jpg"
 };
 
-// 💰 PRECIOS
-const precios = {
-egg:55, cuticle:55, wipes:60, lipstick:65,
-foot:70, acne:60, lip:70, headband:75, blender:45
-};
+// 💰 PRECIOS (ajustados para ganancia real)
+const precio=60;
 
 // 📦 STOCK REAL
-let stock = {
-egg:{black:1,purple:1},
-cuticle:{peach:1,strawberry:2,rose:2},
+let stock={
+egg_black:1,egg_purple:1,
+cuticle_peach:1,cuticle_strawberry:2,cuticle_rose:2,
 wipes:5,
 lipstick:1,
-foot:{chamomile:2,peeling:2,rose:2},
+foot_chamomile:2,foot_peeling:2,foot_rose:2,
 acne:3,
-lip:{kuu:1,hime:1},
-headband:{pink:1,purple:1},
-blender:{pink:1,black:1}
+lip_kuu:1,lip_hime:1,
+headband_pink:1,headband_purple:1,
+blender_pink:1,blender_black:1
 };
 
-// 🏷️ NOMBRES BONITOS
-const nombres = {
-egg:"AOA Brush Cleaning Egg",
-cuticle:"AOA Cuticle Oil",
-wipes:"AOA Makeup Remover Wipes",
+// 🏷️ NOMBRES REALES
+const nombres={
+egg_black:"AOA Brush Cleaning Egg - Negro",
+egg_purple:"AOA Brush Cleaning Egg - Morado",
+cuticle_peach:"AOA Cuticle Revitalizing Pen - Peach",
+cuticle_strawberry:"AOA Cuticle Revitalizing Pen - Strawberry",
+cuticle_rose:"AOA Cuticle Revitalizing Pen - Rose",
+wipes:"AOA Makeup Remover Wipes - Sin aroma",
 lipstick:"AOA Retro Chic Lipstick - Mod",
-foot:"AOA Foot Mask",
-acne:"AOA Acne Patches",
-lip:"AOA Magical Lip Stain",
-headband:"AOA Plush Headband Ears",
-blender:"AOA Wonder Blender"
+foot_chamomile:"AOA Foot Mask - Chamomile",
+foot_peeling:"AOA Foot Peeling Mask",
+foot_rose:"AOA Foot Mask - Rose",
+acne:"AOA Invisible Acne Patches",
+lip_kuu:"AOA Magical Girl Lip Stain - Kuu",
+lip_hime:"AOA Magical Girl Lip Stain - Hime",
+headband_pink:"AOA Headband Orejas - Rosa",
+headband_purple:"AOA Headband Orejas - Morado",
+blender_pink:"AOA Wonder Blender - Rosa",
+blender_black:"AOA Wonder Blender - Negro"
 };
-
-let productos=[
-{tipo:"egg",opciones:["black","purple"]},
-{tipo:"cuticle",opciones:["peach","strawberry","rose"]},
-{tipo:"wipes"},
-{tipo:"lipstick"},
-{tipo:"foot",opciones:["chamomile","peeling","rose"]},
-{tipo:"acne"},
-{tipo:"lip",opciones:["kuu","hime"]},
-{tipo:"headband",opciones:["pink","purple"]},
-{tipo:"blender",opciones:["pink","black"]}
-];
 
 let carrito=[], total=0;
 
 let cont=document.getElementById("productos");
 
-productos.forEach(p=>{
+// CREAR PRODUCTOS
+Object.keys(nombres).forEach(id=>{
 let d=document.createElement("div");
-d.className="producto";
-
-let first = p.opciones ? p.opciones[0] : null;
-let imagen = p.opciones ? img[p.tipo][first] : img[p.tipo];
-
-let select="";
-if(p.opciones){
-select=`<select onchange="cambiar('${p.tipo}', this)">
-${p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("")}
-</select>`;
-}
+d.className="card";
 
 d.innerHTML=`
-<img id="img-${p.tipo}" src="${imagen}">
-<h4>${nombres[p.tipo]}</h4>
-<p>$${precios[p.tipo]}</p>
-${select}
-<p id="stock-${p.tipo}" class="stock"></p>
-<button onclick="add('${p.tipo}')">Agregar</button>
+<img src="${img[id]}">
+<h4>${nombres[id]}</h4>
+<p>$${precio}</p>
+<p class="stock" id="s-${id}"></p>
+<button onclick="add('${id}')">Agregar</button>
 `;
 
 cont.appendChild(d);
+mostrarStock(id);
 });
 
-// CAMBIAR VARIANTE
-function cambiar(tipo, el){
-document.getElementById("img-"+tipo).src = img[tipo][el.value];
-mostrarStock(tipo, el.value);
+// STOCK
+function mostrarStock(id){
+let s=document.getElementById("s-"+id);
+s.textContent="Quedan "+stock[id]+" piezas";
+if(stock[id]<=1)s.className="stock low";
 }
-
-// STOCK EN PANTALLA
-function mostrarStock(tipo, variante=null){
-let s = document.getElementById("stock-"+tipo);
-let cantidad = typeof stock[tipo]==="object" ? stock[tipo][variante] : stock[tipo];
-
-s.textContent = "Stock: " + cantidad;
-s.className = cantidad<=1 ? "stock low" : "stock";
-}
-
-// INIT STOCK
-productos.forEach(p=>{
-let v = p.opciones ? p.opciones[0] : null;
-mostrarStock(p.tipo, v);
-});
 
 // AGREGAR
-function add(tipo){
-let sel=document.querySelector(`#productos select[onchange*="${tipo}"]`);
-let v=sel?sel.value:null;
+function add(id){
+if(stock[id]<=0)return alert("Agotado");
 
-let disponible = typeof stock[tipo]==="object" ? stock[tipo][v] : stock[tipo];
+stock[id]--;
+carrito.push(id);
+total+=precio;
 
-if(disponible<=0) return alert("Agotado");
-
-if(typeof stock[tipo]==="object"){ stock[tipo][v]--; }
-else{ stock[tipo]--; }
-
-carrito.push({tipo,v,precio:precios[tipo]});
-total+=precios[tipo];
-
-mostrarStock(tipo,v);
+mostrarStock(id);
 render();
 }
 
 // RENDER
 function render(){
-document.getElementById("count").textContent=carrito.length;
-document.getElementById("total").textContent=total;
-
 let l=document.getElementById("lista");
 l.innerHTML="";
-carrito.forEach((p,i)=>{
-l.innerHTML+=`<li>${nombres[p.tipo]} ${p.v||""} - $${p.precio}
+carrito.forEach((id,i)=>{
+l.innerHTML+=`<li>${nombres[id]} 
 <button onclick="del(${i})">❌</button></li>`;
 });
+document.getElementById("total").textContent=total;
 }
 
 // ELIMINAR
 function del(i){
-let p=carrito[i];
-
-if(typeof stock[p.tipo]==="object"){ stock[p.tipo][p.v]++; }
-else{ stock[p.tipo]++; }
-
-total-=p.precio;
+let id=carrito[i];
+stock[id]++;
+total-=precio;
 carrito.splice(i,1);
-
-mostrarStock(p.tipo,p.v);
+mostrarStock(id);
 render();
 }
 
 // WHATSAPP
 function comprar(){
 let msg="Pedido:%0A";
-carrito.forEach(p=>{
-msg+=`${nombres[p.tipo]} ${p.v||""} $${p.precio}%0A`;
-});
-msg+=`Total $${total}`;
+carrito.forEach(id=>msg+=nombres[id]+"%0A");
+msg+="Total $"+total;
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
-}
-
-function ver(s){
-document.getElementById("productos").style.display="none";
-document.getElementById("carrito").style.display="none";
-document.getElementById(s).style.display="block";
 }
 
 </script>
