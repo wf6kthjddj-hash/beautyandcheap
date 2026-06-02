@@ -149,7 +149,7 @@ let opt=p.options.map(o=>`<option>${o}</option>`).join("");
 
 container.innerHTML+=`
 <div class="card">
-<img src="images/${p.img}">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
 <select id="opt${i}">${opt}</select>
