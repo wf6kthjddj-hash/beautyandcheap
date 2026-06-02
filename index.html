@@ -12,7 +12,6 @@ background:#fafafa;
 color:#333;
 }
 
-/* HEADER */
 header{
 background:#111;
 color:#fff;
@@ -22,7 +21,6 @@ font-size:22px;
 position:relative;
 }
 
-/* NAV */
 nav{
 display:flex;
 justify-content:center;
@@ -39,11 +37,9 @@ font-size:16px;
 cursor:pointer;
 }
 
-/* SECTIONS */
 .section{display:none;padding:20px}
 .active{display:block}
 
-/* PRODUCTS */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -80,17 +76,15 @@ padding:5px;
 margin-top:5px;
 }
 
-/* 🔥 BACKDROP OSCURO */
+/* 🌑 BACKDROP PREMIUM */
 .backdrop{
 position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
+inset:0;
+background:rgba(0,0,0,0.35);
+backdrop-filter:blur(6px);
 opacity:0;
 visibility:hidden;
-transition:0.3s;
+transition:0.25s ease;
 z-index:9998;
 }
 
@@ -99,35 +93,62 @@ opacity:1;
 visibility:visible;
 }
 
-/* 🛒 CARRITO DESPLEGABLE REAL */
+/* 🛒 CART PREMIUM GLASS */
 .cart{
 position:fixed;
 right:0;
 top:0;
-width:300px;
+width:330px;
 height:100%;
-background:#fff;
-border-left:1px solid #ccc;
-padding:10px;
+background:rgba(255,255,255,0.92);
+backdrop-filter:blur(14px);
+border-left:1px solid rgba(0,0,0,0.08);
+padding:12px;
 overflow:auto;
 
-transform:translateX(100%);
-transition:transform 0.3s ease;
+transform:translateX(105%);
+transition:transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 z-index:9999;
+
+box-shadow:-10px 0 30px rgba(0,0,0,0.15);
 }
 
 .cart.open{
 transform:translateX(0);
 }
 
+/* CLOSE BUTTON */
 .closeBtn{
 background:none;
 border:none;
-font-size:20px;
+font-size:22px;
 cursor:pointer;
 float:right;
+opacity:0.7;
+transition:0.2s;
 }
 
+.closeBtn:hover{
+opacity:1;
+transform:scale(1.1);
+}
+
+/* CART HEADER */
+.cart h3{
+margin-top:10px;
+font-weight:600;
+letter-spacing:0.5px;
+}
+
+/* CART COUNT */
+#cartCount{
+background:#fff;
+color:#111;
+padding:2px 8px;
+border-radius:20px;
+font-size:12px;
+margin-left:5px;
+}
 </style>
 </head>
 
@@ -135,7 +156,9 @@ float:right;
 
 <header>
 Beauty & Cheap 💄
-<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px;">🛒</button>
+<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px;">
+🛒 <span id="cartCount">0</span>
+</button>
 </header>
 
 <nav>
@@ -152,7 +175,7 @@ Beauty & Cheap 💄
 <div class="grid" id="products"></div>
 </div>
 
-<!-- 🔥 BACKDROP -->
+<!-- 🌑 BACKDROP -->
 <div class="backdrop" id="backdrop" onclick="toggleCart()"></div>
 
 <!-- 🛒 CART -->
@@ -166,7 +189,7 @@ Beauty & Cheap 💄
 
 <script>
 
-/* PRODUCTOS (igual que tu base) */
+/* PRODUCTOS (NO TOCADO) */
 const products=[
 {
 name:"AOA Brush Cleaning Egg",
@@ -266,7 +289,6 @@ stock:{pink:1,black:1}
 let cart=[];
 let total=0;
 
-/* RENDER */
 function render(){
 const container=document.getElementById("products");
 container.innerHTML="";
@@ -297,17 +319,16 @@ updateStock(i);
 });
 }
 
-/* STOCK */
 function getStock(p,k){return p.stock[k]??0;}
 
 function updateStock(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
-document.getElementById("stock"+i).innerText=
+document.getElementById("stock${i}".replace("${i}",i))=
 "Stock: "+getStock(p,sel);
+document.getElementById("stock"+i).innerText="Stock: "+getStock(p,sel);
 }
 
-/* ADD */
 function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
@@ -324,23 +345,27 @@ total+=p.price;
 
 renderCart();
 updateStock(i);
+updateCartCount();
 }
 
-/* CART */
 function renderCart(){
 document.getElementById("cart").innerHTML=
 cart.map(c=>`<li>${c.name} (${c.option}) - $${c.price}</li>`).join("");
 
 document.getElementById("total").innerText=total;
+
+updateCartCount();
 }
 
-/* 🛒 TOGGLE REAL */
 function toggleCart(){
 document.getElementById("cartPanel").classList.toggle("open");
 document.getElementById("backdrop").classList.toggle("show");
 }
 
-/* NAV */
+function updateCartCount(){
+document.getElementById("cartCount").innerText=cart.length;
+}
+
 function show(s){
 document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
 document.getElementById(s).classList.add("active");
@@ -348,7 +373,6 @@ document.getElementById(s).classList.add("active");
 
 render();
 
-/* FIX SELECT */
 document.addEventListener("change",e=>{
 if(e.target.tagName==="SELECT"){
 let i=e.target.id.replace("opt","");
