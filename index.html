@@ -5,140 +5,287 @@
 <title>Beauty and Cheap</title>
 
 <style>
-body { font-family: Arial; margin:0; }
-nav { background:#000; padding:10px; text-align:center; }
-nav button { color:white; background:none; border:none; margin:10px; font-size:16px; cursor:pointer; }
+body { font-family: Arial; margin:0; background:#f5f5f5; }
+
+nav {
+  background:#000;
+  padding:12px;
+  text-align:center;
+}
+nav button {
+  color:white;
+  background:none;
+  border:none;
+  margin:10px;
+  font-size:16px;
+  cursor:pointer;
+}
 
 .seccion { display:none; padding:20px; }
 .activa { display:block; }
 
-.producto { border:1px solid #ccc; padding:10px; margin:10px; width:200px; display:inline-block; }
-.producto img { width:100%; height:150px; object-fit:cover; }
+.grid {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
 
-button { padding:8px; cursor:pointer; margin-top:5px; }
+.producto {
+  background:white;
+  border-radius:12px;
+  padding:15px;
+  margin:12px;
+  width:220px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.producto img {
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.stock {
+  font-size:13px;
+  margin-top:5px;
+}
+
+.low { color:red; font-weight:bold; }
+
+select, button {
+  width:100%;
+  margin-top:8px;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ddd;
+}
+
+button {
+  background:#000;
+  color:white;
+}
+
+h1, h2 { text-align:center; }
+
 </style>
 </head>
 
 <body>
 
 <nav>
-  <button onclick="mostrar('inicio')">Inicio</button>
-  <button onclick="mostrar('productos')">Productos</button>
-  <button onclick="mostrar('carrito')">Carrito (<span id="contador">0</span>)</button>
+<button onclick="mostrar('inicio')">Inicio</button>
+<button onclick="mostrar('productos')">Productos</button>
+<button onclick="mostrar('carrito')">Carrito (<span id="contador">0</span>)</button>
 </nav>
 
 <div id="inicio" class="seccion activa">
-  <h1>Beauty and Cheap 💄</h1>
-  <p>Compra inteligente. Vende con estilo 😉</p>
+<h1>Beauty and Cheap 💄</h1>
+<p style="text-align:center;">Bonito, barato y listo para llevar 😏</p>
 </div>
 
 <div id="productos" class="seccion">
+<div class="grid">
 
-<h2>Productos</h2>
-
-<!-- PRODUCTOS -->
-
+<!-- CUTICLE -->
 <div class="producto">
-<img src="https://source.unsplash.com/200x200/?makeup,brush">
-<p>Brush Cleaning Egg - $55</p>
-<button onclick="agregar('Brush Cleaning Egg',55)">Agregar</button>
-</div>
-
-<div class="producto">
-<img src="https://source.unsplash.com/200x200/?lipstick">
-<p>Retro Lipstick - $65</p>
-<button onclick="agregar('Lipstick',65)">Agregar</button>
-</div>
-
-<div class="producto">
-<img src="https://source.unsplash.com/200x200/?lip,tint">
-<p>Lip Stain - $70</p>
-<button onclick="agregar('Lip Stain',70)">Agregar</button>
-</div>
-
-<div class="producto">
-<img src="https://source.unsplash.com/200x200/?nails,oil">
+<img src="https://cdn.shopmissa.com/products/aoa-cuticle-oil.jpg">
 <p>Cuticle Oil - $55</p>
-<button onclick="agregar('Cuticle Oil',55)">Agregar</button>
+<select id="cuticle" onchange="updateStockUI('Cuticle Oil','cuticle','stock-cuticle')">
+<option>Peach</option>
+<option>Strawberry</option>
+<option>Rose</option>
+</select>
+<p id="stock-cuticle" class="stock"></p>
+<button onclick="add('Cuticle Oil',55,'cuticle')">Agregar</button>
 </div>
 
+<!-- BLENDER -->
 <div class="producto">
-<img src="https://source.unsplash.com/200x200/?face,mask">
-<p>Foot Mask - $65</p>
-<button onclick="agregar('Foot Mask',65)">Agregar</button>
+<img src="https://cdn.shopmissa.com/products/aoa-wonder-blender.jpg">
+<p>Wonder Blender - $45</p>
+<select id="blender" onchange="updateStockUI('Wonder Blender','blender','stock-blender')">
+<option>Pink</option>
+<option>Black</option>
+</select>
+<p id="stock-blender" class="stock"></p>
+<button onclick="add('Wonder Blender',45,'blender')">Agregar</button>
 </div>
 
+<!-- HEADBAND -->
 <div class="producto">
-<img src="https://source.unsplash.com/200x200/?skincare">
-<p>Acne Patches - $60</p>
-<button onclick="agregar('Acne Patches',60)">Agregar</button>
+<img src="https://cdn.shopmissa.com/products/aoa-soft-plush-headband.jpg">
+<p>Headband Orejitas 🐰 - $70</p>
+<select id="headband" onchange="updateStockUI('Headband Orejitas','headband','stock-headband')">
+<option>Pink Ears</option>
+<option>Purple Ears</option>
+</select>
+<p id="stock-headband" class="stock"></p>
+<button onclick="add('Headband Orejitas',70,'headband')">Agregar</button>
 </div>
 
+<!-- LIP STAIN -->
 <div class="producto">
-<img src="https://source.unsplash.com/200x200/?makeup,sponge">
-<p>Beauty Blender - $45</p>
-<button onclick="agregar('Blender',45)">Agregar</button>
+<img src="https://cdn.shopmissa.com/products/aoa-lip-stain.jpg">
+<p>Lip Stain - $70</p>
+<select id="lip" onchange="updateStockUI('Lip Stain','lip','stock-lip')">
+<option>Kuu</option>
+<option>Hime</option>
+</select>
+<p id="stock-lip" class="stock"></p>
+<button onclick="add('Lip Stain',70,'lip')">Agregar</button>
 </div>
 
+<!-- LIPSTICK -->
 <div class="producto">
-<img src="https://source.unsplash.com/200x200/?spa,headband">
-<p>Headband - $70</p>
-<button onclick="agregar('Headband',70)">Agregar</button>
+<img src="https://cdn.shopmissa.com/products/aoa-retro-lipstick.jpg">
+<p>Retro Lipstick - $65</p>
+<select id="lipstick" onchange="updateStockUI('Retro Lipstick','lipstick','stock-lipstick')">
+<option>Mod</option>
+</select>
+<p id="stock-lipstick" class="stock"></p>
+<button onclick="add('Retro Lipstick',65,'lipstick')">Agregar</button>
 </div>
 
+<!-- BRUSH EGG -->
+<div class="producto">
+<img src="https://cdn.shopmissa.com/products/aoa-brush-egg.jpg">
+<p>Brush Cleaning Egg - $55</p>
+<select id="egg" onchange="updateStockUI('Brush Egg','egg','stock-egg')">
+<option>Black</option>
+<option>Purple</option>
+</select>
+<p id="stock-egg" class="stock"></p>
+<button onclick="add('Brush Egg',55,'egg')">Agregar</button>
+</div>
+
+</div>
 </div>
 
 <div id="carrito" class="seccion">
 <h2>Tu carrito 🛒</h2>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
+
+<button onclick="comprar()">Comprar por WhatsApp</button>
 <button onclick="vaciar()">Vaciar carrito</button>
 </div>
 
 <script>
 
+// STOCK REAL
+let stock = {
+  "Cuticle Oil": { Peach:1, Strawberry:2, Rose:2 },
+  "Wonder Blender": { Pink:1, Black:1 },
+  "Headband Orejitas": { "Pink Ears":1, "Purple Ears":1 },
+  "Lip Stain": { Kuu:1, Hime:1 },
+  "Retro Lipstick": { Mod:1 },
+  "Brush Egg": { Black:1, Purple:1 }
+};
+
 let carrito = [];
 let total = 0;
 
-function mostrar(seccion) {
-  document.querySelectorAll('.seccion').forEach(div => {
-    div.classList.remove('activa');
-  });
-  document.getElementById(seccion).classList.add('activa');
+function mostrar(s){
+document.querySelectorAll('.seccion').forEach(x=>x.classList.remove('activa'));
+document.getElementById(s).classList.add('activa');
 }
 
-function agregar(nombre, precio) {
-  carrito.push({nombre, precio});
-  total += precio;
-  actualizar();
+function add(nombre,precio,id){
+let variante = document.getElementById(id).value;
+
+if(stock[nombre][variante] <= 0){
+  alert("Agotado 😢");
+  return;
 }
 
-function eliminar(index) {
-  total -= carrito[index].precio;
-  carrito.splice(index,1);
-  actualizar();
+stock[nombre][variante]--;
+carrito.push({nombre,precio,variante});
+total += precio;
+
+render();
 }
 
-function vaciar() {
-  carrito = [];
-  total = 0;
-  actualizar();
+function render(){
+document.getElementById("contador").textContent = carrito.length;
+document.getElementById("total").textContent = total;
+
+let lista = document.getElementById("lista");
+lista.innerHTML="";
+
+carrito.forEach((item,i)=>{
+let li = document.createElement("li");
+li.innerHTML = `${item.nombre} (${item.variante}) - $${item.precio}
+<button onclick="del(${i})">❌</button>`;
+lista.appendChild(li);
+});
+
+// actualizar todos los stocks visibles
+updateAllStockUI();
 }
 
-function actualizar() {
-  document.getElementById("contador").textContent = carrito.length;
-  document.getElementById("total").textContent = total;
+function del(i){
+let item = carrito[i];
 
-  let lista = document.getElementById("lista");
-  lista.innerHTML = "";
+// devolver stock
+stock[item.nombre][item.variante]++;
 
-  carrito.forEach((item, index) => {
-    let li = document.createElement("li");
-    li.innerHTML = item.nombre + " - $" + item.precio + 
-    ` <button onclick="eliminar(${index})">❌</button>`;
-    lista.appendChild(li);
-  });
+total -= item.precio;
+carrito.splice(i,1);
+
+render();
 }
+
+function vaciar(){
+carrito.forEach(item=>{
+  stock[item.nombre][item.variante]++;
+});
+carrito = [];
+total = 0;
+render();
+}
+
+function comprar(){
+let msg="Hola quiero pedir:%0A";
+carrito.forEach(p=>{
+msg+=`- ${p.nombre} (${p.variante}) $${p.precio}%0A`;
+});
+msg+=`%0ATotal: $${total}`;
+
+window.open("https://wa.me/52664TU_NUMERO?text="+msg);
+}
+
+// UI STOCK
+function updateStockUI(nombre, selectId, elementId){
+let variante = document.getElementById(selectId).value;
+let cantidad = stock[nombre][variante];
+
+let el = document.getElementById(elementId);
+
+if(cantidad <= 0){
+  el.innerHTML = "Agotado ❌";
+  el.className = "stock low";
+} else if(cantidad <= 2){
+  el.innerHTML = "Quedan " + cantidad + " 🔥";
+  el.className = "stock low";
+} else {
+  el.innerHTML = "Disponible: " + cantidad;
+  el.className = "stock";
+}
+}
+
+function updateAllStockUI(){
+updateStockUI('Cuticle Oil','cuticle','stock-cuticle');
+updateStockUI('Wonder Blender','blender','stock-blender');
+updateStockUI('Headband Orejitas','headband','stock-headband');
+updateStockUI('Lip Stain','lip','stock-lip');
+updateStockUI('Retro Lipstick','lipstick','stock-lipstick');
+updateStockUI('Brush Egg','egg','stock-egg');
+}
+
+// iniciar
+updateAllStockUI();
 
 </script>
 
