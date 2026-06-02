@@ -3,25 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <title>Beauty & Cheap</title>
+
 <style>
 body{font-family:Arial;margin:0;background:#fafafa;color:#333}
-header{background:#111;color:#fff;padding:15px;text-align:center;font-size:22px}
+
+header{
+background:#111;color:#fff;
+padding:15px;text-align:center;
+font-size:22px;
+position:relative;
+}
+
 nav{display:flex;justify-content:center;gap:20px;background:#222;padding:10px}
-nav button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer}
+
+nav button{
+background:none;border:none;
+color:#fff;font-size:16px;
+cursor:pointer;
+}
+
 .section{display:none;padding:20px}
 .active{display:block}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-.card{background:#fff;border-radius:10px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.card img{width:100%;height:180px;object-fit:cover;border-radius:10px}
-button.buy{background:#111;color:#fff;border:none;padding:8px;margin-top:10px;width:100%;cursor:pointer}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+}
+
+.card{
+background:#fff;border-radius:10px;
+padding:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1)
+}
+
+.card img{
+width:100%;height:180px;
+object-fit:cover;
+border-radius:10px
+}
+
+button.buy{
+background:#111;color:#fff;
+border:none;padding:8px;
+margin-top:10px;width:100%;
+cursor:pointer
+}
+
 select{width:100%;padding:5px;margin-top:5px}
-.cart{position:fixed;right:0;top:0;width:280px;height:100%;background:#fff;border-left:1px solid #ccc;padding:10px;overflow:auto}
+
+/* 🛒 CART STYLE PRO */
+.cart{
+position:fixed;
+right:0;top:0;
+width:300px;height:100%;
+background:#fff;
+border-left:1px solid #ccc;
+padding:10px;
+overflow:auto;
+transform:translateX(100%);
+transition:0.3s ease;
+z-index:999;
+}
+
+.cart.open{
+transform:translateX(0);
+}
+
+.cart-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.cart-toggle{
+position:absolute;
+right:15px;
+top:12px;
+background:#fff;
+color:#111;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+border-radius:5px;
+}
 </style>
 </head>
 
 <body>
 
-<header>Beauty & Cheap 💄</header>
+<header>
+Beauty & Cheap 💄
+<button class="cart-toggle" onclick="toggleCart()">🛒</button>
+</header>
 
 <nav>
 <button onclick="show('home')">Inicio</button>
@@ -30,15 +104,20 @@ select{width:100%;padding:5px;margin-top:5px}
 
 <div id="home" class="section active">
 <h2>✨ Tu glow empieza aquí ✨</h2>
-<p>Maquillaje accesible, cute y de calidad. Porque verte bien no debe costar caro 💋</p>
+<p>Maquillaje accesible, cute y de calidad 💋</p>
 </div>
 
 <div id="shop" class="section">
 <div class="grid" id="products"></div>
 </div>
 
-<div class="cart">
-<h3>🛒 Carrito</h3>
+<!-- 🛒 CART -->
+<div class="cart" id="cartPanel">
+<div class="cart-header">
+<h3>Carrito</h3>
+<button onclick="toggleCart()">✖</button>
+</div>
+
 <ul id="cart"></ul>
 <p>Total: $<span id="total">0</span></p>
 </div>
@@ -46,12 +125,14 @@ select{width:100%;padding:5px;margin-top:5px}
 <script>
 
 const products=[
-
 {
 name:"AOA Brush Cleaning Egg",
 price:45,
 img:"egg_black.jpg",
-options:["Black","Purple"],
+options:[
+{label:"Black",key:"black"},
+{label:"Purple",key:"purple"}
+],
 stock:{black:1,purple:1}
 },
 
@@ -59,82 +140,94 @@ stock:{black:1,purple:1}
 name:"AOA Cuticle Revitalizing Pen",
 price:55,
 img:"cuticle_peach.jpg",
-options:["Peach","Strawberry","Rose"],
+options:[
+{label:"Peach",key:"peach"},
+{label:"Strawberry",key:"strawberry"},
+{label:"Rose",key:"rose"}
+],
 stock:{peach:1,strawberry:2,rose:2}
 },
 
 {
-name:"AOA Makeup Remover Wipes - Unscented",
+name:"AOA Makeup Remover Wipes",
 price:50,
 img:"wipes.jpg",
-options:["Único"],
+options:[{label:"Único",key:"default"}],
 stock:{default:5}
 },
 
 {
-name:"AOA Retro Chic Lipstick - Mod",
+name:"AOA Retro Chic Lipstick",
 price:70,
 img:"lipstick_mod.jpg",
-options:["Mod"],
+options:[{label:"Mod",key:"mod"}],
 stock:{mod:1}
 },
 
 {
-name:"AOA Skin Chamomile Foot Sheet Mask",
+name:"Chamomile Foot Mask",
 price:65,
 img:"foot_chamomile.jpg",
-options:["Chamomile"],
+options:[{label:"Chamomile",key:"chamomile"}],
 stock:{chamomile:2}
 },
 
 {
-name:"AOA Skin Foot Peeling Mask",
+name:"Foot Peeling Mask",
 price:75,
 img:"foot_peeling.jpg",
-options:["Peeling"],
+options:[{label:"Peeling",key:"peeling"}],
 stock:{peeling:2}
 },
 
 {
-name:"AOA Skin Rose Foot Sheet Mask",
+name:"Rose Foot Mask",
 price:65,
 img:"foot_rose.jpg",
-options:["Rose"],
+options:[{label:"Rose",key:"rose"}],
 stock:{rose:2}
 },
 
 {
-name:"AOA Skin Invisible Acne Patches 10mm",
+name:"Acne Patches 10mm",
 price:65,
 img:"acne_patches.jpg",
-options:["10mm"],
+options:[{label:"10mm",key:"default"}],
 stock:{default:3}
 },
 
 {
-name:"AOA Magical Girl Lip Stain",
+name:"Magical Girl Lip Stain",
 price:75,
 img:"lip_kuu.jpg",
-options:["Kuu","Hime"],
+options:[
+{label:"Kuu",key:"kuu"},
+{label:"Hime",key:"hime"}
+],
 stock:{kuu:1,hime:1}
 },
 
 {
-name:"AOA Soft + Plush Headband",
+name:"Soft Headband",
 price:45,
 img:"headband_pink_ears.jpg",
-options:["Pink Ears","Purple Ears"],
-stock:{pink:1,purple:1}
+options:[
+{label:"Pink Ears",key:"pink_ears"},
+{label:"Purple Ears",key:"purple_ears"}
+],
+stock:{pink_ears:1,purple_ears:1}
 },
 
 {
-name:"AOA Wonder Blender",
+name:"Wonder Blender",
 price:45,
 img:"blender_pink.jpg",
-options:["Pink","Black"],
+options:[
+{label:"Pink",key:"pink"},
+{label:"Black",key:"black"}
+],
 stock:{pink:1,black:1}
 }
-
 ];
 
 let cart=[];
@@ -145,15 +238,23 @@ const container=document.getElementById("products");
 container.innerHTML="";
 
 products.forEach((p,i)=>{
-let opt=p.options.map(o=>`<option>${o}</option>`).join("");
+
+let opt=p.options.map(o=>
+`<option value="${o.key}">${o.label}</option>`
+).join("");
 
 container.innerHTML+=`
 <div class="card">
 <img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<select id="opt${i}">${opt}</select>
+
+<select id="opt${i}" onchange="updateStock(${i})">
+${opt}
+</select>
+
 <p id="stock${i}"></p>
+
 <button class="buy" onclick="add(${i})">Agregar</button>
 </div>
 `;
@@ -162,30 +263,49 @@ updateStock(i);
 });
 }
 
+function getStock(p,key){
+return p.stock[key] ?? p.stock.default ?? 0;
+}
+
 function updateStock(i){
 let p=products[i];
-let sel=document.getElementById("opt"+i).value.toLowerCase().split(" ")[0];
-let stock=p.stock[sel] ?? p.stock.default;
-document.getElementById("stock"+i).innerText="Stock: "+stock;
+let sel=document.getElementById("opt"+i).value;
+document.getElementById("stock"+i).innerText =
+"Stock: " + getStock(p,sel);
 }
 
 function add(i){
 let p=products[i];
-let sel=document.getElementById("opt"+i).value.toLowerCase().split(" ")[0];
+let sel=document.getElementById("opt"+i).value;
 
-if((p.stock[sel] ?? p.stock.default)<=0){
+if(getStock(p,sel)<=0){
 alert("Agotado 😢");
 return;
 }
 
 p.stock[sel]--;
-updateStock(i);
 
-cart.push(p.name+" ("+sel+") - $"+p.price);
+cart.push({
+name:p.name,
+option:sel,
+price:p.price
+});
+
 total+=p.price;
 
-document.getElementById("cart").innerHTML=cart.map(c=>"<li>"+c+"</li>").join("");
+renderCart();
+updateStock(i);
+}
+
+function renderCart(){
+document.getElementById("cart").innerHTML =
+cart.map(c=>`<li>${c.name} (${c.option}) - $${c.price}</li>`).join("");
+
 document.getElementById("total").innerText=total;
+}
+
+function toggleCart(){
+document.getElementById("cartPanel").classList.toggle("open");
 }
 
 function show(sec){
@@ -194,14 +314,6 @@ document.getElementById(sec).classList.add("active");
 }
 
 render();
-
-document.addEventListener("change", e=>{
-if(e.target.tagName==="SELECT"){
-let i=e.target.id.replace("opt","");
-updateStock(i);
-}
-});
-
 </script>
 
 </body>
