@@ -12,15 +12,17 @@ background:#fafafa;
 color:#333;
 }
 
+/* HEADER */
 header{
 background:#111;
 color:#fff;
 padding:15px;
 text-align:center;
 font-size:22px;
+position:relative;
 }
 
-/* NAV (igual que el tuyo) */
+/* NAV */
 nav{
 display:flex;
 justify-content:center;
@@ -37,9 +39,11 @@ font-size:16px;
 cursor:pointer;
 }
 
+/* SECTIONS */
 .section{display:none;padding:20px}
 .active{display:block}
 
+/* PRODUCTS */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -76,12 +80,31 @@ padding:5px;
 margin-top:5px;
 }
 
-/* 🛒 CARRITO DESPLEGABLE (SOLO AQUÍ CAMBIADO) */
+/* 🔥 BACKDROP OSCURO */
+.backdrop{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+opacity:0;
+visibility:hidden;
+transition:0.3s;
+z-index:9998;
+}
+
+.backdrop.show{
+opacity:1;
+visibility:visible;
+}
+
+/* 🛒 CARRITO DESPLEGABLE REAL */
 .cart{
 position:fixed;
 right:0;
 top:0;
-width:280px;
+width:300px;
 height:100%;
 background:#fff;
 border-left:1px solid #ccc;
@@ -89,12 +112,20 @@ padding:10px;
 overflow:auto;
 
 transform:translateX(100%);
-transition:0.3s ease;
+transition:transform 0.3s ease;
 z-index:9999;
 }
 
 .cart.open{
 transform:translateX(0);
+}
+
+.closeBtn{
+background:none;
+border:none;
+font-size:20px;
+cursor:pointer;
+float:right;
 }
 
 </style>
@@ -104,7 +135,7 @@ transform:translateX(0);
 
 <header>
 Beauty & Cheap 💄
-<button onclick="toggleCart()">🛒</button>
+<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px;">🛒</button>
 </header>
 
 <nav>
@@ -121,8 +152,13 @@ Beauty & Cheap 💄
 <div class="grid" id="products"></div>
 </div>
 
-<!-- 🛒 CART (MISMO CONTENIDO, SOLO AHORA DESPLEGABLE) -->
-<div class="cart">
+<!-- 🔥 BACKDROP -->
+<div class="backdrop" id="backdrop" onclick="toggleCart()"></div>
+
+<!-- 🛒 CART -->
+<div class="cart" id="cartPanel">
+<button class="closeBtn" onclick="toggleCart()">✖</button>
+
 <h3>🛒 Carrito</h3>
 <ul id="cart"></ul>
 <p>Total: $<span id="total">0</span></p>
@@ -130,7 +166,7 @@ Beauty & Cheap 💄
 
 <script>
 
-/* 🔥 PRODUCTOS (NO TOCADO) */
+/* PRODUCTOS (igual que tu base) */
 const products=[
 {
 name:"AOA Brush Cleaning Egg",
@@ -142,7 +178,6 @@ options:[
 ],
 stock:{black:1,purple:1}
 },
-
 {
 name:"AOA Cuticle Revitalizing Pen",
 price:55,
@@ -154,7 +189,6 @@ options:[
 ],
 stock:{peach:1,strawberry:2,rose:2}
 },
-
 {
 name:"AOA Makeup Remover Wipes",
 price:50,
@@ -162,7 +196,6 @@ img:"wipes.jpg",
 options:[{label:"Único",key:"default"}],
 stock:{default:5}
 },
-
 {
 name:"AOA Retro Chic Lipstick",
 price:70,
@@ -170,7 +203,6 @@ img:"lipstick_mod.jpg",
 options:[{label:"Mod",key:"mod"}],
 stock:{mod:1}
 },
-
 {
 name:"AOA Chamomile Foot Mask",
 price:65,
@@ -178,7 +210,6 @@ img:"foot_chamomile.jpg",
 options:[{label:"Chamomile",key:"chamomile"}],
 stock:{chamomile:2}
 },
-
 {
 name:"AOA Foot Peeling Mask",
 price:75,
@@ -186,7 +217,6 @@ img:"foot_peeling.jpg",
 options:[{label:"Peeling",key:"peeling"}],
 stock:{peeling:2}
 },
-
 {
 name:"AOA Rose Foot Mask",
 price:65,
@@ -194,15 +224,13 @@ img:"foot_rose.jpg",
 options:[{label:"Rose",key:"rose"}],
 stock:{rose:2}
 },
-
 {
-name:"AOA Acne Patches 10mm",
+name:"AOA Acne Patches",
 price:65,
 img:"acne_patches.jpg",
 options:[{label:"10mm",key:"default"}],
 stock:{default:3}
 },
-
 {
 name:"AOA Magical Girl Lip Stain",
 price:75,
@@ -213,7 +241,6 @@ options:[
 ],
 stock:{kuu:1,hime:1}
 },
-
 {
 name:"AOA Soft Headband",
 price:45,
@@ -224,7 +251,6 @@ options:[
 ],
 stock:{pink:1,purple:1}
 },
-
 {
 name:"AOA Wonder Blender",
 price:45,
@@ -272,9 +298,7 @@ updateStock(i);
 }
 
 /* STOCK */
-function getStock(p,key){
-return p.stock[key] ?? 0;
-}
+function getStock(p,k){return p.stock[k]??0;}
 
 function updateStock(i){
 let p=products[i];
@@ -295,12 +319,7 @@ return;
 
 p.stock[sel]--;
 
-cart.push({
-name:p.name,
-option:sel,
-price:p.price
-});
-
+cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
 renderCart();
@@ -309,21 +328,22 @@ updateStock(i);
 
 /* CART */
 function renderCart(){
-document.getElementById("cart").innerHTML =
+document.getElementById("cart").innerHTML=
 cart.map(c=>`<li>${c.name} (${c.option}) - $${c.price}</li>`).join("");
 
 document.getElementById("total").innerText=total;
 }
 
-/* NAV */
-function show(sec){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(sec).classList.add("active");
+/* 🛒 TOGGLE REAL */
+function toggleCart(){
+document.getElementById("cartPanel").classList.toggle("open");
+document.getElementById("backdrop").classList.toggle("show");
 }
 
-/* 🛒 TOGGLE CARRITO (NUEVO) */
-function toggleCart(){
-document.querySelector(".cart").classList.toggle("open");
+/* NAV */
+function show(s){
+document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+document.getElementById(s).classList.add("active");
 }
 
 render();
@@ -335,7 +355,6 @@ let i=e.target.id.replace("opt","");
 updateStock(i);
 }
 });
-
 </script>
 
 </body>
