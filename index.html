@@ -5,13 +5,10 @@
 <title>Beauty and Cheap</title>
 
 <style>
-body { font-family: Arial; margin:0; background:#f5f5f5; }
+body { font-family: Arial; margin:0; background:#f4f4f4; }
 
 nav { background:#000; padding:12px; text-align:center; }
 nav button { color:white; background:none; border:none; margin:10px; font-size:16px; }
-
-.seccion { display:none; padding:20px; }
-.activa { display:block; }
 
 .grid { display:flex; flex-wrap:wrap; justify-content:center; }
 
@@ -21,8 +18,8 @@ nav button { color:white; background:none; border:none; margin:10px; font-size:1
   padding:15px;
   margin:12px;
   width:220px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.1);
   text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
 .producto img {
@@ -35,14 +32,17 @@ nav button { color:white; background:none; border:none; margin:10px; font-size:1
 .stock { font-size:13px; margin-top:5px; }
 .low { color:red; font-weight:bold; }
 
-select, button {
+button {
+  background:#000;
+  color:white;
+  border:none;
+  padding:8px;
   width:100%;
   margin-top:8px;
-  padding:8px;
   border-radius:6px;
 }
 
-button { background:#000; color:white; }
+select { width:100%; padding:6px; margin-top:5px; }
 
 </style>
 </head>
@@ -50,189 +50,191 @@ button { background:#000; color:white; }
 <body>
 
 <nav>
-<button onclick="mostrar('productos')">Productos</button>
-<button onclick="mostrar('carrito')">Carrito (<span id="contador">0</span>)</button>
+<button onclick="ver('productos')">Productos</button>
+<button onclick="ver('carrito')">Carrito (<span id="count">0</span>)</button>
 </nav>
 
-<div id="productos" class="seccion activa">
-<div class="grid">
+<div id="productos" class="grid"></div>
 
-<!-- CUTICLE -->
-<div class="producto">
-<img id="img-cuticle" src="https://cdn.shopmissa.com/products/aoa-cuticle-oil.jpg">
-<p>Cuticle Oil - $55</p>
-<select id="cuticle" onchange="cambiarImagen('cuticle')">
-<option>Peach</option>
-<option>Strawberry</option>
-<option>Rose</option>
-</select>
-<p id="stock-cuticle" class="stock"></p>
-<button onclick="add('Cuticle Oil',55,'cuticle')">Agregar</button>
-</div>
-
-<!-- WIPES -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-makeup-wipes.jpg">
-<p>Makeup Wipes - $65</p>
-<p>(5 disponibles)</p>
-<button onclick="addSimple('Wipes',65)">Agregar</button>
-</div>
-
-<!-- BLENDER -->
-<div class="producto">
-<img id="img-blender" src="https://cdn.shopmissa.com/products/aoa-wonder-blender.jpg">
-<p>Wonder Blender - $45</p>
-<select id="blender" onchange="cambiarImagen('blender')">
-<option>Pink</option>
-<option>Black</option>
-</select>
-<p id="stock-blender" class="stock"></p>
-<button onclick="add('Wonder Blender',45,'blender')">Agregar</button>
-</div>
-
-<!-- HEADBAND -->
-<div class="producto">
-<img id="img-headband" src="https://cdn.shopmissa.com/products/aoa-soft-plush-headband.jpg">
-<p>Headband Orejitas 🐰 - $70</p>
-<select id="headband">
-<option>Pink Ears</option>
-<option>Purple Ears</option>
-</select>
-<p id="stock-headband" class="stock"></p>
-<button onclick="add('Headband',70,'headband')">Agregar</button>
-</div>
-
-<!-- FOOT MASK -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-foot-mask.jpg">
-<p>Mascarilla Pies - $70</p>
-<select id="foot">
-<option>Chamomile</option>
-<option>Rose</option>
-<option>Peeling</option>
-</select>
-<p>(2 disponibles c/u)</p>
-<button onclick="add('Foot Mask',70,'foot')">Agregar</button>
-</div>
-
-<!-- ACNE PATCH -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-acne-patch.jpg">
-<p>Acne Patches - $60</p>
-<p>(3 disponibles)</p>
-<button onclick="addSimple('Acne Patch',60)">Agregar</button>
-</div>
-
-<!-- LIP STAIN -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-lip-stain.jpg">
-<p>Lip Stain - $70</p>
-<select id="lip">
-<option>Kuu</option>
-<option>Hime</option>
-</select>
-<p id="stock-lip" class="stock"></p>
-<button onclick="add('Lip Stain',70,'lip')">Agregar</button>
-</div>
-
-<!-- LIPSTICK -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-retro-lipstick.jpg">
-<p>Retro Lipstick - $65</p>
-<p>(1 disponible)</p>
-<button onclick="addSimple('Lipstick Mod',65)">Agregar</button>
-</div>
-
-<!-- BRUSH EGG -->
-<div class="producto">
-<img src="https://cdn.shopmissa.com/products/aoa-brush-egg.jpg">
-<p>Brush Cleaner - $55</p>
-<select id="egg">
-<option>Black</option>
-<option>Purple</option>
-</select>
-<p id="stock-egg" class="stock"></p>
-<button onclick="add('Brush Egg',55,'egg')">Agregar</button>
-</div>
-
-</div>
-</div>
-
-<div id="carrito" class="seccion">
-<h2>Carrito 🛒</h2>
+<div id="carrito" style="display:none; padding:20px;">
+<h2>Carrito</h2>
 <ul id="lista"></ul>
 <p>Total: $<span id="total">0</span></p>
-<button onclick="comprar()">Comprar</button>
+<button onclick="comprar()">Comprar por WhatsApp</button>
 </div>
 
 <script>
 
+// STOCK
 let stock = {
-  "Cuticle Oil": { Peach:1, Strawberry:2, Rose:2 },
-  "Wonder Blender": { Pink:1, Black:1 },
-  "Headband": { "Pink Ears":1, "Purple Ears":1 },
-  "Lip Stain": { Kuu:1, Hime:1 },
-  "Brush Egg": { Black:1, Purple:1 }
+cuticle:{peach:1, strawberry:2, rose:2},
+blender:{pink:1, black:1},
+headband:{pink:1, purple:1},
+lip:{kuu:1, hime:1},
+egg:{black:1, purple:1},
+wipes:5,
+foot:{chamomile:2, rose:2, peeling:2},
+acne:3,
+lipstick:1
 };
 
 let carrito = [];
 let total = 0;
 
-function mostrar(s){
-document.querySelectorAll('.seccion').forEach(x=>x.classList.remove('activa'));
-document.getElementById(s).classList.add('activa');
+// PRODUCTOS
+let productos = [
+
+{nombre:"Cuticle Oil", precio:55, tipo:"cuticle",
+opciones:["peach","strawberry","rose"]},
+
+{nombre:"Wonder Blender", precio:45, tipo:"blender",
+opciones:["pink","black"]},
+
+{nombre:"Headband Orejitas", precio:70, tipo:"headband",
+opciones:["pink","purple"]},
+
+{nombre:"Lip Stain", precio:70, tipo:"lip",
+opciones:["kuu","hime"]},
+
+{nombre:"Brush Cleaner", precio:55, tipo:"egg",
+opciones:["black","purple"]},
+
+{nombre:"Foot Mask", precio:70, tipo:"foot",
+opciones:["chamomile","rose","peeling"]},
+
+{nombre:"Wipes", precio:65, tipo:"wipes"},
+
+{nombre:"Acne Patch", precio:60, tipo:"acne"},
+
+{nombre:"Lipstick Mod", precio:65, tipo:"lipstick"}
+
+];
+
+// GENERAR TIENDA
+let cont = document.getElementById("productos");
+
+productos.forEach(p=>{
+
+let div = document.createElement("div");
+div.className="producto";
+
+let img = `<img id="img-${p.tipo}" src="img/${p.tipo}-${p.opciones ? p.opciones[0] : ''}.jpg">`;
+
+let select = "";
+
+if(p.opciones){
+select = `<select onchange="cambiar('${p.tipo}')">` +
+p.opciones.map(o=>`<option value="${o}">${o}</option>`).join("") +
+`</select>`;
 }
 
-function add(nombre,precio,id){
-let variante = document.getElementById(id).value;
+div.innerHTML = `
+${img}
+<p>${p.nombre} - $${p.precio}</p>
+${select}
+<p id="stock-${p.tipo}" class="stock"></p>
+<button onclick="add('${p.tipo}',${p.precio})">Agregar</button>
+`;
 
-if(stock[nombre] && stock[nombre][variante] <= 0){
-alert("Agotado");
-return;
+cont.appendChild(div);
+
+});
+
+// CAMBIAR IMAGEN
+function cambiar(tipo){
+let sel = document.querySelector(`#img-${tipo}`);
+let val = event.target.value;
+sel.src = `img/${tipo}-${val}.jpg`;
 }
 
-if(stock[nombre]) stock[nombre][variante]--;
+// AGREGAR
+function add(tipo,precio){
 
-carrito.push({nombre,precio,variante});
+let variante = null;
+let s = document.querySelector(`#productos select[onchange*="${tipo}"]`);
+if(s) variante = s.value;
+
+if(typeof stock[tipo] === "object"){
+if(stock[tipo][variante] <= 0) return alert("Agotado");
+stock[tipo][variante]--;
+}else{
+if(stock[tipo] <= 0) return alert("Agotado");
+stock[tipo]--;
+}
+
+carrito.push({tipo,variante,precio});
 total += precio;
+
 render();
 }
 
-function addSimple(nombre,precio){
-carrito.push({nombre,precio,variante:""});
-total += precio;
-render();
-}
-
+// RENDER
 function render(){
-document.getElementById("contador").textContent = carrito.length;
+document.getElementById("count").textContent = carrito.length;
 document.getElementById("total").textContent = total;
 
 let lista = document.getElementById("lista");
 lista.innerHTML="";
 
-carrito.forEach((item,i)=>{
+carrito.forEach((p,i)=>{
 let li = document.createElement("li");
-li.innerHTML = `${item.nombre} ${item.variante} - $${item.precio}
+li.innerHTML = `${p.tipo} ${p.variante || ""} - $${p.precio}
 <button onclick="del(${i})">❌</button>`;
 lista.appendChild(li);
 });
+
+mostrarStock();
 }
 
+// ELIMINAR
 function del(i){
-total -= carrito[i].precio;
+let p = carrito[i];
+
+if(typeof stock[p.tipo] === "object"){
+stock[p.tipo][p.variante]++;
+}else{
+stock[p.tipo]++;
+}
+
+total -= p.precio;
 carrito.splice(i,1);
 render();
 }
 
+// STOCK UI
+function mostrarStock(){
+
+Object.keys(stock).forEach(tipo=>{
+let el = document.getElementById("stock-"+tipo);
+if(!el) return;
+
+if(typeof stock[tipo] === "object"){
+let txt = Object.entries(stock[tipo])
+.map(([k,v])=>`${k}:${v}`).join(" | ");
+el.innerHTML = txt;
+}else{
+el.innerHTML = "Disponibles: "+stock[tipo];
+}
+});
+}
+
+// WHATSAPP
 function comprar(){
 let msg="Pedido:%0A";
 carrito.forEach(p=>{
-msg+=`- ${p.nombre} ${p.variante} $${p.precio}%0A`;
+msg+=`- ${p.tipo} ${p.variante || ""} $${p.precio}%0A`;
 });
 msg+=`Total: $${total}`;
 window.open("https://wa.me/52664TU_NUMERO?text="+msg);
 }
+
+// CAMBIAR VISTA
+function ver(sec){
+document.getElementById("productos").style.display = sec==="productos"?"flex":"none";
+document.getElementById("carrito").style.display = sec==="carrito"?"block":"none";
+}
+
+mostrarStock();
 
 </script>
 
