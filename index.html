@@ -7,6 +7,7 @@
 <style>
 body{margin:0;font-family:system-ui;background:#f4f4f7}
 
+/* HEADER */
 header{
 background:#fff;
 padding:14px;
@@ -16,15 +17,27 @@ border-bottom:1px solid #ddd;
 position:sticky;
 top:0;
 z-index:1000;
+flex-wrap:wrap;
+gap:10px;
 }
 
+/* SEARCH */
+#search{
+padding:8px;
+border:1px solid #ddd;
+border-radius:8px;
+width:200px;
+}
+
+/* SECTION */
 .section{display:none;padding:20px}
 .section.active{display:block}
 
+/* GRID */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:18px;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:16px;
 }
 
 .card{
@@ -51,6 +64,7 @@ margin-top:6px;
 
 .buy{background:#111;color:#fff}
 
+/* CART */
 .cart{
 position:fixed;
 right:0;
@@ -66,20 +80,20 @@ flex-direction:column;
 z-index:9999;
 }
 .cart.open{transform:translateX(0)}
-
 .cartBody{flex:1;overflow:auto;padding:10px}
 
+/* ADMIN */
 .admin{
 position:fixed;
 left:0;
 top:0;
-width:420px;
+width:560px;
 height:100%;
 background:#111;
 color:#fff;
 transform:translateX(-110%);
 transition:.3s;
-padding:14px;
+padding:18px;
 overflow:auto;
 z-index:10000;
 }
@@ -88,7 +102,7 @@ z-index:10000;
 
 .admin input{
 width:100%;
-padding:8px;
+padding:9px;
 margin-top:6px;
 border-radius:8px;
 border:none;
@@ -98,11 +112,12 @@ border:none;
 background:#fff;
 color:#111;
 width:100%;
+margin-top:6px;
 }
-.small{
-font-size:12px;
-opacity:.8;
-}
+
+hr{border:0;border-top:1px solid #333;margin:14px 0}
+
+.small{font-size:12px;opacity:.8}
 </style>
 </head>
 
@@ -110,6 +125,8 @@ opacity:.8;
 
 <header>
 <div><b>💄 Beauty & Cheap</b></div>
+
+<input id="search" placeholder="Buscar producto..." oninput="render()">
 
 <div>
 <button onclick="show('shop')">Tienda</button>
@@ -126,21 +143,19 @@ opacity:.8;
 <!-- CART -->
 <div class="cart" id="cart">
 <button onclick="openCart()">Cerrar carrito</button>
-
 <div class="cartBody" id="cartList"></div>
 
 <p style="padding:10px">Total: $<span id="total">0</span></p>
 
 <button onclick="checkout()" style="width:95%;margin:10px;background:#111;color:#fff;">
-Realizar pago por WhatsApp
+Pagar por WhatsApp
 </button>
 
 <input id="codeInput" placeholder="Código 4 dígitos" style="margin:10px">
 
 <button onclick="verifyCode()" style="width:95%;background:#111;color:#fff;">
-Verificar código
+Verificar compra
 </button>
-
 </div>
 
 <!-- ADMIN -->
@@ -160,9 +175,16 @@ Verificar código
 
 <hr>
 
+<h4>🔐 Cambiar contraseña</h4>
+<input id="newPass" type="password" placeholder="Nueva contraseña">
+<button onclick="changePassword()">Actualizar</button>
+
+<hr>
+
 <h4>Agregar producto</h4>
 <input id="pname" placeholder="Nombre">
 <input id="pprice" placeholder="Precio">
+<input id="pimg" placeholder="Imagen (archivo.jpg)">
 <button onclick="addProduct()">Agregar</button>
 
 <hr>
@@ -171,7 +193,6 @@ Verificar código
 <div id="adminList"></div>
 
 </div>
-
 </div>
 
 <script>
@@ -181,32 +202,54 @@ let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
 let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
 let logged = localStorage.getItem("logged")==="true";
 
-/* INVENTARIO */
+/* INVENTARIO COMPLETO */
 let products=[
-{id:1,name:"AOA Brush Egg Black",price:45,img:"egg_black.jpg",stock:2},
-{id:2,name:"AOA Wipes Sin Aroma",price:50,img:"wipes.jpg",stock:5},
-{id:3,name:"AOA Lipstick Mod",price:70,img:"lipstick.jpg",stock:1},
-{id:4,name:"AOA Blender Pink",price:45,img:"blender.jpg",stock:2}
+{id:1,name:"AOA Brush Egg Black",price:45,img:"egg_black.jpg",cat:"skincare",stock:2},
+{id:2,name:"AOA Brush Egg Purple",price:45,img:"egg_purple.jpg",cat:"skincare",stock:2},
+
+{id:3,name:"Cuticle Oil Peach",price:50,img:"cuticle_peach.jpg",cat:"skincare",stock:5},
+{id:4,name:"Cuticle Oil Strawberry",price:50,img:"cuticle_strawberry.jpg",cat:"skincare",stock:5},
+{id:5,name:"Cuticle Oil Rose",price:50,img:"cuticle_rose.jpg",cat:"skincare",stock:5},
+
+{id:6,name:"AOA Wipes Sin Aroma",price:50,img:"wipes.jpg",cat:"skincare",stock:5},
+
+{id:7,name:"Lipstick Mod",price:70,img:"lipstick_mod.jpg",cat:"labios",stock:3},
+{id:12,name:"Lip Oil Kuu",price:65,img:"lip_kuu.jpg",cat:"labios",stock:4},
+{id:13,name:"Lip Oil Hime",price:65,img:"lip_hime.jpg",cat:"labios",stock:4},
+
+{id:8,name:"Foot Mask Chamomile",price:60,img:"foot_chamomile.jpg",cat:"pies",stock:3},
+{id:9,name:"Foot Peeling Mask",price:65,img:"foot_peeling.jpg",cat:"pies",stock:3},
+{id:10,name:"Foot Mask Rose",price:60,img:"foot_rose.jpg",cat:"pies",stock:3},
+
+{id:11,name:"Acne Patches",price:55,img:"acne_patches.jpg",cat:"skincare",stock:6},
+
+{id:14,name:"Headband Pink Ears",price:40,img:"headband_pink_ears.jpg",cat:"accesorios",stock:3},
+{id:15,name:"Headband Purple Ears",price:40,img:"headband_purple_ears.jpg",cat:"accesorios",stock:3},
+
+{id:16,name:"Beauty Blender Pink",price:45,img:"blender_pink.jpg",cat:"accesorios",stock:4},
+{id:17,name:"Beauty Blender Black",price:45,img:"blender_black.jpg",cat:"accesorios",stock:4}
 ];
 
 let cart=[];
 let pendingCode=null;
 
 /* RENDER */
-document.addEventListener("DOMContentLoaded",()=>render());
-
 function render(){
 
+let q=document.getElementById("search").value?.toLowerCase()||"";
 let box=document.getElementById("products");
 box.innerHTML="";
 
-products.forEach(p=>{
+products
+.filter(p=>p.name.toLowerCase().includes(q))
+.forEach(p=>{
+
 box.innerHTML+=`
 <div class="card">
 <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<p class="small">Stock: ${p.stock}</p>
+<p class="small">Stock: ${p.stock} | ${p.cat}</p>
 
 <button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
 Agregar
@@ -220,16 +263,14 @@ renderAdmin();
 syncUI();
 }
 
-/* ➕ CART */
+/* CART */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
-
-cart.push({id:p.id,name:p.name,price:p.price});
+cart.push({...p});
 render();
 }
 
-/* 🛒 CART */
 function renderCart(){
 let box=document.getElementById("cartList");
 box.innerHTML="";
@@ -246,11 +287,12 @@ Object.values(grouped).forEach(item=>{
 total+=item.price*item.qty;
 
 box.innerHTML+=`
-<div style="margin-bottom:10px">
+<div>
 <b>${item.name}</b><br>
 Cantidad: ${item.qty}<br>
 $${item.price*item.qty}
 </div>
+<hr>
 `;
 });
 
@@ -258,53 +300,39 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* 💳 WHATSAPP */
+/* WHATSAPP */
 function checkout(){
-
-if(cart.length===0){
-alert("Carrito vacío");
-return;
-}
+if(cart.length===0){alert("Carrito vacío");return;}
 
 pendingCode=Math.floor(1000+Math.random()*9000);
 
 let msg="Compra:%0A";
-
 cart.forEach(c=>{
 msg+=`- ${c.name} ($${c.price})%0A`;
 });
 
 msg+=`%0ACódigo: ${pendingCode}`;
 
-let phone="52TU_NUMERO_AQUI";
-window.open("https://wa.me/"+phone+"?text="+msg,"_blank");
-
-alert("Pedido enviado");
+window.open("https://wa.me/52TU_NUMERO_AQUI?text="+msg,"_blank");
 }
 
-/* 🔐 VERIFY */
+/* VERIFY */
 function verifyCode(){
-
 let code=document.getElementById("codeInput").value;
 
 if(code==pendingCode){
-
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
 if(p) p.stock--;
 });
-
 cart=[];
 pendingCode=null;
 render();
-
 alert("Compra confirmada ✔");
-}else{
-alert("Código incorrecto");
-}
+}else alert("Código incorrecto");
 }
 
-/* 🔐 LOGIN */
+/* ADMIN */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -323,66 +351,60 @@ localStorage.setItem("logged","false");
 syncUI();
 }
 
-/* UI */
 function syncUI(){
 let a=document.getElementById("loginBox");
 let b=document.getElementById("panel");
-
-if(!a||!b)return;
 
 a.style.display=logged?"none":"block";
 b.style.display=logged?"block":"none";
 }
 
-/* ADMIN PRO */
+/* ADMIN PANEL */
 function renderAdmin(){
-let box=document.getElementById("adminList");
 if(!logged) return;
-
+let box=document.getElementById("adminList");
 box.innerHTML="";
 
 products.forEach(p=>{
 box.innerHTML+=`
-<div style="border:1px solid #444;padding:8px;margin:8px 0">
-
+<div>
 <input value="${p.name}" onchange="editName(${p.id},this.value)">
 <input value="${p.price}" onchange="editPrice(${p.id},this.value)">
 <input value="${p.stock}" onchange="editStock(${p.id},this.value)">
-
 <button onclick="deleteProduct(${p.id})" style="background:red;color:#fff">
 Eliminar
 </button>
-
 </div>
+<hr>
 `;
 });
 }
 
-/* EDITS */
-function editName(id,v){let p=products.find(x=>x.id===id);p.name=v;render();}
-function editPrice(id,v){let p=products.find(x=>x.id===id);p.price=+v;render();}
-function editStock(id,v){let p=products.find(x=>x.id===id);p.stock=+v;render();}
+function editName(id,v){products.find(x=>x.id===id).name=v;render();}
+function editPrice(id,v){products.find(x=>x.id===id).price=+v;render();}
+function editStock(id,v){products.find(x=>x.id===id).stock=+v;render();}
 
-/* DELETE */
 function deleteProduct(id){
 products=products.filter(x=>x.id!==id);
 render();
 }
 
-/* ADD PRODUCT */
 function addProduct(){
 let name=document.getElementById("pname").value;
 let price=+document.getElementById("pprice").value;
+let img=document.getElementById("pimg").value;
 
-products.push({
-id:Date.now(),
-name,
-price:price||50,
-img:"default.jpg",
-stock:1
-});
-
+products.push({id:Date.now(),name,price,img,stock:1,cat:"nuevo"});
 render();
+}
+
+/* PASSWORD */
+function changePassword(){
+let np=document.getElementById("newPass").value;
+if(np.length<4)return alert("Muy corta");
+ADMIN_PASS=np;
+localStorage.setItem("adminPass",np);
+alert("Actualizada ✔");
 }
 
 /* NAV */
@@ -391,14 +413,8 @@ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
 document.getElementById(s).classList.add("active");
 }
 
-function openCart(){
-document.getElementById("cart").classList.toggle("open");
-}
-
-function openAdmin(){
-document.getElementById("admin").classList.toggle("open");
-if(!logged) syncUI();
-}
+function openCart(){document.getElementById("cart").classList.toggle("open");}
+function openAdmin(){document.getElementById("admin").classList.toggle("open");if(!logged)syncUI();}
 
 render();
 
