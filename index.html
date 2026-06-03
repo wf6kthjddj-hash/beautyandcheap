@@ -19,20 +19,17 @@ justify-content:space-between;
 border-bottom:1px solid #eee;
 position:sticky;
 top:0;
-z-index:1000;
 }
 
 .section{display:none;padding:20px}
 .section.active{display:block}
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
 gap:20px;
 }
 
-/* CARD */
 .card{
 background:#fff;
 padding:12px;
@@ -45,6 +42,12 @@ width:100%;
 height:180px;
 object-fit:cover;
 border-radius:10px;
+}
+
+select{
+width:100%;
+padding:8px;
+margin-top:6px;
 }
 
 /* CART */
@@ -64,20 +67,7 @@ border-left:1px solid #ddd;
 .cart.open{transform:translateX(0)}
 
 .cartBody{flex:1;overflow:auto;padding:10px}
-
-.cartFooter{
-padding:10px;
-border-top:1px solid #ddd;
-}
-
-.closeBtn{
-background:#000;
-color:#fff;
-border:none;
-padding:6px 10px;
-border-radius:6px;
-cursor:pointer;
-}
+.cartFooter{padding:10px;border-top:1px solid #ddd}
 
 /* ADMIN */
 .admin{
@@ -101,6 +91,9 @@ margin-top:10px;
 border-radius:10px;
 border:1px solid #eee;
 }
+
+button{cursor:pointer}
+
 </style>
 </head>
 
@@ -117,7 +110,7 @@ border:1px solid #eee;
 </div>
 </header>
 
-<!-- SHOP (PRIMERO AL ABRIR) -->
+<!-- SHOP -->
 <div id="shop" class="section active">
 <div class="grid" id="products"></div>
 </div>
@@ -125,12 +118,12 @@ border:1px solid #eee;
 <!-- HOME -->
 <div id="home" class="section">
 <h2>Inicio</h2>
-<p>Bienvenida a la tienda 💄</p>
+<p>Bienvenida 💄</p>
 </div>
 
 <!-- CART -->
 <div class="cart" id="cart">
-<button class="closeBtn" onclick="toggleCart()">Cerrar</button>
+<button onclick="toggleCart()">Cerrar</button>
 <div class="cartBody" id="cartList"></div>
 <div class="cartFooter">
 Total: $<span id="total">0</span>
@@ -143,7 +136,7 @@ Total: $<span id="total">0</span>
 <h3>Admin</h3>
 
 <input id="user" placeholder="usuario">
-<input id="pass" type="password" placeholder="clave">
+<input id="pass" type="password" placeholder="contraseña">
 <button onclick="login()">Entrar</button>
 
 <div id="adminPanel" style="display:none">
@@ -162,8 +155,8 @@ let logged=false;
 let adminUser="admin";
 let adminPass="1234";
 
-/* 🧠 INVENTARIO (SIN CAMBIOS) */
-let products = [
+/* 🧠 INVENTARIO (NO TOCADO) */
+let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
 {name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
@@ -179,37 +172,70 @@ let products = [
 let cart=[];
 let total=0;
 
-/* 🔐 LOGIN CORRECTO */
+/* 🔐 LOGIN REAL */
 function login(){
 if(user.value===adminUser && pass.value===adminPass){
 logged=true;
 document.getElementById("adminPanel").style.display="block";
 renderDash();
 }else{
-alert("error");
+alert("Acceso denegado");
 }
+}
+
+/* 🔥 RENDER PRODUCTOS (ARREGLADO VARIANTES) */
+function render(){
+
+let box=document.getElementById("products");
+box.innerHTML="";
+
+products.forEach((p,i)=>{
+
+let options = Object.keys(p.stock)
+.map(o=>`<option value="${o}">${o} (stock ${p.stock[o]})</option>`)
+.join("");
+
+box.innerHTML+=`
+<div class="card">
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p>$${p.price}</p>
+
+<select id="opt${i}">
+${options}
+</select>
+
+<button onclick="add(${i})">Agregar</button>
+</div>
+`;
+});
+
+renderCart();
+save();
 }
 
 /* 🛒 ADD */
 function add(i){
-let p=products[i];
-let sel=p.options[0];
 
-if((p.stock[sel]||0)<=0){
+let p=products[i];
+let sel=document.getElementById("opt"+i).value;
+
+if(!p.stock[sel] || p.stock[sel]<=0){
 alert("Agotado");
 return;
 }
 
 p.stock[sel]--;
+
 cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
 render();
-renderCart();
 }
 
 /* 🧾 CART */
 function renderCart(){
+
 let box=document.getElementById("cartList");
 box.innerHTML="";
 
@@ -230,51 +256,37 @@ document.getElementById("count").innerText=cart.length;
 function removeItem(i){
 let item=cart[i];
 total-=item.price;
-cart.splice(i,1);
-renderCart();
+
+let p=products.find(x=>x.name===item.name);
+if(p){
+p.stock[item.option] = (p.stock[item.option]||0)+1;
 }
 
-/* 🧠 STOCK FIX REAL */
-function render(){
-let box=document.getElementById("products");
-box.innerHTML="";
-
-products.forEach((p,i)=>{
-
-let opt = Object.keys(p.stock)[0];
-
-box.innerHTML+=`
-<div class="card">
-<img src="${p.img}">
-<h4>${p.name}</h4>
-<p>$${p.price}</p>
-
-<button onclick="add(${i})">Agregar</button>
-</div>
-`;
-});
+cart.splice(i,1);
+render();
 }
 
 /* 🔐 OPEN ADMIN */
 function openAdmin(){
 if(!logged){
-alert("Necesitas login");
+alert("Debes iniciar sesión");
 return;
 }
 toggleAdmin();
 }
 
-/* 📊 DASHBOARD SOLO ADMIN */
+/* 📊 DASHBOARD */
 function renderDash(){
-let totalStock=0;
+
+let stock=0;
 
 products.forEach(p=>{
-Object.values(p.stock).forEach(s=>totalStock+=s);
+Object.values(p.stock).forEach(s=>stock+=s);
 });
 
 document.getElementById("dash").innerHTML=`
 Productos: ${products.length}<br>
-Stock total: ${totalStock}<br>
+Stock total: ${stock}<br>
 `;
 }
 
@@ -290,6 +302,11 @@ document.getElementById("cart").classList.toggle("open");
 
 function toggleAdmin(){
 document.getElementById("admin").classList.toggle("open");
+}
+
+/* SAVE */
+function save(){
+localStorage.setItem("products",JSON.stringify(products));
 }
 
 render();
