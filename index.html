@@ -7,7 +7,6 @@
 <style>
 body{margin:0;font-family:system-ui;background:#f4f4f7}
 
-/* HEADER */
 header{
 background:#fff;
 padding:14px;
@@ -80,12 +79,12 @@ z-index:9999;
 
 .cartBody{flex:1;overflow:auto;padding:10px}
 
-/* ADMIN - MÁS GRANDE */
+/* ADMIN */
 .admin{
 position:fixed;
 left:0;
 top:0;
-width:680px; /* 🔥 MÁS GRANDE */
+width:680px;
 height:100%;
 background:#111;
 color:#fff;
@@ -117,7 +116,6 @@ hr{border:0;border-top:1px solid #333;margin:14px 0}
 
 .small{font-size:12px;opacity:.8}
 
-/* BOTONES CART */
 .removeBtn{
 background:#ff3b3b;
 color:#fff;
@@ -182,21 +180,17 @@ Verificar compra
 
 <h4>🔐 Cambiar contraseña</h4>
 <input id="newPass" type="password" placeholder="Nueva contraseña">
-<button onclick="changePassword()">Actualizar contraseña</button>
-
-<hr>
-
-<h4>Inventario</h4>
-<div id="adminList"></div>
+<button onclick="changePassword()">Actualizar</button>
 
 </div>
 </div>
 
 <script>
 
-/* ADMIN */
-let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
-let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
+/* 🔐 BASE SEGURA */
+const DEFAULT_USER = "admin";
+const DEFAULT_PASS = "1234";
+
 let logged = localStorage.getItem("logged")==="true";
 
 /* INVENTARIO */
@@ -248,7 +242,7 @@ Agregar
 });
 
 renderCart();
-renderAdmin();
+syncUI();
 }
 
 /* CART */
@@ -295,7 +289,7 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* 🧨 CART DELETE */
+/* REMOVE CART */
 function removeOne(id){
 let i=cart.findIndex(c=>c.id===id);
 if(i>-1) cart.splice(i,1);
@@ -328,7 +322,6 @@ function verifyCode(){
 let code=document.getElementById("codeInput").value;
 
 if(code==pendingCode){
-
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
 if(p && p.stock>0) p.stock--;
@@ -337,22 +330,26 @@ if(p && p.stock>0) p.stock--;
 cart=[];
 pendingCode=null;
 render();
-
 alert("Compra confirmada ✔");
 }else alert("Código incorrecto");
 }
 
-/* ADMIN */
+/* 🔐 LOGIN FIX REAL */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
 
-if(u===ADMIN_USER && p===ADMIN_PASS){
+let savedUser = localStorage.getItem("adminUser") || DEFAULT_USER;
+let savedPass = localStorage.getItem("adminPass") || DEFAULT_PASS;
+
+if(u===savedUser && p===savedPass){
 logged=true;
 localStorage.setItem("logged","true");
 syncUI();
 render();
-}else alert("Error");
+}else{
+alert("Credenciales incorrectas");
+}
 }
 
 function logout(){
@@ -361,6 +358,7 @@ localStorage.setItem("logged","false");
 syncUI();
 }
 
+/* UI */
 function syncUI(){
 let a=document.getElementById("loginBox");
 let b=document.getElementById("panel");
@@ -371,14 +369,16 @@ a.style.display=logged?"none":"block";
 b.style.display=logged?"block":"none";
 }
 
-/* PASSWORD */
+/* 🔐 CAMBIO DE PASS FIX */
 function changePassword(){
 let np=document.getElementById("newPass").value;
-if(np.length<4) return alert("Muy corta");
 
-ADMIN_PASS=np;
+if(!np || np.length<4){
+alert("Muy corta");
+return;
+}
+
 localStorage.setItem("adminPass",np);
-
 alert("Contraseña actualizada ✔");
 }
 
@@ -389,7 +389,7 @@ document.getElementById(s).classList.add("active");
 }
 
 function openCart(){document.getElementById("cart").classList.toggle("open");}
-function openAdmin(){document.getElementById("admin").classList.toggle("open");if(logged)render();}
+function openAdmin(){document.getElementById("admin").classList.toggle("open");}
 
 render();
 
