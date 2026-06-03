@@ -12,6 +12,7 @@ background:#f6f6f8;
 color:#111;
 }
 
+/* HEADER */
 header{
 background:#0e0e10;
 color:#fff;
@@ -39,15 +40,12 @@ border:none;
 cursor:pointer;
 }
 
-/* SECCIONES */
-.section{display:none;padding:20px}
-.active{display:block}
-
 /* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
 gap:20px;
+padding:20px;
 }
 
 /* CARD */
@@ -63,6 +61,25 @@ width:100%;
 height:180px;
 object-fit:cover;
 border-radius:10px;
+}
+
+select{
+width:100%;
+padding:8px;
+margin-top:5px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+button.buy{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+background:#111;
+color:#fff;
+border-radius:10px;
+cursor:pointer;
 }
 
 /* CART */
@@ -97,24 +114,31 @@ opacity:1;
 visibility:visible;
 }
 
-/* ADMIN */
+/* 🟣 ADMIN BOTÓN FLOTANTE */
 .adminBtn{
 position:fixed;
-bottom:20px;
 left:20px;
+bottom:20px;
 background:#111;
 color:#fff;
 border:none;
-padding:10px 14px;
-border-radius:10px;
-cursor:pointer;
+padding:12px 16px;
+border-radius:999px;
+cursor:grab;
+font-weight:600;
+z-index:10001;
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+user-select:none;
 }
 
+.adminBtn:active{cursor:grabbing}
+
+/* ADMIN PANEL */
 .adminPanel{
 position:fixed;
 left:0;
 top:0;
-width:340px;
+width:360px;
 height:100%;
 background:#111;
 color:#fff;
@@ -144,14 +168,10 @@ border-radius:8px;
 border:none;
 }
 
-/* CART COUNT */
-#count{
-background:#fff;
-color:#111;
-padding:2px 8px;
-border-radius:20px;
+/* STOCK ALERT */
+.stock{
 font-size:12px;
-margin-left:5px;
+opacity:.7;
 }
 </style>
 </head>
@@ -170,8 +190,8 @@ Beauty & Cheap 💄
 <button onclick="show('shop')">Tienda</button>
 </nav>
 
-<div id="home" class="section active">
-<h2>✨ Bienvenida a Beauty & Cheap 💄</h2>
+<div id="home" class="section active" style="padding:20px">
+<h2>✨ Beauty & Cheap ✨</h2>
 </div>
 
 <div id="shop" class="section">
@@ -188,48 +208,59 @@ Beauty & Cheap 💄
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" onclick="login()">Admin</button>
+<button class="adminBtn" id="adminBtn" onmousedown="dragStart(event)" onclick="login()">
+Admin
+</button>
 
 <div class="adminPanel" id="admin">
 <button class="closeAdmin" onclick="closeAdmin()">✖</button>
 
 <h3>Panel Admin</h3>
 
-<h4>Contraseña</h4>
-<input id="oldPass" placeholder="Actual">
-<input id="newPass" placeholder="Nueva">
-<button onclick="changePass()">Cambiar</button>
-
-<hr>
-
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
-<input id="i" placeholder="Imagen">
+<input id="i" placeholder="Imagen URL">
 <button onclick="addProduct()">Guardar</button>
 
-<div id="list"></div>
 </div>
 
 <script>
 
-/* PASSWORD */
+/* LOGIN */
 let USER="admin";
 let PASS=localStorage.getItem("adminPass") || "1234";
 
-/* PRODUCTOS RESTAURADOS */
+/* 🧠 INVENTARIO CON STOCK REAL */
 let products = JSON.parse(localStorage.getItem("db")) || [
-{name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg"},
-{name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg"},
-{name:"AOA Makeup Remover Wipes",price:50,img:"wipes.jpg"},
-{name:"AOA Retro Lipstick",price:70,img:"lipstick_mod.jpg"},
-{name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg"},
-{name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg"},
-{name:"AOA Rose Foot Mask",price:65,img:"foot_rose.jpg"},
-{name:"AOA Acne Patches",price:65,img:"acne_patches.jpg"},
-{name:"AOA Lip Stain",price:75,img:"lip_kuu.jpg"},
-{name:"AOA Headband",price:45,img:"headband_pink_ears.jpg"},
-{name:"AOA Blender",price:45,img:"blender_pink.jpg"}
+{
+name:"AOA Brush Egg",
+price:45,
+img:"egg_black.jpg",
+stock:{
+black:2,
+purple:1
+},
+options:["black","purple"]
+},
+{
+name:"Cuticle Pen",
+price:55,
+img:"cuticle_peach.jpg",
+stock:{
+peach:1,
+strawberry:2,
+rose:2
+},
+options:["peach","strawberry","rose"]
+},
+{
+name:"Lipstick Mod",
+price:70,
+img:"lipstick_mod.jpg",
+stock:{mod:1},
+options:["mod"]
+}
 ];
 
 let cart=[];
@@ -246,32 +277,68 @@ let box=document.getElementById("products");
 box.innerHTML="";
 
 products.forEach((p,i)=>{
+
+let opts = p.options.map(o=>{
+return `<option value="${o}">${o}</option>`;
+}).join("");
+
 box.innerHTML+=`
 <div class="card">
 <img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<button onclick="add(${i})">Agregar</button>
+
+<select id="opt${i}" onchange="updateStock(${i})">
+${opts}
+</select>
+
+<div class="stock" id="stock${i}"></div>
+
+<button class="buy" onclick="add(${i})">Agregar</button>
 </div>
 `;
+
+updateStock(i);
 });
 }
 
-/* CART */
-function add(i){
-cart.push(products[i]);
-total+=products[i].price;
+/* STOCK CONTROL REAL */
+function updateStock(i){
+let p=products[i];
+let sel=document.getElementById("opt"+i).value;
+let s=p.stock[sel]??0;
 
-renderCart();
-updateCount();
+document.getElementById("stock"+i).innerText=
+s>0 ? "Stock: "+s : "AGOTADO";
 }
 
+/* ADD */
+function add(i){
+let p=products[i];
+let sel=document.getElementById("opt"+i).value;
+
+if((p.stock[sel]??0)<=0){
+alert("Agotado 😢");
+return;
+}
+
+p.stock[sel]--;
+
+cart.push({name:p.name,option:sel,price:p.price});
+total+=p.price;
+
+renderCart();
+updateStock(i);
+updateCount();
+save();
+}
+
+/* CART */
 function renderCart(){
 document.getElementById("list").innerHTML=
-cart.map(c=>`<li>${c.name} - $${c.price}</li>`).join("");
+cart.map(c=>`<li>${c.name} (${c.option}) - $${c.price}</li>`).join("");
 
 document.getElementById("total").innerText=total;
-updateCount();
 }
 
 function updateCount(){
@@ -290,14 +357,13 @@ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
 document.getElementById(s).classList.add("active");
 }
 
-/* LOGIN */
+/* ADMIN LOGIN */
 function login(){
 let u=prompt("Usuario:");
 let p=prompt("Contraseña:");
 
 if(u===USER && p===PASS){
 document.getElementById("admin").classList.add("open");
-renderAdmin();
 }else alert("Acceso denegado");
 }
 
@@ -305,49 +371,72 @@ function closeAdmin(){
 document.getElementById("admin").classList.remove("open");
 }
 
-/* PASSWORD CHANGE */
-function changePass(){
-let o=document.getElementById("oldPass").value;
-let n=document.getElementById("newPass").value;
-
-if(o!==PASS) return alert("Incorrecta");
-
-PASS=n;
-localStorage.setItem("adminPass",PASS);
-
-alert("Actualizada ✔");
-}
-
-/* ADMIN */
-function renderAdmin(){
-let box=document.getElementById("list");
-box.innerHTML="";
-
-products.forEach((p,i)=>{
-box.innerHTML+=`
-<div class="adminBox">
-<input value="${p.name}" onchange="edit(${i},this.value)">
-<input value="${p.price}" onchange="price(${i},this.value)">
-<button onclick="del(${i})">Eliminar</button>
-</div>
-`;
-});
-}
-
-function edit(i,v){products[i].name=v;save();render();}
-function price(i,v){products[i].price=parseFloat(v);save();render();}
-function del(i){products.splice(i,1);save();render();renderAdmin();}
-
+/* ADD PRODUCT */
 function addProduct(){
 let n=document.getElementById("n").value;
-let p=document.getElementById("p").value;
+let p=parseFloat(document.getElementById("p").value);
 let i=document.getElementById("i").value;
 
-products.push({name:n,price:parseFloat(p),img:i});
-save();render();renderAdmin();
+products.push({
+name:n,
+price:p,
+img:i,
+stock:{default:5},
+options:["default"]
+});
+
+save();
+render();
 }
 
+/* 🟣 DRAG BUTTON + MEMORY */
+let drag=false,offX=0,offY=0;
+
+function dragStart(e){
+drag=true;
+
+let btn=document.getElementById("adminBtn");
+let r=btn.getBoundingClientRect();
+
+offX=e.clientX-r.left;
+offY=e.clientY-r.top;
+
+document.addEventListener("mousemove",move);
+document.addEventListener("mouseup",end);
+}
+
+function move(e){
+if(!drag)return;
+
+let btn=document.getElementById("adminBtn");
+btn.style.left=(e.clientX-offX)+"px";
+btn.style.top=(e.clientY-offY)+"px";
+btn.style.bottom="auto";
+btn.style.right="auto";
+
+localStorage.setItem("adminPos",JSON.stringify({
+x:btn.style.left,
+y:btn.style.top
+}));
+}
+
+function end(){
+drag=false;
+document.removeEventListener("mousemove",move);
+document.removeEventListener("mouseup",end);
+}
+
+/* RESTORE POSITION */
+window.onload=()=>{
+let pos=JSON.parse(localStorage.getItem("adminPos"));
+if(pos){
+let btn=document.getElementById("adminBtn");
+btn.style.left=pos.x;
+btn.style.top=pos.y;
+btn.style.bottom="auto";
+}
 render();
+};
 
 </script>
 
