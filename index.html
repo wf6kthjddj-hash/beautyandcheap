@@ -117,8 +117,8 @@ width:100%;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda Pro estable</h2>
-<p>Inventario + carrito + admin seguro.</p>
+<h2>✨ Tienda estable</h2>
+<p>Inventario + carrito + admin persistente.</p>
 </div>
 
 <!-- SHOP -->
@@ -147,28 +147,12 @@ width:100%;
 
 <h3>Panel Admin</h3>
 
-<h4>🔐 Cambiar credenciales</h4>
-<input id="newUser" placeholder="Nuevo usuario">
-<input id="newPass" type="password" placeholder="Nueva contraseña">
-<button onclick="changePass()">Guardar</button>
-
-<hr>
-
-<h4>➕ Agregar / Sumar stock</h4>
-<input id="pname" placeholder="Nombre producto">
-<input id="pprice" placeholder="Precio">
-<button onclick="addProduct()">Agregar</button>
+<button onclick="logout()">Cerrar sesión</button>
 
 <hr>
 
 <h4>📦 Productos</h4>
 <div id="adminList"></div>
-
-<hr>
-
-<h4>🧹 Carrito</h4>
-<button onclick="clearCart()">Vaciar carrito</button>
-<p>Total: $<span id="total">0</span></p>
 
 </div>
 
@@ -176,11 +160,12 @@ width:100%;
 
 <script>
 
-/* 🔐 ADMIN */
-let ADMIN_USER=localStorage.getItem("adminUser")||"admin";
-let ADMIN_PASS=localStorage.getItem("adminPass")||"1234";
+/* 🔐 ADMIN PERSISTENTE */
+let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
+let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
 
-let logged=false;
+/* 🔥 FIX LOGIN PERSISTENTE */
+let logged = localStorage.getItem("logged") === "true";
 
 /* 📦 INVENTARIO */
 let products=[
@@ -189,25 +174,7 @@ let products=[
 
 {id:3,name:"AOA Cuticle Revitalizing Pen Peach",price:55,img:"cuticle_peach.jpg",stock:1},
 {id:4,name:"AOA Cuticle Revitalizing Pen Strawberry",price:55,img:"cuticle_strawberry.jpg",stock:2},
-{id:5,name:"AOA Cuticle Revitalizing Pen Rose",price:55,img:"cuticle_rose.jpg",stock:2},
-
-{id:6,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
-
-{id:7,name:"AOA Retro Chic Lipstick Mod",price:70,img:"lipstick_mod.jpg",stock:1},
-
-{id:8,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
-{id:9,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
-
-{id:10,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
-
-{id:11,name:"AOA Magical Lip Stain Kuu",price:75,img:"lip_kuu.jpg",stock:1},
-{id:12,name:"AOA Magical Lip Stain Hime",price:75,img:"lip_hime.jpg",stock:1},
-
-{id:13,name:"AOA Headband Soft Pink",price:45,img:"headband_pink.jpg",stock:1},
-{id:14,name:"AOA Headband Soft Purple",price:45,img:"headband_purple.jpg",stock:1},
-
-{id:15,name:"AOA Wonder Blender Pink",price:45,img:"blender_pink.jpg",stock:1},
-{id:16,name:"AOA Wonder Blender Black",price:45,img:"blender_black.jpg",stock:1}
+{id:5,name:"AOA Cuticle Revitalizing Pen Rose",price:55,img:"cuticle_rose.jpg",stock:2}
 ];
 
 let cart=[];
@@ -215,8 +182,9 @@ let cart=[];
 /* INIT */
 document.addEventListener("DOMContentLoaded",()=>render());
 
-/* 🛍️ SHOP */
+/* 🛍️ RENDER */
 function render(){
+
 let box=document.getElementById("products");
 box.innerHTML="";
 
@@ -267,10 +235,9 @@ box.innerHTML+=`
 });
 
 document.getElementById("count").innerText=cart.length;
-document.getElementById("total").innerText=total;
 }
 
-/* ❌ REMOVE ITEM */
+/* ❌ REMOVE */
 function removeItem(i){
 let item=cart[i];
 let p=products.find(x=>x.id===item.id);
@@ -281,89 +248,45 @@ cart.splice(i,1);
 render();
 }
 
-/* 🧹 CLEAR CART */
-function clearCart(){
-cart.forEach(c=>{
-let p=products.find(x=>x.id===c.id);
-if(p) p.stock++;
-});
-cart=[];
-render();
-}
-
-/* 🔐 LOGIN */
+/* 🔐 LOGIN FIX */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
 
 if(u===ADMIN_USER && p===ADMIN_PASS){
 logged=true;
+localStorage.setItem("logged","true");
+
 document.getElementById("loginBox").style.display="none";
 document.getElementById("panel").style.display="block";
+
 renderAdmin();
 }else{
 alert("Acceso incorrecto");
 }
 }
 
-/* 🔑 CAMBIAR CREDENCIALES */
-function changePass(){
-let u=document.getElementById("newUser").value;
-let p=document.getElementById("newPass").value;
+/* 🚪 LOGOUT FIX */
+function logout(){
+logged=false;
+localStorage.setItem("logged","false");
 
-if(u) ADMIN_USER=u;
-if(p) ADMIN_PASS=p;
-
-localStorage.setItem("adminUser",ADMIN_USER);
-localStorage.setItem("adminPass",ADMIN_PASS);
-
-alert("Credenciales actualizadas");
+document.getElementById("loginBox").style.display="block";
+document.getElementById("panel").style.display="none";
 }
 
-/* ➕ ADD PRODUCT / SUM STOCK */
-function addProduct(){
-let name=document.getElementById("pname").value;
-let price=+document.getElementById("pprice").value;
-
-if(!name) return;
-
-let p=products.find(x=>x.name.toLowerCase()===name.toLowerCase());
-
-if(p){
-p.stock++;
-}else{
-products.push({
-id:Date.now(),
-name,
-price:price||50,
-img:"default.jpg",
-stock:5
-});
-}
-
-render();
-}
-
-/* 🗑️ DELETE PRODUCT */
-function deleteProduct(id){
-products=products.filter(p=>p.id!==id);
-render();
-}
-
-/* 🔧 ADMIN */
+/* 🧹 ADMIN */
 function renderAdmin(){
 let box=document.getElementById("adminList");
 box.innerHTML="";
+
+if(!logged) return;
 
 products.forEach(p=>{
 box.innerHTML+=`
 <div style="border-bottom:1px solid #444;padding:8px 0">
 <b>${p.name}</b><br>
-Stock: ${p.stock}<br>
-
-<button onclick="deleteProduct(${p.id})" style="background:red;color:#fff;margin-top:6px">
-Eliminar producto
-</button>
+Stock: ${p.stock}
 </div>
 `;
 });
@@ -380,11 +303,12 @@ document.getElementById("cart").classList.toggle("open");
 }
 
 function openAdmin(){
-if(!logged){
-alert("Debes iniciar sesión");
-return;
-}
 document.getElementById("admin").classList.toggle("open");
+
+if(!logged){
+document.getElementById("loginBox").style.display="block";
+document.getElementById("panel").style.display="none";
+}
 }
 
 render();
