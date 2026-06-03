@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty System 💄</title>
+<title>Beauty & Cheap 💄</title>
 
 <style>
 body{
@@ -20,8 +20,10 @@ text-align:center;
 position:sticky;
 top:0;
 z-index:1000;
+font-weight:600;
 }
 
+/* NAV */
 nav{
 display:flex;
 justify-content:center;
@@ -37,15 +39,18 @@ border:none;
 cursor:pointer;
 }
 
+/* SECCIONES */
 .section{display:none;padding:20px}
 .active{display:block}
 
+/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
 gap:20px;
 }
 
+/* CARD */
 .card{
 background:#fff;
 padding:12px;
@@ -58,17 +63,6 @@ width:100%;
 height:180px;
 object-fit:cover;
 border-radius:10px;
-}
-
-button.buy{
-width:100%;
-padding:10px;
-margin-top:10px;
-border:none;
-background:#111;
-color:#fff;
-border-radius:10px;
-cursor:pointer;
 }
 
 /* CART */
@@ -133,6 +127,15 @@ z-index:10000;
 
 .adminPanel.open{transform:translateX(0)}
 
+.closeAdmin{
+background:none;
+border:none;
+color:#fff;
+font-size:20px;
+float:right;
+cursor:pointer;
+}
+
 input{
 width:100%;
 padding:8px;
@@ -141,11 +144,14 @@ border-radius:8px;
 border:none;
 }
 
-.adminBox{
-background:#1c1c1c;
-padding:10px;
-margin-top:10px;
-border-radius:10px;
+/* CART COUNT */
+#count{
+background:#fff;
+color:#111;
+padding:2px 8px;
+border-radius:20px;
+font-size:12px;
+margin-left:5px;
 }
 </style>
 </head>
@@ -153,7 +159,7 @@ border-radius:10px;
 <body>
 
 <header>
-Beauty System 💄
+Beauty & Cheap 💄
 <button onclick="toggleCart()" style="position:absolute;right:15px;top:10px;">
 🛒 <span id="count">0</span>
 </button>
@@ -165,7 +171,7 @@ Beauty System 💄
 </nav>
 
 <div id="home" class="section active">
-<h2>✨ Tienda ✨</h2>
+<h2>✨ Bienvenida a Beauty & Cheap 💄</h2>
 </div>
 
 <div id="shop" class="section">
@@ -185,12 +191,14 @@ Beauty System 💄
 <button class="adminBtn" onclick="login()">Admin</button>
 
 <div class="adminPanel" id="admin">
-<h3>🔐 Admin Panel</h3>
+<button class="closeAdmin" onclick="closeAdmin()">✖</button>
 
-<h4>Cambiar contraseña</h4>
-<input id="oldPass" placeholder="Contraseña actual">
-<input id="newPass" placeholder="Nueva contraseña">
-<button onclick="changePass()">Actualizar</button>
+<h3>Panel Admin</h3>
+
+<h4>Contraseña</h4>
+<input id="oldPass" placeholder="Actual">
+<input id="newPass" placeholder="Nueva">
+<button onclick="changePass()">Cambiar</button>
 
 <hr>
 
@@ -205,22 +213,32 @@ Beauty System 💄
 
 <script>
 
-/* 🔐 PASSWORD DINÁMICA */
+/* PASSWORD */
 let USER="admin";
 let PASS=localStorage.getItem("adminPass") || "1234";
 
-function savePass(){
-localStorage.setItem("adminPass",PASS);
-}
-
-/* DB */
-let products=JSON.parse(localStorage.getItem("db")) || [
-{name:"Brush Egg",price:45,img:"egg.jpg"},
-{name:"Lipstick",price:70,img:"lip.jpg"}
+/* PRODUCTOS RESTAURADOS */
+let products = JSON.parse(localStorage.getItem("db")) || [
+{name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg"},
+{name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg"},
+{name:"AOA Makeup Remover Wipes",price:50,img:"wipes.jpg"},
+{name:"AOA Retro Lipstick",price:70,img:"lipstick_mod.jpg"},
+{name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg"},
+{name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg"},
+{name:"AOA Rose Foot Mask",price:65,img:"foot_rose.jpg"},
+{name:"AOA Acne Patches",price:65,img:"acne_patches.jpg"},
+{name:"AOA Lip Stain",price:75,img:"lip_kuu.jpg"},
+{name:"AOA Headband",price:45,img:"headband_pink_ears.jpg"},
+{name:"AOA Blender",price:45,img:"blender_pink.jpg"}
 ];
 
 let cart=[];
 let total=0;
+
+/* SAVE */
+function save(){
+localStorage.setItem("db",JSON.stringify(products));
+}
 
 /* RENDER */
 function render(){
@@ -233,7 +251,7 @@ box.innerHTML+=`
 <img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<button class="buy" onclick="add(${i})">Agregar</button>
+<button onclick="add(${i})">Agregar</button>
 </div>
 `;
 });
@@ -280,25 +298,24 @@ let p=prompt("Contraseña:");
 if(u===USER && p===PASS){
 document.getElementById("admin").classList.add("open");
 renderAdmin();
-}else{
-alert("Acceso denegado");
-}
+}else alert("Acceso denegado");
 }
 
-/* 🔐 CAMBIAR PASSWORD */
+function closeAdmin(){
+document.getElementById("admin").classList.remove("open");
+}
+
+/* PASSWORD CHANGE */
 function changePass(){
-let old=document.getElementById("oldPass").value;
-let neu=document.getElementById("newPass").value;
+let o=document.getElementById("oldPass").value;
+let n=document.getElementById("newPass").value;
 
-if(old!==PASS){
-alert("Contraseña actual incorrecta");
-return;
-}
+if(o!==PASS) return alert("Incorrecta");
 
-PASS=neu;
-savePass();
+PASS=n;
+localStorage.setItem("adminPass",PASS);
 
-alert("Contraseña actualizada ✔");
+alert("Actualizada ✔");
 }
 
 /* ADMIN */
@@ -317,38 +334,17 @@ box.innerHTML+=`
 });
 }
 
-function edit(i,v){
-products[i].name=v;
-save();
-}
+function edit(i,v){products[i].name=v;save();render();}
+function price(i,v){products[i].price=parseFloat(v);save();render();}
+function del(i){products.splice(i,1);save();render();renderAdmin();}
 
-function price(i,v){
-products[i].price=parseFloat(v);
-save();
-}
-
-function del(i){
-products.splice(i,1);
-save();
-render();
-renderAdmin();
-}
-
-/* ADD PRODUCT */
 function addProduct(){
 let n=document.getElementById("n").value;
 let p=document.getElementById("p").value;
 let i=document.getElementById("i").value;
 
 products.push({name:n,price:parseFloat(p),img:i});
-save();
-render();
-renderAdmin();
-}
-
-/* SAVE DB */
-function save(){
-localStorage.setItem("db",JSON.stringify(products));
+save();render();renderAdmin();
 }
 
 render();
