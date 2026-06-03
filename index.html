@@ -13,7 +13,9 @@ padding:14px;
 display:flex;
 justify-content:space-between;
 border-bottom:1px solid #ddd;
-position:sticky;top:0;
+position:sticky;
+top:0;
+z-index:1000;
 }
 
 .section{display:none;padding:20px}
@@ -25,7 +27,7 @@ grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 gap:18px;
 }
 
-/* PRODUCTOS */
+/* CARD */
 .card{
 background:#fff;
 padding:12px;
@@ -40,14 +42,6 @@ object-fit:cover;
 border-radius:10px;
 }
 
-select, input{
-width:100%;
-padding:8px;
-margin-top:6px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
 button{
 cursor:pointer;
 padding:8px;
@@ -57,6 +51,11 @@ margin-top:6px;
 }
 
 .buy{background:#111;color:#fff}
+
+.buy:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
 
 /* CART */
 .cart{
@@ -68,7 +67,7 @@ height:100%;
 background:#fff;
 border-left:1px solid #ddd;
 transform:translateX(100%);
-transition:.3s;
+transition:.25s;
 display:flex;
 flex-direction:column;
 }
@@ -90,6 +89,7 @@ transition:.3s;
 padding:14px;
 overflow:auto;
 }
+
 .admin.open{transform:translateX(0)}
 
 .admin input{
@@ -117,29 +117,17 @@ width:100%;
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('shop')">Tienda</button>
 <button onclick="toggleCart()">🛒 <span id="count">0</span></button>
+<button onclick="openAdmin()">Admin</button>
 </div>
 </header>
 
-<!-- 🏠 HOME -->
+<!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Belleza accesible para todos</h2>
-
-<p>
-Bienvenida a <b>Beauty & Cheap</b>, una tienda enfocada en productos de belleza,
-skincare y cuidado personal a precios accesibles.
-</p>
-
-<ul>
-<li>💄 Maquillaje ligero y práctico</li>
-<li>🧴 Cuidado de piel diario</li>
-<li>🌸 Productos con variantes de color y aroma</li>
-<li>💰 Precios bajos, calidad real</li>
-</ul>
-
-<p>Explora la tienda y encuentra tus favoritos ✨</p>
+<h2>✨ Belleza accesible y organizada</h2>
+<p>Catálogo de skincare y maquillaje con control real de inventario.</p>
 </div>
 
-<!-- 🛒 SHOP -->
+<!-- SHOP -->
 <div id="shop" class="section">
 <div class="grid" id="products"></div>
 </div>
@@ -150,131 +138,106 @@ skincare y cuidado personal a precios accesibles.
 <div class="cartBody" id="cartList"></div>
 </div>
 
+<!-- ADMIN -->
+<div class="admin" id="admin">
+
+<h3>Admin Login</h3>
+
+<div id="loginBox">
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="panel" style="display:none">
+
+<h3>Panel Admin</h3>
+
+<input id="name" placeholder="Producto">
+<input id="price" placeholder="Precio">
+<button onclick="addProduct()">Agregar / Sumar stock</button>
+
+<hr>
+
+<div id="adminList"></div>
+
+</div>
+
+</div>
+
 <script>
 
-/* 🧠 INVENTARIO ORIGINAL COMPLETO */
-let products = [
-{
-id:1,
-name:"AOA Brush Cleaning Egg",
-price:45,
-img:"egg_black.jpg",
-options:["black","purple"],
-stock:{black:2,purple:1}
-},
-{
-id:2,
-name:"AOA Cuticle Revitalizing Pen",
-price:55,
-img:"cuticle_peach.jpg",
-options:["peach","strawberry","rose"],
-stock:{peach:1,strawberry:2,rose:2}
-},
-{
-id:3,
-name:"AOA Makeup Remover Wipes - sin aroma",
-price:50,
-img:"wipes.jpg",
-options:["sin aroma"],
-stock:{"sin aroma":5}
-},
-{
-id:4,
-name:"AOA Retro Chic Lipstick",
-price:70,
-img:"lipstick_mod.jpg",
-options:["mod"],
-stock:{mod:1}
-},
-{
-id:5,
-name:"AOA Foot Mask Chamomile",
-price:65,
-img:"foot_chamomile.jpg",
-options:["chamomile"],
-stock:{chamomile:2}
-},
-{
-id:6,
-name:"AOA Foot Peeling Mask",
-price:75,
-img:"foot_peeling.jpg",
-options:["peeling"],
-stock:{peeling:2}
-},
-{
-id:7,
-name:"AOA Acne Patches 10mm",
-price:65,
-img:"acne_patches.jpg",
-options:["10mm"],
-stock:{"10mm":3}
-},
-{
-id:8,
-name:"AOA Magical Lip Stain",
-price:75,
-img:"lip_kuu.jpg",
-options:["kuu","hime"],
-stock:{kuu:1,hime:1}
-},
-{
-id:9,
-name:"AOA Headband Soft",
-price:45,
-img:"headband_pink_ears.jpg",
-options:["pink","purple"],
-stock:{pink:1,purple:1}
-},
-{
-id:10,
-name:"AOA Wonder Blender",
-price:45,
-img:"blender_pink.jpg",
-options:["pink","black"],
-stock:{pink:1,black:1}
-}
+/* 🔐 ADMIN */
+let adminUser="admin";
+let adminPass="1234";
+let logged=false;
+
+/* 🧠 INVENTARIO */
+let products=[
+{id:1,name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",stock:3},
+{id:2,name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",stock:5},
+{id:3,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
+{id:4,name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",stock:1},
+{id:5,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
+{id:6,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
+{id:7,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
+{id:8,name:"AOA Magical Lip Stain",price:75,img:"lip_kuu.jpg",stock:2},
+{id:9,name:"AOA Headband Soft",price:45,img:"headband_pink_ears.jpg",stock:2},
+{id:10,name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",stock:2}
 ];
 
 let cart=[];
 
+/* 🔐 LOGIN */
+function login(){
+if(user.value===adminUser && pass.value===adminPass){
+logged=true;
+loginBox.style.display="none";
+panel.style.display="block";
+renderAdmin();
+}else{
+alert("Acceso denegado");
+}
+}
+
 /* 🛒 RENDER SHOP */
 function render(){
+
 let box=document.getElementById("products");
 box.innerHTML="";
 
-products.forEach((p,i)=>{
+products.forEach(p=>{
 
-let opts=p.options.map(o=>`<option value="${o}">${o}</option>`).join("");
+let status = p.stock > 0
+? `<span style="color:green;font-weight:600">Disponible</span>`
+: `<span style="color:red;font-weight:600">Agotado</span>`;
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}">
+<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
+<p>Stock: ${p.stock} — ${status}</p>
 
-<select id="opt${i}">
-${opts}
-</select>
-
-<button class="buy" onclick="add(${i})">Agregar</button>
+<button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
+Agregar
+</button>
 </div>
 `;
 });
 
 renderCart();
+renderAdmin();
 }
 
-/* ➕ ADD CART */
-function add(i){
+/* ➕ ADD */
+function add(id){
 
-let p=products[i];
-let sel=document.getElementById("opt"+i).value;
+let p=products.find(x=>x.id===id);
+if(p.stock<=0) return;
 
-if((p.stock[sel]??0)<=0) return alert("Agotado");
-
-p.stock[sel]--;
-cart.push({name:p.name,option:sel,price:p.price});
+p.stock--;
+cart.push({id:p.id,name:p.name,price:p.price});
 
 render();
 }
@@ -288,8 +251,8 @@ box.innerHTML="";
 cart.forEach((c,i)=>{
 box.innerHTML+=`
 <div>
-<b>${c.name}</b> (${c.option})
-<button onclick="removeItem(${i})">X</button>
+<b>${c.name}</b>
+<button onclick="removeItem(${i})">Eliminar</button>
 </div>
 `;
 });
@@ -302,12 +265,35 @@ function removeItem(i){
 
 let item=cart[i];
 
-let p=products.find(x=>x.name===item.name);
-if(p){
-p.stock[item.option]=(p.stock[item.option]||0)+1;
-}
+let p=products.find(x=>x.id===item.id);
+if(p) p.stock++;
 
 cart.splice(i,1);
+render();
+}
+
+/* ➕ PRODUCT */
+function addProduct(){
+
+let name=name.value.trim();
+let price=+price.value;
+
+if(!name) return;
+
+let existing=products.find(p=>p.name.toLowerCase()===name.toLowerCase());
+
+if(existing){
+existing.stock++;
+}else{
+products.push({
+id:Date.now(),
+name,
+price:price||50,
+img:"default.jpg",
+stock:5
+});
+}
+
 render();
 }
 
@@ -318,7 +304,11 @@ document.getElementById(s).classList.add("active");
 }
 
 function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
+cart.classList.toggle("open");
+}
+
+function openAdmin(){
+admin.classList.toggle("open");
 }
 
 render();
