@@ -2,23 +2,23 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄 | Pro Store</title>
+<title>Beauty & Cheap 💄 Pro</title>
 
 <style>
 body{
 margin:0;
 font-family:system-ui,-apple-system,Segoe UI,Arial;
-background:#f5f5f7;
+background:#f6f6f8;
 color:#111;
 }
 
 /* HEADER */
 header{
 background:#fff;
-border-bottom:1px solid #eaeaea;
 padding:16px;
 text-align:center;
 font-weight:600;
+border-bottom:1px solid #eee;
 position:sticky;
 top:0;
 z-index:1000;
@@ -28,7 +28,7 @@ z-index:1000;
 nav{
 display:flex;
 justify-content:center;
-gap:16px;
+gap:15px;
 background:#fff;
 padding:10px;
 border-bottom:1px solid #eee;
@@ -39,7 +39,6 @@ background:none;
 border:none;
 cursor:pointer;
 font-weight:500;
-color:#333;
 }
 
 /* GRID */
@@ -50,30 +49,28 @@ gap:18px;
 padding:20px;
 }
 
-/* PRODUCT CARD */
+/* PRODUCT */
 .card{
 background:#fff;
-border-radius:16px;
+border-radius:14px;
 padding:12px;
 box-shadow:0 6px 18px rgba(0,0,0,.06);
 transition:.2s;
 }
 
-.card:hover{
-transform:translateY(-4px);
-}
+.card:hover{transform:translateY(-3px)}
 
 .card img{
 width:100%;
-height:200px;
+height:190px;
 object-fit:cover;
-border-radius:14px;
+border-radius:12px;
 }
 
 select{
 width:100%;
-padding:8px;
 margin-top:6px;
+padding:8px;
 border-radius:10px;
 border:1px solid #ddd;
 }
@@ -85,7 +82,7 @@ padding:10px;
 border:none;
 background:#111;
 color:#fff;
-border-radius:12px;
+border-radius:10px;
 cursor:pointer;
 font-weight:600;
 }
@@ -127,17 +124,11 @@ padding:10px;
 margin-bottom:10px;
 }
 
-.cartItem small{
-opacity:.6;
-display:block;
-margin-top:2px;
-}
-
 .cartRow{
 display:flex;
 justify-content:space-between;
-margin-top:8px;
 align-items:center;
+margin-top:8px;
 }
 
 .removeBtn{
@@ -171,7 +162,7 @@ margin-bottom:10px;
 font-weight:700;
 }
 
-/* ADMIN BUTTON (FLOAT) */
+/* ADMIN */
 .adminBtn{
 position:fixed;
 left:20px;
@@ -185,7 +176,6 @@ cursor:grab;
 z-index:10001;
 }
 
-/* ADMIN PANEL */
 .adminPanel{
 position:fixed;
 left:0;
@@ -220,15 +210,14 @@ border-radius:8px;
 border:none;
 }
 
-/* STOCK LABEL */
 .stock{
 font-size:12px;
 opacity:.7;
 margin-top:4px;
 }
 
-.lowStock{
-color:#d9534f;
+.low{
+color:#ff4d4d;
 font-weight:600;
 }
 </style>
@@ -248,9 +237,9 @@ Beauty & Cheap 💄
 <button onclick="show('shop')">Tienda</button>
 </nav>
 
-<div id="home" class="section active" style="padding:20px">
-<h2>✨ Beauty & Cheap Pro Store</h2>
-<p style="opacity:.6">Experiencia tipo Sephora, sin precios Sephora 😏</p>
+<div id="home" class="section" style="padding:20px">
+<h2>✨ Beauty & Cheap Pro</h2>
+<p style="opacity:.6">Tienda completa con inventario real</p>
 </div>
 
 <div id="shop" class="section">
@@ -259,29 +248,36 @@ Beauty & Cheap 💄
 
 <!-- CART -->
 <div class="cart" id="cart">
-<div class="cartHeader">🛒 Tu carrito</div>
+
+<div class="cartHeader">🛒 Carrito</div>
 
 <div class="cartBody" id="list"></div>
 
 <div class="cartFooter">
 <div class="totalBox">Total: $<span id="total">0</span></div>
-<button class="checkoutBtn" onclick="checkoutWhatsApp()">Pagar por WhatsApp 💬</button>
+<button class="checkoutBtn" onclick="checkout()">Pagar por WhatsApp</button>
 </div>
+
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" id="adminBtn" onmousedown="dragStart(event)" onclick="login()">Admin</button>
+<button class="adminBtn" id="adminBtn" onmousedown="drag(event)" onclick="login()">Admin</button>
 
 <div class="adminPanel" id="admin">
 <button class="closeAdmin" onclick="closeAdmin()">✖</button>
 
-<h3>Dashboard Admin</h3>
+<h3>📦 Inventario</h3>
 
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
 <input id="i" placeholder="Imagen">
-<button onclick="addProduct()">Guardar</button>
+<button onclick="addProduct()">Agregar</button>
+
+<hr style="opacity:.2;margin:15px 0">
+
+<h4>Productos</h4>
+<div id="adminList"></div>
 
 </div>
 
@@ -289,22 +285,16 @@ Beauty & Cheap 💄
 
 /* ADMIN */
 let USER="admin";
-let PASS=localStorage.getItem("adminPass") || "1234";
+let PASS=localStorage.getItem("pass")||"1234";
 
-/* STOCK REAL COMPLETO */
-let products = JSON.parse(localStorage.getItem("db")) || [
-
+/* STOCK REAL */
+let products=JSON.parse(localStorage.getItem("db"))||[
 {name:"Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
 {name:"Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
 {name:"Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
 {name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
-{name:"Peeling Mask",price:75,img:"foot_peeling.jpg",options:["peeling"],stock:{peeling:2}},
-{name:"Acne Patches",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}},
-{name:"Lip Stain",price:75,img:"lip_kuu.jpg",options:["kuu","hime"],stock:{kuu:1,hime:1}},
-{name:"Headband",price:45,img:"headband_pink_ears.jpg",options:["pink","purple"],stock:{pink:1,purple:1}},
-{name:"Blender",price:45,img:"blender_pink.jpg",options:["pink","black"],stock:{pink:1,black:1}}
-
+{name:"Peeling Mask",price:75,img:"foot_peeling.jpg",options:["peeling"],stock:{peeling:2}}
 ];
 
 let cart=[];
@@ -315,7 +305,7 @@ function save(){
 localStorage.setItem("db",JSON.stringify(products));
 }
 
-/* RENDER */
+/* RENDER PRODUCTS */
 function render(){
 let box=document.getElementById("products");
 box.innerHTML="";
@@ -330,7 +320,7 @@ box.innerHTML+=`
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
 
-<select id="opt${i}" onchange="updateStock(${i})">
+<select id="opt${i}" onchange="update(i)">
 ${opts}
 </select>
 
@@ -340,23 +330,22 @@ ${opts}
 </div>
 `;
 
-updateStock(i);
+update(i);
 });
+
+renderAdmin();
 }
 
 /* STOCK */
-function updateStock(i){
+function update(i){
 let p=products[i];
-let sel=document.getElementById("opt"+i).value;
+let sel=document.getElementById("opt"+i)?.value || p.options[0];
 let s=p.stock[sel]??0;
 
 let el=document.getElementById("stock"+i);
+if(!el) return;
 
-if(s<=1){
-el.innerHTML=`<span class="lowStock">Stock bajo: ${s}</span>`;
-}else{
-el.innerText="Stock: "+s;
-}
+el.innerHTML=s<=1?`<span class="low">Stock bajo: ${s}</span>`:`Stock: ${s}`;
 }
 
 /* ADD */
@@ -371,15 +360,13 @@ p.stock[sel]--;
 cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
-renderCart();
-updateStock(i);
-updateCount();
 save();
+renderCart();
+render();
 }
 
 /* CART */
 function renderCart(){
-
 let box=document.getElementById("list");
 box.innerHTML="";
 
@@ -396,6 +383,7 @@ box.innerHTML+=`
 <div class="cartItem">
 <h4>${i.name}</h4>
 <small>${i.option}</small>
+
 <div class="cartRow">
 <span>$${i.price} x ${i.qty}</span>
 <button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">Eliminar</button>
@@ -408,7 +396,7 @@ document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE */
+/* REMOVE FIX */
 function removeItem(name,opt){
 for(let i=cart.length-1;i>=0;i--){
 if(cart[i].name===name && cart[i].option===opt){
@@ -421,8 +409,8 @@ renderCart();
 }
 
 /* CHECKOUT */
-function checkoutWhatsApp(){
-let msg="🛒 Pedido Pro Beauty:%0A";
+function checkout(){
+let msg="🛒 Pedido:%0A";
 let grouped={};
 
 cart.forEach(c=>{
@@ -436,20 +424,7 @@ msg+=`- ${k} x${grouped[k]}%0A`;
 
 msg+=`%0ATotal: $${total}`;
 
-let phone="52TU_NUMERO";
-
-window.open(`https://wa.me/${phone}?text=${msg}`);
-}
-
-/* NAV */
-function show(s){
-document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
-document.getElementById(s).classList.add("active");
-}
-
-/* CART */
-function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
+window.open(`https://wa.me/52TU_NUMERO?text=${msg}`);
 }
 
 /* ADMIN */
@@ -458,6 +433,7 @@ let u=prompt("Usuario:");
 let p=prompt("Contraseña:");
 if(u===USER && p===PASS){
 document.getElementById("admin").classList.add("open");
+renderAdmin();
 }
 }
 
@@ -465,16 +441,40 @@ function closeAdmin(){
 document.getElementById("admin").classList.remove("open");
 }
 
+/* ADMIN LIST */
+function renderAdmin(){
+let box=document.getElementById("adminList");
+if(!box) return;
+
+box.innerHTML="";
+
+products.forEach((p,i)=>{
+
+let st="";
+for(let k in p.stock){
+st+=`${k}:${p.stock[k]} `;
+}
+
+box.innerHTML+=`
+<div style="background:#1a1a1a;padding:10px;margin-bottom:8px;border-radius:8px">
+<b>${p.name}</b><br>
+$${p.price}<br>
+${st}<br>
+
+<button onclick="del(${i})" style="margin-top:6px;background:#ff3b3b;color:#fff;border:none;padding:6px;border-radius:6px">
+Eliminar
+</button>
+</div>
+`;
+});
+}
+
 /* ADD PRODUCT */
 function addProduct(){
-let n=document.getElementById("n").value;
-let p=parseFloat(document.getElementById("p").value);
-let i=document.getElementById("i").value;
-
 products.push({
-name:n,
-price:p,
-img:i,
+name:n.value,
+price:+p.value,
+img:i.value,
 options:["default"],
 stock:{default:5}
 });
@@ -483,10 +483,17 @@ save();
 render();
 }
 
+/* DELETE PRODUCT */
+function del(i){
+products.splice(i,1);
+save();
+render();
+}
+
 /* DRAG ADMIN */
 let drag=false,ox=0,oy=0;
 
-function dragStart(e){
+function drag(e){
 drag=true;
 let b=document.getElementById("adminBtn");
 let r=b.getBoundingClientRect();
@@ -495,22 +502,21 @@ ox=e.clientX-r.left;
 oy=e.clientY-r.top;
 
 document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",end);
+document.addEventListener("mouseup",stop);
 }
 
 function move(e){
 if(!drag)return;
-
 let b=document.getElementById("adminBtn");
 b.style.left=(e.clientX-ox)+"px";
 b.style.top=(e.clientY-oy)+"px";
 b.style.bottom="auto";
 }
 
-function end(){
+function stop(){
 drag=false;
 document.removeEventListener("mousemove",move);
-document.removeEventListener("mouseup",end);
+document.removeEventListener("mouseup",stop);
 }
 
 render();
