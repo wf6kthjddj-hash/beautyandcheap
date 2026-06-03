@@ -6,15 +6,7 @@
 
 <style>
 body{margin:0;font-family:system-ui;background:#f4f4f7}
-
-header{
-background:#fff;
-padding:14px;
-display:flex;
-justify-content:space-between;
-border-bottom:1px solid #eee;
-position:sticky;top:0;
-}
+header{background:#fff;padding:14px;display:flex;justify-content:space-between;border-bottom:1px solid #eee;position:sticky;top:0}
 
 .section{display:none;padding:20px}
 .section.active{display:block}
@@ -33,15 +25,26 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
 .card img{
-width:100%;height:180px;object-fit:cover;border-radius:10px;
+width:100%;
+height:180px;
+object-fit:cover;
+border-radius:10px;
 }
 
 select,input{width:100%;padding:8px;margin-top:6px}
 
 .cart{
-position:fixed;right:0;top:0;width:340px;height:100%;
-background:#fff;transform:translateX(100%);
-transition:.3s;display:flex;flex-direction:column;border-left:1px solid #ddd;
+position:fixed;
+right:0;
+top:0;
+width:340px;
+height:100%;
+background:#fff;
+transform:translateX(100%);
+transition:.3s;
+display:flex;
+flex-direction:column;
+border-left:1px solid #ddd;
 }
 .cart.open{transform:translateX(0)}
 
@@ -49,18 +52,20 @@ transition:.3s;display:flex;flex-direction:column;border-left:1px solid #ddd;
 .cartFooter{padding:10px;border-top:1px solid #ddd}
 
 .admin{
-position:fixed;left:0;top:0;width:420px;height:100%;
-background:#f7f7f7;transform:translateX(-110%);
-transition:.3s;padding:14px;overflow:auto;
+position:fixed;
+left:0;
+top:0;
+width:420px;
+height:100%;
+background:#f7f7f7;
+transform:translateX(-110%);
+transition:.3s;
+padding:14px;
+overflow:auto;
 }
 .admin.open{transform:translateX(0)}
 
-.adminCard{
-background:#fff;padding:10px;margin-top:10px;border-radius:10px;border:1px solid #eee;
-}
-
 button{cursor:pointer}
-
 </style>
 </head>
 
@@ -68,7 +73,6 @@ button{cursor:pointer}
 
 <header>
 <div><b>💄 Beauty & Cheap</b></div>
-
 <div>
 <button onclick="show('shop')">Tienda</button>
 <button onclick="show('home')">Inicio</button>
@@ -92,14 +96,11 @@ button{cursor:pointer}
 <div class="cart" id="cart">
 <button onclick="toggleCart()">Cerrar</button>
 <div class="cartBody" id="cartList"></div>
-<div class="cartFooter">
-Total: $<span id="total">0</span>
-</div>
+<div class="cartFooter">Total: $<span id="total">0</span></div>
 </div>
 
 <!-- ADMIN -->
 <div class="admin" id="admin">
-
 <h3>Admin</h3>
 
 <div id="loginBox">
@@ -109,40 +110,37 @@ Total: $<span id="total">0</span>
 </div>
 
 <div id="adminTools" style="display:none">
-
 <h4>Agregar producto</h4>
 <input id="pname" placeholder="Nombre">
 <input id="pprice" placeholder="Precio">
-<input id="pimg" placeholder="Imagen (archivo.jpg)">
+<input id="pimg" placeholder="Imagen">
 <button onclick="addProduct()">Agregar</button>
 
 <hr>
 
 <div id="adminList"></div>
-
 </div>
-
 </div>
 
 <script>
 
-/* 🔐 ADMIN */
+/* ADMIN */
 let logged=false;
 let adminUser="admin";
 let adminPass="1234";
 
-/* 🧠 INVENTARIO CON ID (FIX CLAVE) */
+/* INVENTARIO (ESTABLE) */
 let products = JSON.parse(localStorage.getItem("products")) || [
-{id:1,name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
-{id:2,name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
-{id:3,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
-{id:4,name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}}
+{name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
+{name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
+{name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
+{name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}}
 ];
 
 let cart=[];
 let total=0;
 
-/* 🔐 LOGIN */
+/* LOGIN */
 function login(){
 if(user.value===adminUser && pass.value===adminPass){
 logged=true;
@@ -154,7 +152,7 @@ alert("Acceso denegado");
 }
 }
 
-/* 🧠 RENDER SHOP */
+/* RENDER PRODUCTOS */
 function render(){
 
 let box=document.getElementById("products");
@@ -176,7 +174,7 @@ box.innerHTML+=`
 ${options}
 </select>
 
-<button onclick="add(${p.id})">Agregar</button>
+<button onclick="add(${i})">Agregar</button>
 </div>
 `;
 });
@@ -186,26 +184,25 @@ save();
 renderAdmin();
 }
 
-/* 🛒 ADD (POR ID) */
-function add(id){
+/* ADD */
+function add(i){
 
-let p=products.find(x=>x.id===id);
-let sel=document.getElementById("opt"+products.indexOf(p)).value;
+let p=products[i];
+let sel=document.getElementById("opt"+i).value;
 
-if(!p.stock[sel] || p.stock[sel]<=0){
+if(p.stock[sel]<=0){
 alert("Agotado");
 return;
 }
 
 p.stock[sel]--;
-
-cart.push({id:p.id,name:p.name,option:sel,price:p.price});
+cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
 render();
 }
 
-/* 🧾 CART */
+/* CART */
 function renderCart(){
 
 let box=document.getElementById("cartList");
@@ -222,30 +219,27 @@ box.innerHTML+=`
 
 document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=cart.length;
-
 }
 
-/* ❌ REMOVE CART */
+/* REMOVE CART */
 function removeItem(i){
 
 let item=cart[i];
 total-=item.price;
 
-let p=products.find(x=>x.id===item.id);
+let p=products.find(x=>x.name===item.name);
 if(p){
-p.stock[item.option] = (p.stock[item.option]||0)+1;
+p.stock[item.option]=(p.stock[item.option]||0)+1;
 }
 
 cart.splice(i,1);
 render();
-
 }
 
-/* ➕ ADD PRODUCT (CON IMAGEN REAL) */
+/* ADD PRODUCT */
 function addProduct(){
 
 products.push({
-id:Date.now(),
 name:pname.value,
 price:+pprice.value,
 img:pimg.value || "default.jpg",
@@ -254,35 +248,31 @@ stock:{default:5}
 });
 
 render();
-
 }
 
-/* ❌ DELETE SOLO UNO (FIX REAL) */
-function deleteProduct(id){
-products = products.filter(p=>p.id!==id);
-render();
-}
-
-/* 🧾 ADMIN LIST */
+/* ADMIN LIST */
 function renderAdmin(){
 
 let box=document.getElementById("adminList");
+if(!box) return;
 box.innerHTML="";
 
-products.forEach(p=>{
+products.forEach((p,i)=>{
 
 box.innerHTML+=`
-<div class="adminCard">
-<b>${p.name}</b><br>
-💲 $${p.price}
-
-<br><br>
-
-<button onclick="deleteProduct(${p.id})">Eliminar</button>
+<div>
+<b>${p.name}</b> - $${p.price}
+<br>
+<button onclick="deleteProduct(${i})">Eliminar</button>
 </div>
 `;
 });
+}
 
+/* DELETE */
+function deleteProduct(i){
+products.splice(i,1);
+render();
 }
 
 /* NAV */
