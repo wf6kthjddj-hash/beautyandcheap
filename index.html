@@ -187,9 +187,9 @@ Verificar compra
 
 <script>
 
-/* 🔐 BASE SEGURA */
-const DEFAULT_USER = "admin";
-const DEFAULT_PASS = "1234";
+/* 🔐 CREDENCIALES POR DEFECTO (CAMBIADAS) */
+const DEFAULT_USER = "MrT";
+const DEFAULT_PASS = "Pelado23";
 
 let logged = localStorage.getItem("logged")==="true";
 
@@ -289,7 +289,7 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* REMOVE CART */
+/* REMOVE */
 function removeOne(id){
 let i=cart.findIndex(c=>c.id===id);
 if(i>-1) cart.splice(i,1);
@@ -334,7 +334,7 @@ alert("Compra confirmada ✔");
 }else alert("Código incorrecto");
 }
 
-/* 🔐 LOGIN FIX REAL */
+/* LOGIN */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -347,9 +347,7 @@ logged=true;
 localStorage.setItem("logged","true");
 syncUI();
 render();
-}else{
-alert("Credenciales incorrectas");
-}
+}else alert("Credenciales incorrectas");
 }
 
 function logout(){
@@ -369,14 +367,10 @@ a.style.display=logged?"none":"block";
 b.style.display=logged?"block":"none";
 }
 
-/* 🔐 CAMBIO DE PASS FIX */
+/* PASSWORD */
 function changePassword(){
 let np=document.getElementById("newPass").value;
-
-if(!np || np.length<4){
-alert("Muy corta");
-return;
-}
+if(!np || np.length<4) return alert("Muy corta");
 
 localStorage.setItem("adminPass",np);
 alert("Contraseña actualizada ✔");
