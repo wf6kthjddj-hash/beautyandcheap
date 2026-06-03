@@ -55,7 +55,7 @@ margin-top:6px;
 position:fixed;
 right:0;
 top:0;
-width:340px;
+width:360px;
 height:100%;
 background:#fff;
 border-left:1px solid #ddd;
@@ -99,6 +99,10 @@ background:#fff;
 color:#111;
 width:100%;
 }
+.qtyBtn{
+padding:2px 8px;
+margin:0 4px;
+}
 </style>
 </head>
 
@@ -117,7 +121,7 @@ width:100%;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda estable + pagos por WhatsApp</h2>
+<h2>✨ Tienda estable + carrito pro</h2>
 </div>
 
 <!-- SHOP -->
@@ -133,7 +137,6 @@ width:100%;
 
 <p style="padding:10px">Total: $<span id="total">0</span></p>
 
-<!-- 💳 PAGO -->
 <button onclick="checkout()" style="width:95%;margin:10px;background:#111;color:#fff;">
 Realizar pago por WhatsApp
 </button>
@@ -167,20 +170,6 @@ Verificar código
 
 <h4>Productos</h4>
 <div id="adminList"></div>
-
-<hr>
-
-<h4>Agregar producto</h4>
-<input id="pname" placeholder="Nombre">
-<input id="pprice" placeholder="Precio">
-<button onclick="addProduct()">Guardar</button>
-
-<hr>
-
-<h4>Cambiar contraseña</h4>
-<input id="newUser" placeholder="Usuario nuevo">
-<input id="newPass" type="password" placeholder="Contraseña nueva">
-<button onclick="changePass()">Actualizar</button>
 
 </div>
 
@@ -216,9 +205,10 @@ let products=[
 let cart=[];
 let pendingCode=null;
 
-/* RENDER */
+/* INIT */
 document.addEventListener("DOMContentLoaded",()=>render());
 
+/* RENDER */
 function render(){
 
 let box=document.getElementById("products");
@@ -232,7 +222,7 @@ box.innerHTML+=`
 <p>$${p.price}</p>
 <p>Stock: ${p.stock}</p>
 
-<button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
+<button class="buy" onclick="add(${p.id})" ${getCartCount(p.id)>=p.stock?'disabled':''}>
 Agregar
 </button>
 </div>
@@ -244,27 +234,51 @@ renderAdmin();
 syncUI();
 }
 
-/* ADD */
+/* 🔥 STOCK CONTROL REAL */
+function getCartCount(id){
+return cart.filter(c=>c.id===id).length;
+}
+
+/* ➕ ADD CONTROLADO */
 function add(id){
 let p=products.find(x=>x.id===id);
-if(!p || p.stock<=0) return;
+if(!p) return;
+
+if(getCartCount(id)>=p.stock){
+alert("No hay más stock disponible");
+return;
+}
 
 cart.push({id:p.id,name:p.name,price:p.price});
 render();
 }
 
-/* CART */
+/* 🛒 CART PRO */
 function renderCart(){
 let box=document.getElementById("cartList");
 box.innerHTML="";
 let total=0;
 
-cart.forEach((c,i)=>{
-total+=c.price;
+let grouped={};
+
+cart.forEach(c=>{
+let key=c.id;
+if(!grouped[key]) grouped[key]={...c,qty:1};
+else grouped[key].qty++;
+});
+
+Object.values(grouped).forEach(item=>{
+total+=item.price*item.qty;
+
 box.innerHTML+=`
-<div>
-<b>${c.name}</b>
-<button onclick="removeItem(${i})">Eliminar</button>
+<div style="margin-bottom:10px">
+<b>${item.name}</b><br>
+
+<button class="qtyBtn" onclick="changeQty(${item.id},-1)">-</button>
+${item.qty}
+<button class="qtyBtn" onclick="changeQty(${item.id},1)">+</button>
+
+<br>$${item.price * item.qty}
 </div>
 `;
 });
@@ -273,13 +287,31 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* REMOVE */
+/* ➕➖ CANTIDAD */
+function changeQty(id,amount){
+
+if(amount>0){
+let p=products.find(x=>x.id===id);
+if(getCartCount(id)>=p.stock){
+alert("Sin más stock");
+return;
+}
+cart.push({id:p.id,name:p.name,price:p.price});
+}else{
+let index=cart.findIndex(c=>c.id===id);
+if(index>-1) cart.splice(index,1);
+}
+
+render();
+}
+
+/* ❌ REMOVE SIMPLE */
 function removeItem(i){
 cart.splice(i,1);
 render();
 }
 
-/* 💳 CHECKOUT WHATSAPP */
+/* 💳 CHECKOUT */
 function checkout(){
 
 if(cart.length===0){
@@ -287,7 +319,7 @@ alert("Carrito vacío");
 return;
 }
 
-pendingCode = Math.floor(1000 + Math.random()*9000);
+pendingCode=Math.floor(1000+Math.random()*9000);
 
 let msg="Hola, quiero comprar:%0A";
 
@@ -300,7 +332,7 @@ msg+=`%0A🔐 Código: ${pendingCode}`;
 let phone="52TU_NUMERO_AQUI";
 window.open("https://wa.me/"+phone+"?text="+msg,"_blank");
 
-alert("Pedido enviado por WhatsApp");
+alert("Pedido enviado a WhatsApp");
 }
 
 /* 🔐 VERIFY */
@@ -308,17 +340,7 @@ function verifyCode(){
 
 let code=document.getElementById("codeInput").value;
 
-if(!pendingCode){
-alert("Primero realiza el pago");
-return;
-}
-
 if(code==pendingCode){
-
-cart.forEach(item=>{
-let p=products.find(x=>x.id===item.id);
-if(p) p.stock--;
-});
 
 cart=[];
 pendingCode=null;
@@ -374,30 +396,10 @@ if(!box||!logged)return;
 
 box.innerHTML="";
 products.forEach(p=>{
-box.innerHTML+=`<div>${p.name} - Stock: ${p.stock}</div>`;
+box.innerHTML+=`
+<div>${p.name} | Stock: ${p.stock}</div>
+`;
 });
-}
-
-/* ADD PRODUCT */
-function addProduct(){
-let name=document.getElementById("pname").value;
-let price=+document.getElementById("pprice").value;
-
-let p=products.find(x=>x.name.toLowerCase()===name.toLowerCase());
-
-if(p){
-p.stock++;
-}else{
-products.push({
-id:Date.now(),
-name,
-price:price||50,
-img:"default.jpg",
-stock:5
-});
-}
-
-render();
 }
 
 /* NAV */
