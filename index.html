@@ -2,34 +2,33 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄</title>
+<title>Beauty & Cheap 💄 | Pro Store</title>
 
 <style>
 body{
 margin:0;
 font-family:system-ui,-apple-system,Segoe UI,Arial;
-background:#f7f7fb;
+background:#f5f5f7;
 color:#111;
 }
 
 /* HEADER */
 header{
-background:#0d0d10;
-color:#fff;
-padding:18px;
+background:#fff;
+border-bottom:1px solid #eaeaea;
+padding:16px;
 text-align:center;
+font-weight:600;
 position:sticky;
 top:0;
 z-index:1000;
-font-weight:600;
-letter-spacing:.3px;
 }
 
 /* NAV */
 nav{
 display:flex;
 justify-content:center;
-gap:20px;
+gap:16px;
 background:#fff;
 padding:10px;
 border-bottom:1px solid #eee;
@@ -40,40 +39,41 @@ background:none;
 border:none;
 cursor:pointer;
 font-weight:500;
+color:#333;
 }
 
 /* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px;
+gap:18px;
 padding:20px;
 }
 
-/* CARD (Sephora style limpio) */
+/* PRODUCT CARD */
 .card{
 background:#fff;
-border-radius:14px;
+border-radius:16px;
 padding:12px;
-box-shadow:0 8px 25px rgba(0,0,0,.08);
+box-shadow:0 6px 18px rgba(0,0,0,.06);
 transition:.2s;
 }
 
 .card:hover{
-transform:translateY(-3px);
+transform:translateY(-4px);
 }
 
 .card img{
 width:100%;
-height:190px;
+height:200px;
 object-fit:cover;
-border-radius:12px;
+border-radius:14px;
 }
 
 select{
 width:100%;
-margin-top:6px;
 padding:8px;
+margin-top:6px;
 border-radius:10px;
 border:1px solid #ddd;
 }
@@ -85,8 +85,9 @@ padding:10px;
 border:none;
 background:#111;
 color:#fff;
-border-radius:10px;
+border-radius:12px;
 cursor:pointer;
+font-weight:600;
 }
 
 /* CART */
@@ -94,55 +95,49 @@ cursor:pointer;
 position:fixed;
 right:0;
 top:0;
-width:360px;
+width:380px;
 height:100%;
-background:rgba(255,255,255,.98);
-backdrop-filter:blur(12px);
-padding:14px;
-overflow:auto;
+background:#fff;
+border-left:1px solid #eee;
 transform:translateX(100%);
 transition:.3s;
 z-index:9999;
-border-left:1px solid #eee;
+display:flex;
+flex-direction:column;
 }
 
 .cart.open{transform:translateX(0)}
 
-.backdrop{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.4);
-opacity:0;
-visibility:hidden;
-transition:.3s;
-z-index:9998;
+.cartHeader{
+padding:14px;
+border-bottom:1px solid #eee;
+font-weight:600;
 }
 
-.backdrop.show{
-opacity:1;
-visibility:visible;
+.cartBody{
+flex:1;
+overflow:auto;
+padding:12px;
 }
 
-/* CART ITEMS */
 .cartItem{
-background:#fff;
 border:1px solid #eee;
 border-radius:12px;
 padding:10px;
 margin-bottom:10px;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
 }
 
-.cartItem h4{
-margin:0;
-font-size:14px;
+.cartItem small{
+opacity:.6;
+display:block;
+margin-top:2px;
 }
 
 .cartRow{
 display:flex;
 justify-content:space-between;
-align-items:center;
 margin-top:8px;
+align-items:center;
 }
 
 .removeBtn{
@@ -155,26 +150,28 @@ cursor:pointer;
 font-size:12px;
 }
 
-.totalBox{
-margin-top:15px;
-padding-top:10px;
+.cartFooter{
 border-top:1px solid #eee;
-font-weight:700;
+padding:12px;
 }
 
 .checkoutBtn{
 width:100%;
-margin-top:12px;
 padding:12px;
 border:none;
-background:linear-gradient(135deg,#111,#333);
+background:#111;
 color:#fff;
-border-radius:10px;
-cursor:pointer;
+border-radius:12px;
 font-weight:600;
+cursor:pointer;
 }
 
-/* ADMIN BUTTON */
+.totalBox{
+margin-bottom:10px;
+font-weight:700;
+}
+
+/* ADMIN BUTTON (FLOAT) */
 .adminBtn{
 position:fixed;
 left:20px;
@@ -186,7 +183,6 @@ padding:12px 16px;
 border-radius:999px;
 cursor:grab;
 z-index:10001;
-box-shadow:0 10px 25px rgba(0,0,0,.25);
 }
 
 /* ADMIN PANEL */
@@ -194,15 +190,15 @@ box-shadow:0 10px 25px rgba(0,0,0,.25);
 position:fixed;
 left:0;
 top:0;
-width:360px;
+width:380px;
 height:100%;
 background:#111;
 color:#fff;
 padding:12px;
-overflow:auto;
 transform:translateX(-110%);
 transition:.3s;
 z-index:10000;
+overflow:auto;
 }
 
 .adminPanel.open{transform:translateX(0)}
@@ -211,7 +207,7 @@ z-index:10000;
 background:none;
 border:none;
 color:#fff;
-font-size:20px;
+font-size:18px;
 float:right;
 cursor:pointer;
 }
@@ -224,11 +220,16 @@ border-radius:8px;
 border:none;
 }
 
-/* STOCK */
+/* STOCK LABEL */
 .stock{
 font-size:12px;
 opacity:.7;
 margin-top:4px;
+}
+
+.lowStock{
+color:#d9534f;
+font-weight:600;
 }
 </style>
 </head>
@@ -248,8 +249,8 @@ Beauty & Cheap 💄
 </nav>
 
 <div id="home" class="section active" style="padding:20px">
-<h2>✨ Beauty & Cheap 💄</h2>
-<p style="opacity:.7">Glow real, prices low.</p>
+<h2>✨ Beauty & Cheap Pro Store</h2>
+<p style="opacity:.6">Experiencia tipo Sephora, sin precios Sephora 😏</p>
 </div>
 
 <div id="shop" class="section">
@@ -257,30 +258,24 @@ Beauty & Cheap 💄
 </div>
 
 <!-- CART -->
-<div class="backdrop" id="backdrop" onclick="toggleCart()"></div>
-
 <div class="cart" id="cart">
-<h3>🛒 Carrito</h3>
-<div id="list"></div>
+<div class="cartHeader">🛒 Tu carrito</div>
 
-<div class="totalBox">
-Total: $<span id="total">0</span>
+<div class="cartBody" id="list"></div>
+
+<div class="cartFooter">
+<div class="totalBox">Total: $<span id="total">0</span></div>
+<button class="checkoutBtn" onclick="checkoutWhatsApp()">Pagar por WhatsApp 💬</button>
 </div>
-
-<button class="checkoutBtn" onclick="checkoutWhatsApp()">
-Pagar por WhatsApp 💬
-</button>
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" id="adminBtn" onmousedown="dragStart(event)" onclick="login()">
-Admin
-</button>
+<button class="adminBtn" id="adminBtn" onmousedown="dragStart(event)" onclick="login()">Admin</button>
 
 <div class="adminPanel" id="admin">
 <button class="closeAdmin" onclick="closeAdmin()">✖</button>
 
-<h3>Panel Admin</h3>
+<h3>Dashboard Admin</h3>
 
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
@@ -296,86 +291,19 @@ Admin
 let USER="admin";
 let PASS=localStorage.getItem("adminPass") || "1234";
 
-/* 🧠 STOCK REAL COMPLETO */
+/* STOCK REAL COMPLETO */
 let products = JSON.parse(localStorage.getItem("db")) || [
 
-{
-name:"Brush Cleaning Egg",
-price:45,
-img:"egg_black.jpg",
-options:["black","purple"],
-stock:{black:2,purple:1}
-},
-{
-name:"Cuticle Revitalizing Pen",
-price:55,
-img:"cuticle_peach.jpg",
-options:["peach","strawberry","rose"],
-stock:{peach:1,strawberry:2,rose:2}
-},
-{
-name:"Makeup Remover Wipes",
-price:50,
-img:"wipes.jpg",
-options:["default"],
-stock:{default:5}
-},
-{
-name:"Retro Lipstick",
-price:70,
-img:"lipstick_mod.jpg",
-options:["mod"],
-stock:{mod:1}
-},
-{
-name:"Foot Mask Chamomile",
-price:65,
-img:"foot_chamomile.jpg",
-options:["chamomile"],
-stock:{chamomile:2}
-},
-{
-name:"Foot Peeling Mask",
-price:75,
-img:"foot_peeling.jpg",
-options:["peeling"],
-stock:{peeling:2}
-},
-{
-name:"Rose Foot Mask",
-price:65,
-img:"foot_rose.jpg",
-options:["rose"],
-stock:{rose:2}
-},
-{
-name:"Acne Patches",
-price:65,
-img:"acne_patches.jpg",
-options:["10mm"],
-stock:{"10mm":3}
-},
-{
-name:"Magical Lip Stain",
-price:75,
-img:"lip_kuu.jpg",
-options:["kuu","hime"],
-stock:{kuu:1,hime:1}
-},
-{
-name:"Headband",
-price:45,
-img:"headband_pink_ears.jpg",
-options:["pink","purple"],
-stock:{pink:1,purple:1}
-},
-{
-name:"Wonder Blender",
-price:45,
-img:"blender_pink.jpg",
-options:["pink","black"],
-stock:{pink:1,black:1}
-}
+{name:"Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
+{name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
+{name:"Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
+{name:"Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
+{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
+{name:"Peeling Mask",price:75,img:"foot_peeling.jpg",options:["peeling"],stock:{peeling:2}},
+{name:"Acne Patches",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}},
+{name:"Lip Stain",price:75,img:"lip_kuu.jpg",options:["kuu","hime"],stock:{kuu:1,hime:1}},
+{name:"Headband",price:45,img:"headband_pink_ears.jpg",options:["pink","purple"],stock:{pink:1,purple:1}},
+{name:"Blender",price:45,img:"blender_pink.jpg",options:["pink","black"],stock:{pink:1,black:1}}
 
 ];
 
@@ -416,14 +344,19 @@ updateStock(i);
 });
 }
 
-/* STOCK REAL */
+/* STOCK */
 function updateStock(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 let s=p.stock[sel]??0;
 
-document.getElementById("stock"+i).innerText=
-s>0 ? "Stock: "+s : "AGOTADO";
+let el=document.getElementById("stock"+i);
+
+if(s<=1){
+el.innerHTML=`<span class="lowStock">Stock bajo: ${s}</span>`;
+}else{
+el.innerText="Stock: "+s;
+}
 }
 
 /* ADD */
@@ -431,10 +364,7 @@ function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 
-if((p.stock[sel]??0)<=0){
-alert("Agotado 😢");
-return;
-}
+if((p.stock[sel]??0)<=0) return alert("Agotado");
 
 p.stock[sel]--;
 
@@ -456,21 +386,19 @@ box.innerHTML="";
 let grouped={};
 
 cart.forEach(c=>{
-let key=c.name+"-"+c.option;
-if(!grouped[key]){
-grouped[key]={...c,qty:1};
-}else grouped[key].qty++;
+let k=c.name+"-"+c.option;
+if(!grouped[k]) grouped[k]={...c,qty:1};
+else grouped[k].qty++;
 });
 
-Object.values(grouped).forEach(item=>{
+Object.values(grouped).forEach(i=>{
 box.innerHTML+=`
 <div class="cartItem">
-<h4>${item.name}</h4>
-<small>${item.option}</small>
-
+<h4>${i.name}</h4>
+<small>${i.option}</small>
 <div class="cartRow">
-<span>$${item.price} x ${item.qty}</span>
-<button class="removeBtn" onclick="removeItem('${item.name}','${item.option}')">Eliminar</button>
+<span>$${i.price} x ${i.qty}</span>
+<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">Eliminar</button>
 </div>
 </div>
 `;
@@ -494,7 +422,7 @@ renderCart();
 
 /* CHECKOUT */
 function checkoutWhatsApp(){
-let msg="🛒 Pedido Beauty & Cheap:%0A";
+let msg="🛒 Pedido Pro Beauty:%0A";
 let grouped={};
 
 cart.forEach(c=>{
@@ -522,7 +450,6 @@ document.getElementById(s).classList.add("active");
 /* CART */
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
-document.getElementById("backdrop").classList.toggle("show");
 }
 
 /* ADMIN */
@@ -586,7 +513,6 @@ document.removeEventListener("mousemove",move);
 document.removeEventListener("mouseup",end);
 }
 
-/* INIT */
 render();
 
 </script>
