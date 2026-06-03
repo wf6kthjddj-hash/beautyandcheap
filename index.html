@@ -24,6 +24,7 @@ top:0;
 .section{display:none;padding:20px}
 .section.active{display:block}
 
+/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -94,6 +95,8 @@ border:1px solid #eee;
 
 button{cursor:pointer}
 
+hr{margin:10px 0}
+
 </style>
 </head>
 
@@ -133,16 +136,32 @@ Total: $<span id="total">0</span>
 <!-- ADMIN -->
 <div class="admin" id="admin">
 
-<h3>Admin</h3>
+<h3>Admin Panel</h3>
 
-<input id="user" placeholder="usuario">
-<input id="pass" type="password" placeholder="contraseña">
+<!-- LOGIN -->
+<div id="loginBox">
+<h4>Iniciar sesión</h4>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
+</div>
 
-<div id="adminPanel" style="display:none">
+<!-- PANEL -->
+<div id="adminTools" style="display:none">
+
+<button onclick="logout()">Cerrar sesión</button>
+
+<hr>
 
 <h4>📊 Dashboard</h4>
 <p id="dash"></p>
+
+<hr>
+
+<h4>🔁 Cambiar credenciales</h4>
+<input id="newUser" placeholder="Nuevo usuario">
+<input id="newPass" type="password" placeholder="Nueva contraseña">
+<button onclick="changeCredentials()">Guardar</button>
 
 </div>
 
@@ -150,12 +169,12 @@ Total: $<span id="total">0</span>
 
 <script>
 
-/* 🔐 LOGIN */
+/* 🔐 ADMIN */
 let logged=false;
 let adminUser="admin";
 let adminPass="1234";
 
-/* 🧠 INVENTARIO (NO TOCADO) */
+/* 🧠 INVENTARIO (INTACTO) */
 let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
@@ -172,18 +191,60 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let cart=[];
 let total=0;
 
-/* 🔐 LOGIN REAL */
+/* 🔐 OPEN ADMIN */
+function openAdmin(){
+document.getElementById("admin").classList.add("open");
+refreshAdminView();
+}
+
+/* 🔐 LOGIN */
 function login(){
+
 if(user.value===adminUser && pass.value===adminPass){
 logged=true;
-document.getElementById("adminPanel").style.display="block";
+refreshAdminView();
 renderDash();
 }else{
 alert("Acceso denegado");
 }
+
 }
 
-/* 🔥 RENDER PRODUCTOS (ARREGLADO VARIANTES) */
+/* 🚪 LOGOUT */
+function logout(){
+logged=false;
+refreshAdminView();
+}
+
+/* 🔁 CAMBIO CREDENCIALES */
+function changeCredentials(){
+
+if(!newUser.value || !newPass.value){
+alert("Completa campos");
+return;
+}
+
+adminUser=newUser.value;
+adminPass=newPass.value;
+
+alert("Credenciales actualizadas");
+
+}
+
+/* 🔐 CONTROL ADMIN VIEW */
+function refreshAdminView(){
+
+if(!logged){
+document.getElementById("loginBox").style.display="block";
+document.getElementById("adminTools").style.display="none";
+}else{
+document.getElementById("loginBox").style.display="none";
+document.getElementById("adminTools").style.display="block";
+}
+
+}
+
+/* 🧠 RENDER PRODUCTOS */
 function render(){
 
 let box=document.getElementById("products");
@@ -191,8 +252,8 @@ box.innerHTML="";
 
 products.forEach((p,i)=>{
 
-let options = Object.keys(p.stock)
-.map(o=>`<option value="${o}">${o} (stock ${p.stock[o]})</option>`)
+let options=Object.keys(p.stock)
+.map(o=>`<option value="${o}">${o} (${p.stock[o]})</option>`)
 .join("");
 
 box.innerHTML+=`
@@ -208,6 +269,7 @@ ${options}
 <button onclick="add(${i})">Agregar</button>
 </div>
 `;
+
 });
 
 renderCart();
@@ -220,7 +282,7 @@ function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 
-if(!p.stock[sel] || p.stock[sel]<=0){
+if(p.stock[sel]<=0){
 alert("Agotado");
 return;
 }
@@ -231,6 +293,7 @@ cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
 render();
+
 }
 
 /* 🧾 CART */
@@ -250,10 +313,12 @@ box.innerHTML+=`
 
 document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=cart.length;
+
 }
 
 /* ❌ REMOVE CART */
 function removeItem(i){
+
 let item=cart[i];
 total-=item.price;
 
@@ -264,15 +329,7 @@ p.stock[item.option] = (p.stock[item.option]||0)+1;
 
 cart.splice(i,1);
 render();
-}
 
-/* 🔐 OPEN ADMIN */
-function openAdmin(){
-if(!logged){
-alert("Debes iniciar sesión");
-return;
-}
-toggleAdmin();
 }
 
 /* 📊 DASHBOARD */
@@ -281,13 +338,17 @@ function renderDash(){
 let stock=0;
 
 products.forEach(p=>{
-Object.values(p.stock).forEach(s=>stock+=s);
+Object.values(p.stock).forEach(s=>{
+stock+=s;
+});
 });
 
 document.getElementById("dash").innerHTML=`
 Productos: ${products.length}<br>
 Stock total: ${stock}<br>
+Estado: ${logged ? "Admin activo" : "No logueado"}
 `;
+
 }
 
 /* NAV */
@@ -298,10 +359,6 @@ document.getElementById(s).classList.add("active");
 
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
-}
-
-function toggleAdmin(){
-document.getElementById("admin").classList.toggle("open");
 }
 
 /* SAVE */
