@@ -9,7 +9,6 @@ body{
 margin:0;
 font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
 background:#f4f4f7;
-color:#111;
 }
 
 header{
@@ -20,18 +19,9 @@ justify-content:space-between;
 border-bottom:1px solid #eee;
 position:sticky;
 top:0;
-z-index:1000;
 }
 
 .brand{font-weight:800}
-
-.nav button{
-background:none;
-border:none;
-cursor:pointer;
-font-weight:600;
-margin-left:10px;
-}
 
 .section{display:none;padding:20px}
 .section.active{display:block}
@@ -111,6 +101,7 @@ transition:.3s;
 padding:14px;
 overflow:auto;
 }
+
 .admin.open{transform:translateX(0)}
 
 .adminCard{
@@ -119,15 +110,6 @@ padding:10px;
 border-radius:10px;
 margin-top:10px;
 border:1px solid #eee;
-}
-
-.admin button{
-background:#d60000;
-color:#fff;
-border:none;
-padding:6px 10px;
-border-radius:8px;
-margin-top:6px;
 }
 
 .closeBtn{
@@ -142,6 +124,14 @@ background:#000;
 color:#fff;
 cursor:pointer;
 }
+
+.authBox{
+margin-bottom:10px;
+padding:10px;
+background:#fff;
+border-radius:10px;
+border:1px solid #ddd;
+}
 </style>
 </head>
 
@@ -150,11 +140,11 @@ cursor:pointer;
 <header>
 <div class="brand">💄 Beauty & Cheap</div>
 
-<div class="nav">
+<div>
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('shop')">Tienda</button>
 <button onclick="toggleCart()">🛒 <span id="count">0</span></button>
-<button onclick="toggleAdmin()">Admin</button>
+<button onclick="openAdmin()">Admin</button>
 </div>
 </header>
 
@@ -179,20 +169,42 @@ Total: $<span id="total">0</span>
 
 <!-- ADMIN -->
 <div class="admin" id="admin">
+
 <button class="closeBtn" onclick="toggleAdmin()">✕</button>
 
 <h3>Panel Admin</h3>
 
+<div class="authBox">
+<input id="user" placeholder="Usuario">
+<input id="pass" placeholder="Contraseña" type="password">
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="adminPanel" style="display:none">
+
+<h4>🔧 Seguridad</h4>
+<input id="newUser" placeholder="Nuevo usuario">
+<input id="newPass" placeholder="Nueva contraseña">
+<button onclick="changeAuth()">Cambiar credenciales</button>
+
+<h4>📦 Productos</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
-<button onclick="addProduct()">Procesar</button>
+<button onclick="addProduct()">Agregar / Aumentar stock</button>
 
 <div id="adminList"></div>
+
+</div>
 </div>
 
 <script>
 
-/* 🧠 INVENTARIO ORIGINAL (NO TOCADO) */
+/* 🔐 AUTH */
+let authUser = "admin";
+let authPass = "1234";
+let logged = false;
+
+/* 🧠 INVENTARIO (NO TOCADO) */
 let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
@@ -209,12 +221,29 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let cart=[];
 let total=0;
 
+/* 🔐 LOGIN */
+function login(){
+if(user.value===authUser && pass.value===authPass){
+logged = true;
+document.getElementById("adminPanel").style.display="block";
+}else{
+alert("Acceso denegado");
+}
+}
+
+/* 🔁 CAMBIAR USUARIO/PASS */
+function changeAuth(){
+authUser = newUser.value;
+authPass = newPass.value;
+alert("Credenciales actualizadas");
+}
+
 /* 💾 SAVE */
 function save(){
 localStorage.setItem("products",JSON.stringify(products));
 }
 
-/* 🔁 RENDER */
+/* 🧼 RENDER */
 function render(){
 let box=document.getElementById("products");
 box.innerHTML="";
@@ -242,7 +271,7 @@ updateSummary();
 save();
 }
 
-/* 🛒 ADD CART */
+/* 🛒 ADD */
 function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
@@ -275,60 +304,26 @@ document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=cart.length;
 }
 
-/* 🗑️ DELETE PRODUCT */
-function del(i){
-
-let p=products[i];
-
-cart = cart.filter(c=>c.name!==p.name);
-
-products.splice(i,1);
-
-save();
-render();
-renderCart();
-updateSummary();
-}
-
-/* 🧩 DELETE VARIANT */
-function delVariant(i,v){
-
-let p=products[i];
-
-delete p.stock[v];
-
-cart = cart.filter(c=>!(c.name===p.name && c.option===v));
-
-if(Object.keys(p.stock).length===0){
-products.splice(i,1);
-}
-
-save();
-render();
-renderCart();
-updateSummary();
-}
-
-/* ➕ STOCK */
-function addStock(i){
-let p=products[i];
-
-Object.keys(p.stock).forEach(k=>{
-p.stock[k]++;
-});
-
-render();
-}
-
 /* 💼 ADMIN */
+function openAdmin(){
+if(!logged){
+alert("Debes iniciar sesión");
+return;
+}
+toggleAdmin();
+}
+
+/* ADMIN RENDER */
 function renderAdmin(){
+if(!logged) return;
+
 let box=document.getElementById("adminList");
 box.innerHTML="";
 
 products.forEach((p,i)=>{
 
 let variants = Object.keys(p.stock).map(v=>`
-<button onclick="delVariant(${i},'${v}')">
+<button onclick="removeVariant(${i},'${v}')">
 ❌ ${v} (${p.stock[v]})
 </button>
 `).join("");
@@ -336,36 +331,46 @@ let variants = Object.keys(p.stock).map(v=>`
 box.innerHTML+=`
 <div class="adminCard">
 <b>${p.name}</b><br>
-Stock: ${Object.entries(p.stock).map(s=>s[0]+":"+s[1]).join(" | ")}<br>
 
 ${variants}
 
 <button onclick="addStock(${i})">+ Stock</button>
-<button onclick="del(${i})">Eliminar producto</button>
+<button onclick="deleteProduct(${i})">Eliminar producto</button>
 </div>
 `;
 });
 }
 
-/* 📊 DASHBOARD */
-function updateSummary(){
-
-let totalStock=0;
-let low=0;
-
-products.forEach(p=>{
-Object.values(p.stock).forEach(s=>{
-totalStock+=s;
-if(s<=1) low++;
+/* ➕ STOCK */
+function addStock(i){
+Object.keys(products[i].stock).forEach(k=>{
+products[i].stock[k]++;
 });
-});
+render();
+}
 
-document.getElementById("summary").innerHTML=`
-📦 Productos: ${products.length}<br>
-📊 Stock total: ${totalStock}<br>
-⚠️ Stock bajo: ${low}<br>
-Estado: OK
-`;
+/* 🗑️ PRODUCT */
+function deleteProduct(i){
+cart = cart.filter(c=>c.name!==products[i].name);
+products.splice(i,1);
+save();
+render();
+renderCart();
+}
+
+/* 🗑️ VARIANT */
+function removeVariant(i,v){
+delete products[i].stock[v];
+
+cart = cart.filter(c=>!(c.name===products[i].name && c.option===v));
+
+if(Object.keys(products[i].stock).length===0){
+products.splice(i,1);
+}
+
+save();
+render();
+renderCart();
 }
 
 /* NAV */
@@ -380,6 +385,20 @@ document.getElementById("cart").classList.toggle("open");
 
 function toggleAdmin(){
 document.getElementById("admin").classList.toggle("open");
+}
+
+/* DASHBOARD */
+function updateSummary(){
+let stock=0;
+products.forEach(p=>{
+Object.values(p.stock).forEach(s=>stock+=s);
+});
+
+document.getElementById("summary").innerHTML=`
+📦 Productos: ${products.length}<br>
+📊 Stock total: ${stock}<br>
+🔐 Admin: ${logged ? "Activo" : "Bloqueado"}
+`;
 }
 
 render();
