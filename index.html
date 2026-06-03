@@ -21,7 +21,6 @@ flex-wrap:wrap;
 gap:10px;
 }
 
-/* SEARCH */
 #search{
 padding:8px;
 border:1px solid #ddd;
@@ -29,11 +28,9 @@ border-radius:8px;
 width:200px;
 }
 
-/* SECTION */
 .section{display:none;padding:20px}
 .section.active{display:block}
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -80,6 +77,7 @@ flex-direction:column;
 z-index:9999;
 }
 .cart.open{transform:translateX(0)}
+
 .cartBody{flex:1;overflow:auto;padding:10px}
 
 /* ADMIN */
@@ -158,76 +156,27 @@ Verificar compra
 </button>
 </div>
 
-<!-- ADMIN -->
-<div class="admin" id="admin">
-
-<h3>Admin Panel PRO</h3>
-
-<div id="loginBox">
-<input id="user" placeholder="Usuario">
-<input id="pass" type="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
-</div>
-
-<div id="panel" style="display:none">
-
-<button onclick="logout()">Cerrar sesión</button>
-
-<hr>
-
-<h4>🔐 Cambiar contraseña</h4>
-<input id="newPass" type="password" placeholder="Nueva contraseña">
-<button onclick="changePassword()">Actualizar</button>
-
-<hr>
-
-<h4>Agregar producto</h4>
-<input id="pname" placeholder="Nombre">
-<input id="pprice" placeholder="Precio">
-<input id="pimg" placeholder="Imagen (archivo.jpg)">
-<button onclick="addProduct()">Agregar</button>
-
-<hr>
-
-<h4>Inventario</h4>
-<div id="adminList"></div>
-
-</div>
-</div>
-
 <script>
 
-/* ADMIN */
-let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
-let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
-let logged = localStorage.getItem("logged")==="true";
-
-/* INVENTARIO COMPLETO */
+/* INVENTARIO */
 let products=[
-{id:1,name:"AOA Brush Egg Black",price:45,img:"egg_black.jpg",cat:"skincare",stock:2},
-{id:2,name:"AOA Brush Egg Purple",price:45,img:"egg_purple.jpg",cat:"skincare",stock:2},
-
-{id:3,name:"Cuticle Oil Peach",price:50,img:"cuticle_peach.jpg",cat:"skincare",stock:5},
-{id:4,name:"Cuticle Oil Strawberry",price:50,img:"cuticle_strawberry.jpg",cat:"skincare",stock:5},
-{id:5,name:"Cuticle Oil Rose",price:50,img:"cuticle_rose.jpg",cat:"skincare",stock:5},
-
-{id:6,name:"AOA Wipes Sin Aroma",price:50,img:"wipes.jpg",cat:"skincare",stock:5},
-
-{id:7,name:"Lipstick Mod",price:70,img:"lipstick_mod.jpg",cat:"labios",stock:3},
-{id:12,name:"Lip Oil Kuu",price:65,img:"lip_kuu.jpg",cat:"labios",stock:4},
-{id:13,name:"Lip Oil Hime",price:65,img:"lip_hime.jpg",cat:"labios",stock:4},
-
-{id:8,name:"Foot Mask Chamomile",price:60,img:"foot_chamomile.jpg",cat:"pies",stock:3},
-{id:9,name:"Foot Peeling Mask",price:65,img:"foot_peeling.jpg",cat:"pies",stock:3},
-{id:10,name:"Foot Mask Rose",price:60,img:"foot_rose.jpg",cat:"pies",stock:3},
-
-{id:11,name:"Acne Patches",price:55,img:"acne_patches.jpg",cat:"skincare",stock:6},
-
-{id:14,name:"Headband Pink Ears",price:40,img:"headband_pink_ears.jpg",cat:"accesorios",stock:3},
-{id:15,name:"Headband Purple Ears",price:40,img:"headband_purple_ears.jpg",cat:"accesorios",stock:3},
-
-{id:16,name:"Beauty Blender Pink",price:45,img:"blender_pink.jpg",cat:"accesorios",stock:4},
-{id:17,name:"Beauty Blender Black",price:45,img:"blender_black.jpg",cat:"accesorios",stock:4}
+{id:1,name:"AOA Brush Egg Black",price:45,img:"egg_black.jpg",stock:2},
+{id:2,name:"AOA Brush Egg Purple",price:45,img:"egg_purple.jpg",stock:2},
+{id:3,name:"Cuticle Oil Peach",price:50,img:"cuticle_peach.jpg",stock:5},
+{id:4,name:"Cuticle Oil Strawberry",price:50,img:"cuticle_strawberry.jpg",stock:5},
+{id:5,name:"Cuticle Oil Rose",price:50,img:"cuticle_rose.jpg",stock:5},
+{id:6,name:"AOA Wipes Sin Aroma",price:50,img:"wipes.jpg",stock:5},
+{id:7,name:"Lipstick Mod",price:70,img:"lipstick_mod.jpg",stock:3},
+{id:8,name:"Foot Mask Chamomile",price:60,img:"foot_chamomile.jpg",stock:3},
+{id:9,name:"Foot Peeling Mask",price:65,img:"foot_peeling.jpg",stock:3},
+{id:10,name:"Foot Mask Rose",price:60,img:"foot_rose.jpg",stock:3},
+{id:11,name:"Acne Patches",price:55,img:"acne_patches.jpg",stock:6},
+{id:12,name:"Lip Oil Kuu",price:65,img:"lip_kuu.jpg",stock:4},
+{id:13,name:"Lip Oil Hime",price:65,img:"lip_hime.jpg",stock:4},
+{id:14,name:"Headband Pink Ears",price:40,img:"headband_pink_ears.jpg",stock:3},
+{id:15,name:"Headband Purple Ears",price:40,img:"headband_purple_ears.jpg",stock:3},
+{id:16,name:"Beauty Blender Pink",price:45,img:"blender_pink.jpg",stock:4},
+{id:17,name:"Beauty Blender Black",price:45,img:"blender_black.jpg",stock:4}
 ];
 
 let cart=[];
@@ -240,16 +189,15 @@ let q=document.getElementById("search").value?.toLowerCase()||"";
 let box=document.getElementById("products");
 box.innerHTML="";
 
-products
-.filter(p=>p.name.toLowerCase().includes(q))
+products.filter(p=>p.name.toLowerCase().includes(q))
 .forEach(p=>{
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<p class="small">Stock: ${p.stock} | ${p.cat}</p>
+<p class="small">Stock: ${p.stock}</p>
 
 <button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
 Agregar
@@ -259,18 +207,26 @@ Agregar
 });
 
 renderCart();
-renderAdmin();
-syncUI();
 }
 
-/* CART */
+/* 🔥 FIX: NO PASAR STOCK */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
-cart.push({...p});
+
+/* contar en carrito */
+let count=cart.filter(c=>c.id===id).length;
+
+if(count >= p.stock){
+alert("No hay más stock disponible");
+return;
+}
+
+cart.push({id:p.id,name:p.name,price:p.price});
 render();
 }
 
+/* CART */
 function renderCart(){
 let box=document.getElementById("cartList");
 box.innerHTML="";
@@ -287,10 +243,15 @@ Object.values(grouped).forEach(item=>{
 total+=item.price*item.qty;
 
 box.innerHTML+=`
-<div>
+<div style="margin-bottom:10px">
 <b>${item.name}</b><br>
 Cantidad: ${item.qty}<br>
 $${item.price*item.qty}
+
+<br>
+
+<button onclick="removeOne(${item.id})">-1</button>
+<button onclick="removeAll(${item.id})">Eliminar</button>
 </div>
 <hr>
 `;
@@ -298,6 +259,18 @@ $${item.price*item.qty}
 
 document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
+}
+
+/* 🧨 NUEVO: ELIMINAR */
+function removeOne(id){
+let index=cart.findIndex(c=>c.id===id);
+if(index>-1) cart.splice(index,1);
+render();
+}
+
+function removeAll(id){
+cart=cart.filter(c=>c.id!==id);
+render();
 }
 
 /* WHATSAPP */
@@ -321,90 +294,18 @@ function verifyCode(){
 let code=document.getElementById("codeInput").value;
 
 if(code==pendingCode){
+
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
 if(p) p.stock--;
 });
+
 cart=[];
 pendingCode=null;
 render();
+
 alert("Compra confirmada ✔");
 }else alert("Código incorrecto");
-}
-
-/* ADMIN */
-function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
-
-if(u===ADMIN_USER && p===ADMIN_PASS){
-logged=true;
-localStorage.setItem("logged","true");
-syncUI();
-renderAdmin();
-}else alert("Error");
-}
-
-function logout(){
-logged=false;
-localStorage.setItem("logged","false");
-syncUI();
-}
-
-function syncUI(){
-let a=document.getElementById("loginBox");
-let b=document.getElementById("panel");
-
-a.style.display=logged?"none":"block";
-b.style.display=logged?"block":"none";
-}
-
-/* ADMIN PANEL */
-function renderAdmin(){
-if(!logged) return;
-let box=document.getElementById("adminList");
-box.innerHTML="";
-
-products.forEach(p=>{
-box.innerHTML+=`
-<div>
-<input value="${p.name}" onchange="editName(${p.id},this.value)">
-<input value="${p.price}" onchange="editPrice(${p.id},this.value)">
-<input value="${p.stock}" onchange="editStock(${p.id},this.value)">
-<button onclick="deleteProduct(${p.id})" style="background:red;color:#fff">
-Eliminar
-</button>
-</div>
-<hr>
-`;
-});
-}
-
-function editName(id,v){products.find(x=>x.id===id).name=v;render();}
-function editPrice(id,v){products.find(x=>x.id===id).price=+v;render();}
-function editStock(id,v){products.find(x=>x.id===id).stock=+v;render();}
-
-function deleteProduct(id){
-products=products.filter(x=>x.id!==id);
-render();
-}
-
-function addProduct(){
-let name=document.getElementById("pname").value;
-let price=+document.getElementById("pprice").value;
-let img=document.getElementById("pimg").value;
-
-products.push({id:Date.now(),name,price,img,stock:1,cat:"nuevo"});
-render();
-}
-
-/* PASSWORD */
-function changePassword(){
-let np=document.getElementById("newPass").value;
-if(np.length<4)return alert("Muy corta");
-ADMIN_PASS=np;
-localStorage.setItem("adminPass",np);
-alert("Actualizada ✔");
 }
 
 /* NAV */
@@ -414,7 +315,6 @@ document.getElementById(s).classList.add("active");
 }
 
 function openCart(){document.getElementById("cart").classList.toggle("open");}
-function openAdmin(){document.getElementById("admin").classList.toggle("open");if(!logged)syncUI();}
 
 render();
 
