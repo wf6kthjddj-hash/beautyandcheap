@@ -117,8 +117,7 @@ width:100%;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda estable</h2>
-<p>Inventario + carrito + admin funcional.</p>
+<h2>✨ Tienda estable + pagos por WhatsApp</h2>
 </div>
 
 <!-- SHOP -->
@@ -129,8 +128,24 @@ width:100%;
 <!-- CART -->
 <div class="cart" id="cart">
 <button onclick="openCart()">Cerrar carrito</button>
+
 <div class="cartBody" id="cartList"></div>
+
 <p style="padding:10px">Total: $<span id="total">0</span></p>
+
+<!-- 💳 PAGO -->
+<button onclick="checkout()" style="width:95%;margin:10px;background:#111;color:#fff;">
+Realizar pago por WhatsApp
+</button>
+
+<h4 style="padding:10px">Confirmar compra</h4>
+
+<input id="codeInput" placeholder="Código 4 dígitos">
+
+<button onclick="verifyCode()" style="width:95%;margin:10px;background:#111;color:#fff;">
+Verificar código
+</button>
+
 </div>
 
 <!-- ADMIN -->
@@ -146,27 +161,25 @@ width:100%;
 
 <div id="panel" style="display:none">
 
-<h3>Panel Admin</h3>
-
 <button onclick="logout()">Cerrar sesión</button>
 
 <hr>
 
-<h4>📦 Productos</h4>
+<h4>Productos</h4>
 <div id="adminList"></div>
 
 <hr>
 
-<h4>➕ Agregar / Sumar stock</h4>
-<input id="pname" placeholder="Nombre producto">
+<h4>Agregar producto</h4>
+<input id="pname" placeholder="Nombre">
 <input id="pprice" placeholder="Precio">
 <button onclick="addProduct()">Guardar</button>
 
 <hr>
 
-<h4>🔑 Cambiar contraseña</h4>
-<input id="newUser" placeholder="Nuevo usuario">
-<input id="newPass" type="password" placeholder="Nueva contraseña">
+<h4>Cambiar contraseña</h4>
+<input id="newUser" placeholder="Usuario nuevo">
+<input id="newPass" type="password" placeholder="Contraseña nueva">
 <button onclick="changePass()">Actualizar</button>
 
 </div>
@@ -175,12 +188,12 @@ width:100%;
 
 <script>
 
-/* 🔐 ADMIN */
+/* ADMIN */
 let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
 let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
 let logged = localStorage.getItem("logged") === "true";
 
-/* 📦 INVENTARIO COMPLETO */
+/* INVENTARIO */
 let products=[
 {id:1,name:"AOA Brush Cleaning Egg Black",price:45,img:"egg_black.jpg",stock:2},
 {id:2,name:"AOA Brush Cleaning Egg Purple",price:45,img:"egg_purple.jpg",stock:1},
@@ -201,11 +214,11 @@ let products=[
 ];
 
 let cart=[];
+let pendingCode=null;
 
-/* INIT */
+/* RENDER */
 document.addEventListener("DOMContentLoaded",()=>render());
 
-/* 🛍️ RENDER */
 function render(){
 
 let box=document.getElementById("products");
@@ -231,17 +244,16 @@ renderAdmin();
 syncUI();
 }
 
-/* ➕ ADD */
+/* ADD */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
 
-p.stock--;
 cart.push({id:p.id,name:p.name,price:p.price});
 render();
 }
 
-/* 🛒 CART */
+/* CART */
 function renderCart(){
 let box=document.getElementById("cartList");
 box.innerHTML="";
@@ -261,17 +273,64 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* ❌ REMOVE */
+/* REMOVE */
 function removeItem(i){
-let item=cart[i];
-let p=products.find(x=>x.id===item.id);
-if(p) p.stock++;
-
 cart.splice(i,1);
 render();
 }
 
-/* 🔐 LOGIN */
+/* 💳 CHECKOUT WHATSAPP */
+function checkout(){
+
+if(cart.length===0){
+alert("Carrito vacío");
+return;
+}
+
+pendingCode = Math.floor(1000 + Math.random()*9000);
+
+let msg="Hola, quiero comprar:%0A";
+
+cart.forEach(c=>{
+msg+=`- ${c.name} ($${c.price})%0A`;
+});
+
+msg+=`%0A🔐 Código: ${pendingCode}`;
+
+let phone="52TU_NUMERO_AQUI";
+window.open("https://wa.me/"+phone+"?text="+msg,"_blank");
+
+alert("Pedido enviado por WhatsApp");
+}
+
+/* 🔐 VERIFY */
+function verifyCode(){
+
+let code=document.getElementById("codeInput").value;
+
+if(!pendingCode){
+alert("Primero realiza el pago");
+return;
+}
+
+if(code==pendingCode){
+
+cart.forEach(item=>{
+let p=products.find(x=>x.id===item.id);
+if(p) p.stock--;
+});
+
+cart=[];
+pendingCode=null;
+render();
+
+alert("Compra confirmada ✔");
+}else{
+alert("Código incorrecto");
+}
+}
+
+/* LOGIN */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -282,70 +341,47 @@ localStorage.setItem("logged","true");
 syncUI();
 renderAdmin();
 }else{
-alert("Acceso incorrecto");
+alert("Error");
 }
 }
 
-/* 🚪 LOGOUT */
 function logout(){
 logged=false;
 localStorage.setItem("logged","false");
 syncUI();
 }
 
-/* 🔄 UI LOGIN */
+/* UI */
 function syncUI(){
-let loginBox=document.getElementById("loginBox");
-let panel=document.getElementById("panel");
+let a=document.getElementById("loginBox");
+let b=document.getElementById("panel");
 
-if(!loginBox||!panel) return;
+if(!a||!b)return;
 
 if(logged){
-loginBox.style.display="none";
-panel.style.display="block";
+a.style.display="none";
+b.style.display="block";
 }else{
-loginBox.style.display="block";
-panel.style.display="none";
+a.style.display="block";
+b.style.display="none";
 }
 }
 
-/* 🔑 CAMBIAR CONTRASEÑA */
-function changePass(){
-let u=document.getElementById("newUser")?.value;
-let p=document.getElementById("newPass")?.value;
-
-if(u) ADMIN_USER=u;
-if(p) ADMIN_PASS=p;
-
-localStorage.setItem("adminUser",ADMIN_USER);
-localStorage.setItem("adminPass",ADMIN_PASS);
-
-alert("Credenciales actualizadas");
-}
-
-/* 🗑️ ADMIN LIST */
+/* ADMIN */
 function renderAdmin(){
 let box=document.getElementById("adminList");
-if(!box || !logged) return;
+if(!box||!logged)return;
 
 box.innerHTML="";
-
 products.forEach(p=>{
-box.innerHTML+=`
-<div style="border-bottom:1px solid #444;padding:6px 0">
-<b>${p.name}</b><br>
-Stock: ${p.stock}<br>
-</div>
-`;
+box.innerHTML+=`<div>${p.name} - Stock: ${p.stock}</div>`;
 });
 }
 
-/* ➕ ADD PRODUCT */
+/* ADD PRODUCT */
 function addProduct(){
-let name=document.getElementById("pname")?.value;
-let price=+document.getElementById("pprice")?.value;
-
-if(!name) return;
+let name=document.getElementById("pname").value;
+let price=+document.getElementById("pprice").value;
 
 let p=products.find(x=>x.name.toLowerCase()===name.toLowerCase());
 
@@ -364,7 +400,7 @@ stock:5
 render();
 }
 
-/* UI */
+/* NAV */
 function show(s){
 document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
 document.getElementById(s).classList.add("active");
