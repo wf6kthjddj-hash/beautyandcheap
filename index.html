@@ -114,7 +114,7 @@ opacity:1;
 visibility:visible;
 }
 
-/* 🟣 ADMIN BOTÓN FLOTANTE */
+/* ADMIN BUTTON */
 .adminBtn{
 position:fixed;
 left:20px;
@@ -125,13 +125,8 @@ border:none;
 padding:12px 16px;
 border-radius:999px;
 cursor:grab;
-font-weight:600;
 z-index:10001;
-box-shadow:0 10px 25px rgba(0,0,0,.25);
-user-select:none;
 }
-
-.adminBtn:active{cursor:grabbing}
 
 /* ADMIN PANEL */
 .adminPanel{
@@ -168,7 +163,7 @@ border-radius:8px;
 border:none;
 }
 
-/* STOCK ALERT */
+/* STOCK */
 .stock{
 font-size:12px;
 opacity:.7;
@@ -191,7 +186,7 @@ Beauty & Cheap 💄
 </nav>
 
 <div id="home" class="section active" style="padding:20px">
-<h2>✨ Beauty & Cheap ✨</h2>
+<h2>✨ Beauty & Cheap 💄</h2>
 </div>
 
 <div id="shop" class="section">
@@ -231,36 +226,87 @@ Admin
 let USER="admin";
 let PASS=localStorage.getItem("adminPass") || "1234";
 
-/* 🧠 INVENTARIO CON STOCK REAL */
+/* 🧠 CATÁLOGO COMPLETO RESTAURADO + STOCK */
 let products = JSON.parse(localStorage.getItem("db")) || [
+
 {
-name:"AOA Brush Egg",
+name:"AOA Brush Cleaning Egg",
 price:45,
 img:"egg_black.jpg",
-stock:{
-black:2,
-purple:1
-},
-options:["black","purple"]
+options:["black","purple"],
+stock:{black:2,purple:1}
 },
 {
-name:"Cuticle Pen",
+name:"AOA Cuticle Revitalizing Pen",
 price:55,
 img:"cuticle_peach.jpg",
-stock:{
-peach:1,
-strawberry:2,
-rose:2
-},
-options:["peach","strawberry","rose"]
+options:["peach","strawberry","rose"],
+stock:{peach:1,strawberry:2,rose:2}
 },
 {
-name:"Lipstick Mod",
+name:"AOA Makeup Remover Wipes",
+price:50,
+img:"wipes.jpg",
+options:["default"],
+stock:{default:5}
+},
+{
+name:"AOA Retro Lipstick",
 price:70,
 img:"lipstick_mod.jpg",
-stock:{mod:1},
-options:["mod"]
+options:["mod"],
+stock:{mod:1}
+},
+{
+name:"AOA Chamomile Foot Mask",
+price:65,
+img:"foot_chamomile.jpg",
+options:["chamomile"],
+stock:{chamomile:2}
+},
+{
+name:"AOA Foot Peeling Mask",
+price:75,
+img:"foot_peeling.jpg",
+options:["peeling"],
+stock:{peeling:2}
+},
+{
+name:"AOA Rose Foot Mask",
+price:65,
+img:"foot_rose.jpg",
+options:["rose"],
+stock:{rose:2}
+},
+{
+name:"AOA Acne Patches",
+price:65,
+img:"acne_patches.jpg",
+options:["10mm"],
+stock:{ "10mm":3 }
+},
+{
+name:"AOA Magical Girl Lip Stain",
+price:75,
+img:"lip_kuu.jpg",
+options:["kuu","hime"],
+stock:{kuu:1,hime:1}
+},
+{
+name:"AOA Headband",
+price:45,
+img:"headband_pink_ears.jpg",
+options:["pink","purple"],
+stock:{pink:1,purple:1}
+},
+{
+name:"AOA Wonder Blender",
+price:45,
+img:"blender_pink.jpg",
+options:["pink","black"],
+stock:{pink:1,black:1}
 }
+
 ];
 
 let cart=[];
@@ -278,9 +324,7 @@ box.innerHTML="";
 
 products.forEach((p,i)=>{
 
-let opts = p.options.map(o=>{
-return `<option value="${o}">${o}</option>`;
-}).join("");
+let opts=p.options.map(o=>`<option value="${o}">${o}</option>`).join("");
 
 box.innerHTML+=`
 <div class="card">
@@ -302,7 +346,7 @@ updateStock(i);
 });
 }
 
-/* STOCK CONTROL REAL */
+/* STOCK REAL */
 function updateStock(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
@@ -345,7 +389,7 @@ function updateCount(){
 document.getElementById("count").innerText=cart.length;
 }
 
-/* TOGGLE CART */
+/* CART */
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
 document.getElementById("backdrop").classList.toggle("show");
@@ -381,25 +425,24 @@ products.push({
 name:n,
 price:p,
 img:i,
-stock:{default:5},
-options:["default"]
+options:["default"],
+stock:{default:5}
 });
 
 save();
 render();
 }
 
-/* 🟣 DRAG BUTTON + MEMORY */
-let drag=false,offX=0,offY=0;
+/* DRAG BUTTON */
+let drag=false,ox=0,oy=0;
 
 function dragStart(e){
 drag=true;
+let b=document.getElementById("adminBtn");
+let r=b.getBoundingClientRect();
 
-let btn=document.getElementById("adminBtn");
-let r=btn.getBoundingClientRect();
-
-offX=e.clientX-r.left;
-offY=e.clientY-r.top;
+ox=e.clientX-r.left;
+oy=e.clientY-r.top;
 
 document.addEventListener("mousemove",move);
 document.addEventListener("mouseup",end);
@@ -408,16 +451,10 @@ document.addEventListener("mouseup",end);
 function move(e){
 if(!drag)return;
 
-let btn=document.getElementById("adminBtn");
-btn.style.left=(e.clientX-offX)+"px";
-btn.style.top=(e.clientY-offY)+"px";
-btn.style.bottom="auto";
-btn.style.right="auto";
-
-localStorage.setItem("adminPos",JSON.stringify({
-x:btn.style.left,
-y:btn.style.top
-}));
+let b=document.getElementById("adminBtn");
+b.style.left=(e.clientX-ox)+"px";
+b.style.top=(e.clientY-oy)+"px";
+b.style.bottom="auto";
 }
 
 function end(){
@@ -426,17 +463,8 @@ document.removeEventListener("mousemove",move);
 document.removeEventListener("mouseup",end);
 }
 
-/* RESTORE POSITION */
-window.onload=()=>{
-let pos=JSON.parse(localStorage.getItem("adminPos"));
-if(pos){
-let btn=document.getElementById("adminBtn");
-btn.style.left=pos.x;
-btn.style.top=pos.y;
-btn.style.bottom="auto";
-}
+/* INIT */
 render();
-};
 
 </script>
 
