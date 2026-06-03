@@ -149,14 +149,59 @@ hr{border:0;border-top:1px solid #333;margin:14px 0}
 Pagar por WhatsApp
 </button>
 
-<input id="codeInput" placeholder="Código 4 dígitos" style="margin:10px">
+<input id="codeInput" placeholder="Código de compra" style="margin:10px">
 
 <button onclick="verifyCode()" style="width:95%;background:#111;color:#fff;">
 Verificar compra
 </button>
 </div>
 
+<!-- ADMIN -->
+<div class="admin" id="admin">
+
+<h3>Admin Panel PRO</h3>
+
+<div id="loginBox">
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="panel" style="display:none">
+
+<button onclick="logout()">Cerrar sesión</button>
+
+<hr>
+
+<h4>🔐 Generar código de venta</h4>
+<button onclick="generateCode()">Generar código único</button>
+<div id="codesList"></div>
+
+<hr>
+
+<h4>Agregar producto</h4>
+<input id="pname" placeholder="Nombre">
+<input id="pprice" placeholder="Precio">
+<input id="pimg" placeholder="Imagen">
+<button onclick="addProduct()">Agregar</button>
+
+<hr>
+
+<h4>Inventario</h4>
+<div id="adminList"></div>
+
+</div>
+</div>
+
 <script>
+
+/* 🔐 ADMIN */
+let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
+let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
+let logged = localStorage.getItem("logged")==="true";
+
+/* 🧠 CÓDIGOS PRO */
+let validCodes = JSON.parse(localStorage.getItem("codes") || "[]");
 
 /* INVENTARIO */
 let products=[
@@ -182,19 +227,23 @@ let products=[
 let cart=[];
 let pendingCode=null;
 
-/* RENDER */
+/* 🔧 SAFE RENDER */
 function render(){
 
-let q=document.getElementById("search").value?.toLowerCase()||"";
+let q=(document.getElementById("search")?.value || "").toLowerCase();
+
 let box=document.getElementById("products");
+if(!box) return;
+
 box.innerHTML="";
 
-products.filter(p=>p.name.toLowerCase().includes(q))
+(products||[])
+.filter(p=>p.name.toLowerCase().includes(q))
 .forEach(p=>{
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}">
+<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
 <p class="small">Stock: ${p.stock}</p>
@@ -207,51 +256,49 @@ Agregar
 });
 
 renderCart();
+renderAdmin();
+syncUI();
 }
 
-/* 🔥 FIX: NO PASAR STOCK */
+/* 🛒 SAFE ADD */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
 
-/* contar en carrito */
 let count=cart.filter(c=>c.id===id).length;
 
 if(count >= p.stock){
-alert("No hay más stock disponible");
+alert("Sin stock disponible");
 return;
 }
 
-cart.push({id:p.id,name:p.name,price:p.price});
+cart.push({...p});
 render();
 }
 
 /* CART */
 function renderCart(){
 let box=document.getElementById("cartList");
+if(!box) return;
+
 box.innerHTML="";
 let total=0;
 
 let grouped={};
 
 cart.forEach(c=>{
-if(!grouped[c.id]) grouped[c.id]={...c,qty:1};
-else grouped[c.id].qty++;
+grouped[c.id] = grouped[c.id] || {...c,qty:0};
+grouped[c.id].qty++;
 });
 
 Object.values(grouped).forEach(item=>{
 total+=item.price*item.qty;
 
 box.innerHTML+=`
-<div style="margin-bottom:10px">
+<div>
 <b>${item.name}</b><br>
 Cantidad: ${item.qty}<br>
 $${item.price*item.qty}
-
-<br>
-
-<button onclick="removeOne(${item.id})">-1</button>
-<button onclick="removeAll(${item.id})">Eliminar</button>
 </div>
 <hr>
 `;
@@ -261,23 +308,13 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* 🧨 NUEVO: ELIMINAR */
-function removeOne(id){
-let index=cart.findIndex(c=>c.id===id);
-if(index>-1) cart.splice(index,1);
-render();
-}
-
-function removeAll(id){
-cart=cart.filter(c=>c.id!==id);
-render();
-}
-
-/* WHATSAPP */
+/* 💳 CHECKOUT */
 function checkout(){
 if(cart.length===0){alert("Carrito vacío");return;}
 
-pendingCode=Math.floor(1000+Math.random()*9000);
+pendingCode=Math.floor(100000+Math.random()*900000);
+
+alert("Código generado: "+pendingCode);
 
 let msg="Compra:%0A";
 cart.forEach(c=>{
@@ -289,32 +326,111 @@ msg+=`%0ACódigo: ${pendingCode}`;
 window.open("https://wa.me/52TU_NUMERO_AQUI?text="+msg,"_blank");
 }
 
-/* VERIFY */
+/* 🔐 VERIFY PRO */
 function verifyCode(){
 let code=document.getElementById("codeInput").value;
 
-if(code==pendingCode){
+if(validCodes.includes(code)){
 
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
-if(p) p.stock--;
+if(p && p.stock>0) p.stock--;
 });
 
+validCodes = validCodes.filter(c=>c!==code);
+localStorage.setItem("codes",JSON.stringify(validCodes));
+
 cart=[];
-pendingCode=null;
+alert("Compra confirmada ✔");
+
 render();
 
-alert("Compra confirmada ✔");
-}else alert("Código incorrecto");
+}else{
+alert("Código inválido ❌");
+}
 }
 
-/* NAV */
+/* 🔑 GENERADOR PRO */
+function generateCode(){
+let code="BC-"+Math.floor(1000+Math.random()*9000);
+
+validCodes.push(code);
+localStorage.setItem("codes",JSON.stringify(validCodes));
+
+renderCodes();
+}
+
+function renderCodes(){
+let box=document.getElementById("codesList");
+if(!box) return;
+
+box.innerHTML="<h5>Códigos activos:</h5>";
+
+validCodes.forEach(c=>{
+box.innerHTML+=`<div>${c}</div>`;
+});
+}
+
+/* ADMIN FIX */
+function login(){
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
+
+if(u===ADMIN_USER && p===ADMIN_PASS){
+logged=true;
+localStorage.setItem("logged","true");
+syncUI();
+render();
+}else alert("Error");
+}
+
+function logout(){
+logged=false;
+localStorage.setItem("logged","false");
+syncUI();
+}
+
+function syncUI(){
+let a=document.getElementById("loginBox");
+let b=document.getElementById("panel");
+
+if(!a||!b) return;
+
+a.style.display=logged?"none":"block";
+b.style.display=logged?"block":"none";
+
+if(logged) renderCodes();
+}
+
+/* ADMIN PRODUCTOS */
+function renderAdmin(){
+if(!logged) return;
+let box=document.getElementById("adminList");
+if(!box) return;
+
+box.innerHTML="";
+
+products.forEach(p=>{
+box.innerHTML+=`
+<div>
+<input value="${p.name}" onchange="p.name=this.value">
+<input value="${p.price}" onchange="p.price=+this.value">
+<input value="${p.stock}" onchange="p.stock=+this.value">
+</div>
+<hr>
+`;
+});
+}
+
+/* NAV SAFE */
 function show(s){
 document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
-document.getElementById(s).classList.add("active");
+let sec=document.getElementById(s);
+if(sec) sec.classList.add("active");
 }
 
 function openCart(){document.getElementById("cart").classList.toggle("open");}
+function openAdmin(){document.getElementById("admin").classList.toggle("open");if(logged)renderCodes();}
 
 render();
 
