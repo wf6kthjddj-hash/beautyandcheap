@@ -97,7 +97,7 @@ z-index:10000;
 
 .admin.open{transform:translateX(0)}
 
-.admin input{
+.admin input, .admin select{
 width:100%;
 padding:9px;
 margin-top:6px;
@@ -178,6 +178,22 @@ Verificar compra
 
 <hr>
 
+<h4>🔐 Generador de códigos de venta</h4>
+<button onclick="generateCode()">Generar código</button>
+<div id="codesList"></div>
+
+<hr>
+
+<h4>📦 Control de stock</h4>
+
+<select id="stockItem"></select>
+<input id="stockQty" type="number" placeholder="Cantidad">
+
+<button onclick="addStock()">➕ Agregar stock</button>
+<button onclick="removeStock()">➖ Quitar stock</button>
+
+<hr>
+
 <h4>🔐 Cambiar contraseña</h4>
 <input id="newPass" type="password" placeholder="Nueva contraseña">
 <button onclick="changePassword()">Actualizar</button>
@@ -187,11 +203,14 @@ Verificar compra
 
 <script>
 
-/* 🔐 CREDENCIALES POR DEFECTO (CAMBIADAS) */
+/* CREDENCIALES */
 const DEFAULT_USER = "MrT";
 const DEFAULT_PASS = "Pelado23";
 
 let logged = localStorage.getItem("logged")==="true";
+
+/* CÓDIGOS */
+let validCodes = JSON.parse(localStorage.getItem("codes") || "[]");
 
 /* INVENTARIO */
 let products=[
@@ -242,6 +261,7 @@ Agregar
 });
 
 renderCart();
+renderAdmin();
 syncUI();
 }
 
@@ -289,7 +309,7 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* REMOVE */
+/* CART */
 function removeOne(id){
 let i=cart.findIndex(c=>c.id===id);
 if(i>-1) cart.splice(i,1);
@@ -321,20 +341,26 @@ window.open("https://wa.me/52TU_NUMERO_AQUI?text="+msg,"_blank");
 function verifyCode(){
 let code=document.getElementById("codeInput").value;
 
-if(code==pendingCode){
+if(code==pendingCode || validCodes.includes(code)){
+
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
 if(p && p.stock>0) p.stock--;
 });
 
+validCodes = validCodes.filter(c=>c!==code);
+localStorage.setItem("codes",JSON.stringify(validCodes));
+
 cart=[];
 pendingCode=null;
+
 render();
 alert("Compra confirmada ✔");
-}else alert("Código incorrecto");
+
+}else alert("Código inválido");
 }
 
-/* LOGIN */
+/* 🔐 LOGIN */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -365,6 +391,11 @@ if(!a||!b) return;
 
 a.style.display=logged?"none":"block";
 b.style.display=logged?"block":"none";
+
+if(logged){
+renderStockSelect();
+renderCodes();
+}
 }
 
 /* PASSWORD */
@@ -374,6 +405,61 @@ if(!np || np.length<4) return alert("Muy corta");
 
 localStorage.setItem("adminPass",np);
 alert("Contraseña actualizada ✔");
+}
+
+/* 📦 STOCK */
+function renderStockSelect(){
+let sel=document.getElementById("stockItem");
+sel.innerHTML="";
+products.forEach(p=>{
+let opt=document.createElement("option");
+opt.value=p.id;
+opt.textContent=`${p.name} (Stock: ${p.stock})`;
+sel.appendChild(opt);
+});
+}
+
+function addStock(){
+let id=+document.getElementById("stockItem").value;
+let qty=+document.getElementById("stockQty").value;
+
+let p=products.find(x=>x.id===id);
+if(p && qty>0){
+p.stock+=qty;
+render();
+renderStockSelect();
+}
+}
+
+function removeStock(){
+let id=+document.getElementById("stockItem").value;
+let qty=+document.getElementById("stockQty").value;
+
+let p=products.find(x=>x.id===id);
+if(p && qty>0){
+p.stock=Math.max(0,p.stock-qty);
+render();
+renderStockSelect();
+}
+}
+
+/* 🔐 CODES */
+function generateCode(){
+let code="BC-"+Math.floor(1000+Math.random()*9000);
+validCodes.push(code);
+localStorage.setItem("codes",JSON.stringify(validCodes));
+renderCodes();
+}
+
+function renderCodes(){
+let box=document.getElementById("codesList");
+if(!box) return;
+
+box.innerHTML="<h4>Códigos activos</h4>";
+
+validCodes.forEach(c=>{
+box.innerHTML+=`<div>${c}</div>`;
+});
 }
 
 /* NAV */
