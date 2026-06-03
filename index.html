@@ -42,6 +42,15 @@ object-fit:cover;
 border-radius:10px;
 }
 
+select,input{
+width:100%;
+padding:8px;
+margin-top:6px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+/* BUTTON */
 button{
 cursor:pointer;
 padding:8px;
@@ -51,11 +60,6 @@ margin-top:6px;
 }
 
 .buy{background:#111;color:#fff}
-
-.buy:disabled{
-opacity:.5;
-cursor:not-allowed;
-}
 
 /* CART */
 .cart{
@@ -117,14 +121,14 @@ width:100%;
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('shop')">Tienda</button>
 <button onclick="toggleCart()">🛒 <span id="count">0</span></button>
-<button onclick="openAdmin()">Admin</button>
+<button onclick="toggleAdmin()">Admin</button>
 </div>
 </header>
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Belleza accesible y organizada</h2>
-<p>Catálogo de skincare y maquillaje con control real de inventario.</p>
+<h2>✨ Tienda de belleza organizada</h2>
+<p>Stock, variantes y control de inventario funcional.</p>
 </div>
 
 <!-- SHOP -->
@@ -134,27 +138,18 @@ width:100%;
 
 <!-- CART -->
 <div class="cart" id="cart">
-<button onclick="toggleCart()">Cerrar</button>
+<button onclick="toggleCart()">Cerrar carrito</button>
 <div class="cartBody" id="cartList"></div>
 </div>
 
 <!-- ADMIN -->
 <div class="admin" id="admin">
 
-<h3>Admin Login</h3>
+<h3>Admin</h3>
 
-<div id="loginBox">
-<input id="user" placeholder="Usuario">
-<input id="pass" type="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
-</div>
-
-<div id="panel" style="display:none">
-
-<h3>Panel Admin</h3>
-
-<input id="name" placeholder="Producto">
+<input id="name" placeholder="Nombre producto">
 <input id="price" placeholder="Precio">
+<input id="variant" placeholder="Color / Olor (opcional)">
 <button onclick="addProduct()">Agregar / Sumar stock</button>
 
 <hr>
@@ -163,44 +158,18 @@ width:100%;
 
 </div>
 
-</div>
-
 <script>
 
-/* 🔐 ADMIN */
-let adminUser="admin";
-let adminPass="1234";
-let logged=false;
-
-/* 🧠 INVENTARIO */
-let products=[
-{id:1,name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",stock:3},
-{id:2,name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",stock:5},
-{id:3,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
-{id:4,name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",stock:1},
-{id:5,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
-{id:6,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
-{id:7,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
-{id:8,name:"AOA Magical Lip Stain",price:75,img:"lip_kuu.jpg",stock:2},
-{id:9,name:"AOA Headband Soft",price:45,img:"headband_pink_ears.jpg",stock:2},
-{id:10,name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",stock:2}
+/* INVENTARIO */
+let products = [
+{id:1,name:"AOA Brush Egg",price:45,img:"egg_black.jpg",variants:["black","purple"],stock:3},
+{id:2,name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",variants:["peach","strawberry"],stock:5},
+{id:3,name:"Wipes sin aroma",price:50,img:"wipes.jpg",variants:["sin aroma"],stock:5}
 ];
 
 let cart=[];
 
-/* 🔐 LOGIN */
-function login(){
-if(user.value===adminUser && pass.value===adminPass){
-logged=true;
-loginBox.style.display="none";
-panel.style.display="block";
-renderAdmin();
-}else{
-alert("Acceso denegado");
-}
-}
-
-/* 🛒 RENDER SHOP */
+/* SHOP */
 function render(){
 
 let box=document.getElementById("products");
@@ -208,20 +177,19 @@ box.innerHTML="";
 
 products.forEach(p=>{
 
-let status = p.stock > 0
-? `<span style="color:green;font-weight:600">Disponible</span>`
-: `<span style="color:red;font-weight:600">Agotado</span>`;
+let opt = (p.variants||[]).map(v=>`<option>${v}</option>`).join("");
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<p>Stock: ${p.stock} — ${status}</p>
 
-<button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
-Agregar
-</button>
+<select id="v${p.id}">
+${opt}
+</select>
+
+<button class="buy" onclick="add(${p.id})">Agregar</button>
 </div>
 `;
 });
@@ -230,19 +198,21 @@ renderCart();
 renderAdmin();
 }
 
-/* ➕ ADD */
+/* ADD CART */
 function add(id){
 
 let p=products.find(x=>x.id===id);
-if(p.stock<=0) return;
+let v=document.getElementById("v"+id)?.value || "";
+
+if(p.stock<=0) return alert("Agotado");
 
 p.stock--;
-cart.push({id:p.id,name:p.name,price:p.price});
+cart.push({id:p.id,name:p.name,variant:v,price:p.price});
 
 render();
 }
 
-/* 🛒 CART */
+/* CART */
 function renderCart(){
 
 let box=document.getElementById("cartList");
@@ -251,7 +221,7 @@ box.innerHTML="";
 cart.forEach((c,i)=>{
 box.innerHTML+=`
 <div>
-<b>${c.name}</b>
+<b>${c.name}</b> ${c.variant?`(${c.variant})`:``}
 <button onclick="removeItem(${i})">Eliminar</button>
 </div>
 `;
@@ -260,7 +230,7 @@ box.innerHTML+=`
 document.getElementById("count").innerText=cart.length;
 }
 
-/* ❌ REMOVE */
+/* REMOVE */
 function removeItem(i){
 
 let item=cart[i];
@@ -272,24 +242,29 @@ cart.splice(i,1);
 render();
 }
 
-/* ➕ PRODUCT */
+/* ADMIN */
 function addProduct(){
 
-let name=name.value.trim();
-let price=+price.value;
+let n=name.value.trim();
+let pr=+price.value;
+let v=variant.value.trim();
 
-if(!name) return;
+if(!n) return alert("Nombre requerido");
 
-let existing=products.find(p=>p.name.toLowerCase()===name.toLowerCase());
+let existing = products.find(p=>p.name.toLowerCase()===n.toLowerCase());
 
 if(existing){
 existing.stock++;
+if(v && !existing.variants.includes(v)){
+existing.variants.push(v);
+}
 }else{
 products.push({
 id:Date.now(),
-name,
-price:price||50,
+name:n,
+price:pr||50,
 img:"default.jpg",
+variants:v?[v]:[],
 stock:5
 });
 }
@@ -304,11 +279,11 @@ document.getElementById(s).classList.add("active");
 }
 
 function toggleCart(){
-cart.classList.toggle("open");
+document.getElementById("cart").classList.toggle("open");
 }
 
-function openAdmin(){
-admin.classList.toggle("open");
+function toggleAdmin(){
+document.getElementById("admin").classList.toggle("open");
 }
 
 render();
