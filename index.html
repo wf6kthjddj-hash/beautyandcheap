@@ -117,8 +117,8 @@ width:100%;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda estable y funcional</h2>
-<p>Inventario sin fallos + carrito + admin.</p>
+<h2>✨ Tienda de belleza organizada</h2>
+<p>Inventario completo con control de stock.</p>
 </div>
 
 <!-- SHOP -->
@@ -161,39 +161,44 @@ width:100%;
 
 <script>
 
-/* 🔐 ADMIN */
+/* 🔐 ADMIN (si lo usas en tu versión anterior) */
 const ADMIN_USER="admin";
 const ADMIN_PASS="1234";
 
-/* 📦 INVENTARIO (TU BASE LIMPIA) */
+/* 📦 INVENTARIO COMPLETO */
 let products=[
-{id:1,name:"AOA Brush Egg",price:45,img:"egg_black.jpg",stock:3},
-{id:2,name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",stock:5},
-{id:3,name:"Wipes sin aroma",price:50,img:"wipes.jpg",stock:5}
+{id:1,name:"AOA Brush Cleaning Egg Black",price:45,img:"egg_black.jpg",stock:2},
+{id:2,name:"AOA Brush Cleaning Egg Purple",price:45,img:"egg_purple.jpg",stock:1},
+
+{id:3,name:"AOA Cuticle Revitalizing Pen Peach",price:55,img:"cuticle_peach.jpg",stock:1},
+{id:4,name:"AOA Cuticle Revitalizing Pen Strawberry",price:55,img:"cuticle_strawberry.jpg",stock:2},
+{id:5,name:"AOA Cuticle Revitalizing Pen Rose",price:55,img:"cuticle_rose.jpg",stock:2},
+
+{id:6,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
+
+{id:7,name:"AOA Retro Chic Lipstick Mod",price:70,img:"lipstick_mod.jpg",stock:1},
+
+{id:8,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
+{id:9,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
+
+{id:10,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
+
+{id:11,name:"AOA Magical Lip Stain Kuu",price:75,img:"lip_kuu.jpg",stock:1},
+{id:12,name:"AOA Magical Lip Stain Hime",price:75,img:"lip_hime.jpg",stock:1},
+
+{id:13,name:"AOA Headband Soft Pink",price:45,img:"headband_pink.jpg",stock:1},
+{id:14,name:"AOA Headband Soft Purple",price:45,img:"headband_purple.jpg",stock:1},
+
+{id:15,name:"AOA Wonder Blender Pink",price:45,img:"blender_pink.jpg",stock:1},
+{id:16,name:"AOA Wonder Blender Black",price:45,img:"blender_black.jpg",stock:1}
 ];
 
 let cart=[];
 
-/* 🧠 SAFE INIT */
-document.addEventListener("DOMContentLoaded",()=>{
-render();
-});
+/* UI SAFE START */
+document.addEventListener("DOMContentLoaded",()=>render());
 
-/* 🔐 LOGIN */
-function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
-
-if(u===ADMIN_USER && p===ADMIN_PASS){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("panel").style.display="block";
-renderAdmin();
-}else{
-alert("Acceso denegado");
-}
-}
-
-/* 🛍️ RENDER SHOP (PROTEGIDO) */
+/* RENDER SHOP */
 function render(){
 
 let box=document.getElementById("products");
@@ -220,7 +225,7 @@ renderCart();
 renderAdmin();
 }
 
-/* ➕ ADD */
+/* ADD CART */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
@@ -230,7 +235,7 @@ cart.push({id:p.id,name:p.name,price:p.price});
 render();
 }
 
-/* 🛒 CART */
+/* CART */
 function renderCart(){
 
 let box=document.getElementById("cartList");
@@ -250,7 +255,7 @@ box.innerHTML+=`
 document.getElementById("count").innerText=cart.length;
 }
 
-/* ❌ REMOVE CART */
+/* REMOVE CART */
 function removeItem(i){
 let item=cart[i];
 let p=products.find(x=>x.id===item.id);
@@ -261,7 +266,7 @@ cart.splice(i,1);
 render();
 }
 
-/* 🧰 ADMIN */
+/* ADMIN */
 function renderAdmin(){
 
 let box=document.getElementById("adminList");
@@ -278,7 +283,7 @@ ${p.name} - $${p.price} - Stock: ${p.stock}
 });
 }
 
-/* ➕ ADMIN ADD */
+/* ADD PRODUCT */
 function addProduct(){
 
 let name=document.getElementById("pname").value;
@@ -304,9 +309,9 @@ render();
 }
 
 /* UI */
-function show(sec){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(sec).classList.add("active");
+function show(s){
+document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+document.getElementById(s).classList.add("active");
 }
 
 function openCart(){
