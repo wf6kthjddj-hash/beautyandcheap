@@ -12,7 +12,6 @@ background:#f4f4f7;
 color:#111;
 }
 
-/* HEADER */
 header{
 background:rgba(255,255,255,.92);
 backdrop-filter:blur(12px);
@@ -27,14 +26,13 @@ z-index:1000;
 }
 
 .brand{font-weight:800}
+
 .nav{display:flex;gap:14px;align-items:center}
 .nav button{background:none;border:none;cursor:pointer;font-weight:500}
 
-/* SECTIONS */
 .section{display:none;padding:20px}
 .section.active{display:block}
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -44,16 +42,13 @@ max-width:1200px;
 margin:auto;
 }
 
-/* CARD */
 .card{
 background:#fff;
 border-radius:18px;
 padding:14px;
 box-shadow:0 10px 30px rgba(0,0,0,.08);
-transition:.25s;
 border:1px solid #eee;
 }
-.card:hover{transform:translateY(-6px)}
 
 .card img{
 width:100%;
@@ -62,16 +57,12 @@ object-fit:cover;
 border-radius:14px;
 }
 
-h4{margin:8px 0;font-size:16px}
-p{margin:4px 0;opacity:.75}
-
-select{
+select,input{
 width:100%;
 padding:10px;
-border-radius:12px;
+border-radius:10px;
 border:1px solid #ddd;
-margin-top:8px;
-background:#fafafa;
+margin-top:6px;
 }
 
 .buy{
@@ -79,9 +70,9 @@ width:100%;
 margin-top:10px;
 padding:11px;
 border:none;
-background:linear-gradient(135deg,#111,#333);
+background:#111;
 color:#fff;
-border-radius:12px;
+border-radius:10px;
 cursor:pointer;
 font-weight:600;
 }
@@ -93,7 +84,7 @@ font-weight:600;
 position:fixed;
 right:0;
 top:0;
-width:380px;
+width:360px;
 height:100%;
 background:#fff;
 border-left:1px solid #eee;
@@ -117,18 +108,8 @@ position:relative;
 .cartItem{
 border:1px solid #eee;
 padding:12px;
-border-radius:14px;
+border-radius:12px;
 margin-bottom:10px;
-}
-
-.removeBtn{
-background:#111;
-color:#fff;
-border:none;
-padding:6px 10px;
-border-radius:8px;
-margin-top:6px;
-cursor:pointer;
 }
 
 .cartFooter{
@@ -137,7 +118,7 @@ border-top:1px solid #eee;
 font-weight:700;
 }
 
-/* ADMIN MODERNO */
+/* ADMIN */
 .adminBtn{
 position:fixed;
 left:18px;
@@ -148,17 +129,16 @@ border:none;
 padding:12px 16px;
 border-radius:999px;
 cursor:pointer;
-z-index:10001;
+z-index:10000;
 }
 
 .admin{
 position:fixed;
 left:0;
 top:0;
-width:460px;
+width:420px;
 height:100%;
 background:#f7f7f8;
-color:#111;
 transform:translateX(-110%);
 transition:.3s;
 padding:16px;
@@ -173,8 +153,8 @@ background:#111;
 color:#fff;
 padding:14px;
 border-radius:10px;
-margin-bottom:12px;
 font-weight:700;
+margin-bottom:10px;
 }
 
 .adminCard{
@@ -183,10 +163,7 @@ border:1px solid #e5e5e5;
 border-radius:12px;
 padding:12px;
 margin-top:10px;
-box-shadow:0 2px 8px rgba(0,0,0,.05);
 }
-
-.adminCard b{display:block;margin-bottom:4px}
 
 .admin button{
 background:#d60000;
@@ -195,18 +172,20 @@ border:none;
 padding:8px 10px;
 border-radius:8px;
 cursor:pointer;
-font-weight:600;
 margin-top:6px;
 }
-.admin button:hover{opacity:.9}
 
-.admin input{
-width:100%;
-padding:10px;
-margin:6px 0;
-border-radius:10px;
-border:1px solid #ddd;
-outline:none;
+.closeBtn{
+position:absolute;
+right:10px;
+top:10px;
+width:30px;
+height:30px;
+border-radius:50%;
+border:none;
+background:#000;
+color:#fff;
+cursor:pointer;
 }
 </style>
 </head>
@@ -225,8 +204,7 @@ outline:none;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda profesional con inventario real</h2>
-<p>Sistema tipo POS + control de stock inteligente.</p>
+<h2>💄 Tienda profesional con inventario real</h2>
 </div>
 
 <!-- SHOP -->
@@ -238,11 +216,7 @@ outline:none;
 <div class="cart" id="cart">
 <div class="cartTop">
 🛒 Carrito
-<button class="closeBtn" onclick="toggleCart()" style="
-position:absolute;right:10px;top:10px;
-background:#000;color:#fff;border:none;
-width:32px;height:32px;border-radius:50%;
-cursor:pointer;">✕</button>
+<button class="closeBtn" onclick="toggleCart()">✕</button>
 </div>
 
 <div class="cartBody" id="cartList"></div>
@@ -258,17 +232,12 @@ Total: $<span id="total">0</span>
 <div class="admin" id="admin">
 
 <div class="adminHeader">
-🍔 McBeauty Control Panel
-<button onclick="toggleAdmin()" style="
-float:right;background:#333;color:#fff;
-border:none;width:28px;height:28px;border-radius:50%;
-cursor:pointer;">✕</button>
+🍔 Panel Admin
+<button class="closeBtn" onclick="toggleAdmin()" style="top:10px;right:10px;">✕</button>
 </div>
 
-<h3>Agregar / Aumentar stock</h3>
-
-<input id="n" placeholder="Nombre del producto">
-<input id="p" placeholder="Precio (solo si es nuevo)">
+<input id="n" placeholder="Nombre producto">
+<input id="p" placeholder="Precio (si es nuevo)">
 <button onclick="addProduct()">Procesar</button>
 
 <div id="adminList"></div>
@@ -276,8 +245,8 @@ cursor:pointer;">✕</button>
 
 <script>
 
-/* INVENTARIO */
-let products = [
+/* 🔥 CARGAR INVENTARIO DESDE MEMORIA */
+let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
 {name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
@@ -292,6 +261,11 @@ let products = [
 
 let cart=[];
 let total=0;
+
+/* 💾 GUARDAR */
+function save(){
+localStorage.setItem("products",JSON.stringify(products));
+}
 
 /* RENDER */
 function render(){
@@ -320,6 +294,7 @@ ${opts}
 
 products.forEach((_,i)=>update(i));
 renderAdmin();
+save();
 }
 
 /* STOCK */
@@ -343,6 +318,7 @@ total+=p.price;
 
 render();
 renderCart();
+save();
 }
 
 /* CART */
@@ -364,7 +340,6 @@ box.innerHTML+=`
 <b>${i.name}</b><br>
 ${i.option}<br>
 $${i.price} x ${i.qty}
-<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">Eliminar</button>
 </div>
 `;
 });
@@ -373,30 +348,10 @@ document.getElementById("total").innerText=total.toFixed(2);
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE */
-function removeItem(name,opt){
-for(let i=cart.length-1;i>=0;i--){
-if(cart[i].name===name && cart[i].option===opt){
-total-=cart[i].price;
-cart.splice(i,1);
-
-for(let p of products){
-if(p.name===name){
-p.stock[opt]=(p.stock[opt]||0)+1;
-break;
-}
-}
-break;
-}
-}
-render();
-renderCart();
-}
-
 /* NAV */
-function show(sec){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(sec).classList.add("active");
+function show(s){
+document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+document.getElementById(s).classList.add("active");
 }
 
 /* CART */
@@ -412,7 +367,7 @@ document.getElementById("cart").classList.remove("open");
 renderAdmin();
 }
 
-/* ADMIN PANEL */
+/* ADMIN */
 function renderAdmin(){
 let box=document.getElementById("adminList");
 box.innerHTML="";
@@ -420,19 +375,16 @@ box.innerHTML="";
 products.forEach((p,i)=>{
 box.innerHTML+=`
 <div class="adminCard">
-<b>${p.name}</b>
-<div style="font-size:12px;opacity:.7">Precio: $${p.price}</div>
-<div style="font-size:12px;margin:4px 0">
+<b>${p.name}</b><br>
 Stock: ${Object.entries(p.stock).map(s=>s[0]+": "+s[1]).join(" | ")}
-</div>
+<br>
 <button onclick="addStock(${i})">+ Stock</button>
-<button onclick="del(${i})" style="background:#333;margin-left:6px">Eliminar</button>
 </div>
 `;
 });
 }
 
-/* STOCK + */
+/* ➕ STOCK REAL */
 function addStock(i){
 let p=products[i];
 let key=Object.keys(p.stock)[0];
@@ -440,22 +392,21 @@ p.stock[key]=(p.stock[key]||0)+1;
 render();
 }
 
-/* ADD / SEARCH INTELIGENTE */
+/* 🔥 BUSCAR Y AGREGAR POR NOMBRE */
 function addProduct(){
-if(!n.value) return alert("Escribe un nombre");
+if(!n.value) return alert("Escribe nombre");
 
 let name=n.value.trim();
-let price=+p.value || 0;
+let price=+p.value||0;
 
-/* búsqueda flexible */
-let existing=products.find(x =>
+/* búsqueda inteligente */
+let found=products.find(x =>
 x.name.toLowerCase().includes(name.toLowerCase())
 );
 
-if(existing){
-let key=Object.keys(existing.stock)[0];
-existing.stock[key]=(existing.stock[key]||0)+1;
-alert("Stock agregado al producto existente");
+if(found){
+let key=Object.keys(found.stock)[0];
+found.stock[key]=(found.stock[key]||0)+1;
 }else{
 products.push({
 name:name,
@@ -469,6 +420,7 @@ stock:{default:5}
 n.value="";
 p.value="";
 render();
+save();
 }
 
 render();
