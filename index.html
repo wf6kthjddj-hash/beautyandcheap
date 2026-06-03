@@ -15,6 +15,7 @@ justify-content:space-between;
 border-bottom:1px solid #ddd;
 position:sticky;
 top:0;
+z-index:1000;
 }
 
 .section{display:none;padding:20px}
@@ -26,7 +27,6 @@ grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 gap:18px;
 }
 
-/* CARD */
 .card{
 background:#fff;
 padding:12px;
@@ -41,14 +41,6 @@ object-fit:cover;
 border-radius:10px;
 }
 
-select,input{
-width:100%;
-padding:8px;
-margin-top:6px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
 button{
 cursor:pointer;
 padding:8px;
@@ -59,7 +51,6 @@ margin-top:6px;
 
 .buy{background:#111;color:#fff}
 
-/* CART */
 .cart{
 position:fixed;
 right:0;
@@ -77,7 +68,6 @@ flex-direction:column;
 
 .cartBody{flex:1;overflow:auto;padding:10px}
 
-/* ADMIN */
 .admin{
 position:fixed;
 left:0;
@@ -118,15 +108,15 @@ width:100%;
 <div>
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('shop')">Tienda</button>
-<button onclick="toggleCart()">🛒 <span id="count">0</span></button>
+<button onclick="toggleCart()">🛒 (<span id="count">0</span>)</button>
 <button onclick="toggleAdmin()">Admin</button>
 </div>
 </header>
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda de belleza accesible</h2>
-<p>Control de stock simple y funcional.</p>
+<h2>✨ Tienda funcional</h2>
+<p>Inventario estable con carrito y admin.</p>
 </div>
 
 <!-- SHOP -->
@@ -143,7 +133,7 @@ width:100%;
 <!-- ADMIN -->
 <div class="admin" id="admin">
 
-<h3>Admin Login</h3>
+<h3>Login Admin</h3>
 
 <div id="loginBox">
 <input id="user" placeholder="Usuario">
@@ -153,11 +143,11 @@ width:100%;
 
 <div id="panel" style="display:none">
 
-<h3>Panel Admin</h3>
+<h3>Panel</h3>
 
-<input id="name" placeholder="Producto">
-<input id="price" placeholder="Precio">
-<button onclick="addProduct()">Agregar / Sumar stock</button>
+<input id="pname" placeholder="Nombre producto">
+<input id="pprice" placeholder="Precio">
+<button onclick="addProduct()">Agregar</button>
 
 <hr>
 
@@ -169,55 +159,45 @@ width:100%;
 
 <script>
 
-/* 🔐 ADMIN */
-let adminUser="admin";
-let adminPass="1234";
+/* ADMIN */
+const adminUser="admin";
+const adminPass="1234";
 
-/* 🧠 INVENTARIO (TU BASE ORIGINAL) */
+/* INVENTARIO */
 let products=[
-{id:1,name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",stock:3},
-{id:2,name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",stock:5},
-{id:3,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
-{id:4,name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",stock:1},
-{id:5,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
-{id:6,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
-{id:7,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
-{id:8,name:"AOA Magical Lip Stain",price:75,img:"lip_kuu.jpg",stock:2},
-{id:9,name:"AOA Headband Soft",price:45,img:"headband_pink_ears.jpg",stock:2},
-{id:10,name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",stock:2}
+{id:1,name:"AOA Brush Egg",price:45,img:"egg_black.jpg",stock:3},
+{id:2,name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",stock:5},
+{id:3,name:"Wipes",price:50,img:"wipes.jpg",stock:5}
 ];
 
 let cart=[];
 
-/* 🔐 LOGIN */
+/* LOGIN */
 function login(){
-if(user.value===adminUser && pass.value===adminPass){
-loginBox.style.display="none";
-panel.style.display="block";
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
+
+if(u===adminUser && p===adminPass){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("panel").style.display="block";
 renderAdmin();
 }else{
-alert("Contraseña incorrecta");
+alert("Login incorrecto");
 }
 }
 
-/* 🛒 RENDER SHOP */
+/* SHOP */
 function render(){
-
 let box=document.getElementById("products");
 box.innerHTML="";
 
 products.forEach(p=>{
-
-let status = p.stock>0
-? `<span style="color:green;font-weight:600">Disponible</span>`
-: `<span style="color:red;font-weight:600">Agotado</span>`;
-
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
-<p>Stock: ${p.stock} — ${status}</p>
+<p>Stock: ${p.stock}</p>
 
 <button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
 Agregar
@@ -230,21 +210,18 @@ renderCart();
 renderAdmin();
 }
 
-/* ➕ ADD CART */
+/* ADD CART */
 function add(id){
-
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
 
 p.stock--;
 cart.push({id:p.id,name:p.name,price:p.price});
-
 render();
 }
 
-/* 🛒 CART */
+/* CART */
 function renderCart(){
-
 let box=document.getElementById("cartList");
 box.innerHTML="";
 
@@ -260,9 +237,8 @@ box.innerHTML+=`
 document.getElementById("count").innerText=cart.length;
 }
 
-/* ❌ REMOVE */
+/* REMOVE CART */
 function removeItem(i){
-
 let item=cart[i];
 let p=products.find(x=>x.id===item.id);
 
@@ -272,23 +248,46 @@ cart.splice(i,1);
 render();
 }
 
-/* ➕ PRODUCT */
+/* ADMIN */
+function renderAdmin(){
+let box=document.getElementById("adminList");
+if(!box) return;
+
+box.innerHTML="";
+
+products.forEach(p=>{
+box.innerHTML+=`
+<div style="border-bottom:1px solid #444;padding:6px 0">
+${p.name} - $${p.price} - Stock: ${p.stock}
+<button onclick="deleteProduct(${p.id})">Eliminar</button>
+</div>
+`;
+});
+}
+
+/* DELETE ADMIN */
+function deleteProduct(id){
+products=products.filter(p=>p.id!==id);
+render();
+}
+
+/* ADD PRODUCT */
 function addProduct(){
 
-let n=name.value.trim();
-let pr=+price.value;
+let name=document.getElementById("pname").value;
+let price=parseFloat(document.getElementById("pprice").value);
 
-if(!n) return;
+if(!name) return;
 
-let existing=products.find(p=>p.name.toLowerCase()===n.toLowerCase());
+let existing=products.find(p=>p.name.toLowerCase()===name.toLowerCase());
 
 if(existing){
 existing.stock++;
 }else{
 products.push({
 id:Date.now(),
-name:n,
-price:pr||50,
+name,
+price:price||50,
 img:"default.jpg",
 stock:5
 });
@@ -304,11 +303,11 @@ document.getElementById(s).classList.add("active");
 }
 
 function toggleCart(){
-cart.classList.toggle("open");
+document.getElementById("cart").classList.toggle("open");
 }
 
 function toggleAdmin(){
-admin.classList.toggle("open");
+document.getElementById("admin").classList.toggle("open");
 }
 
 render();
