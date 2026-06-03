@@ -26,13 +26,12 @@ top:0;
 z-index:1000;
 }
 
-.brand{font-weight:800;}
+.brand{font-weight:800}
 
-/* NAV */
 .nav{display:flex;gap:14px;align-items:center}
 .nav button{background:none;border:none;cursor:pointer;font-weight:500}
 
-/* SECTIONS FIX */
+/* SECTIONS */
 .section{display:none;padding:20px}
 .section.active{display:block}
 
@@ -109,8 +108,15 @@ z-index:9999;
 
 .cart.open{transform:translateX(0)}
 
-.cartTop{padding:16px;font-weight:700;border-bottom:1px solid #eee}
+.cartTop{
+padding:16px;
+font-weight:700;
+border-bottom:1px solid #eee;
+position:relative;
+}
+
 .cartBody{flex:1;overflow:auto;padding:14px}
+
 .cartItem{
 border:1px solid #eee;
 padding:12px;
@@ -128,9 +134,13 @@ margin-top:6px;
 cursor:pointer;
 }
 
-.cartFooter{padding:14px;border-top:1px solid #eee;font-weight:700}
+.cartFooter{
+padding:14px;
+border-top:1px solid #eee;
+font-weight:700;
+}
 
-/* ADMIN */
+/* ADMIN MCC MENU */
 .adminBtn{
 position:fixed;
 left:18px;
@@ -141,16 +151,17 @@ border:none;
 padding:12px 16px;
 border-radius:999px;
 cursor:pointer;
+z-index:10001;
 }
 
 .admin{
 position:fixed;
 left:0;
 top:0;
-width:420px;
+width:460px;
 height:100%;
-background:#0f0f10;
-color:#fff;
+background:#ffbc0d;
+color:#111;
 transform:translateX(-110%);
 transition:.3s;
 padding:16px;
@@ -160,21 +171,52 @@ z-index:10000;
 
 .admin.open{transform:translateX(0)}
 
-input{
+.adminHeader{
+background:#d40000;
+color:#fff;
+padding:14px;
+border-radius:12px;
+margin-bottom:12px;
+font-weight:800;
+text-align:center;
+position:relative;
+}
+
+.adminCard{
+background:#fff;
+border-radius:14px;
+padding:12px;
+margin-top:10px;
+box-shadow:0 6px 18px rgba(0,0,0,.15);
+border-left:6px solid #d40000;
+}
+
+.adminCard b{display:block}
+
+.admin input{
 width:100%;
 padding:10px;
 margin:6px 0;
 border-radius:10px;
 border:none;
+outline:none;
 }
 
-.sectionTitle{opacity:.7;font-size:12px;margin-top:14px}
-
-.adminCard{
-background:#1c1c1f;
-padding:10px;
-border-radius:10px;
-margin-top:8px;
+.closeBtn{
+position:absolute;
+top:10px;
+right:10px;
+background:#000;
+color:#fff;
+border:none;
+width:32px;
+height:32px;
+border-radius:50%;
+cursor:pointer;
+font-weight:bold;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 </style>
 </head>
@@ -194,7 +236,7 @@ margin-top:8px;
 <!-- HOME -->
 <div id="home" class="section active">
 <h2>✨ Experiencia premium de belleza</h2>
-<p>Catálogo estilo pro con control de inventario real.</p>
+<p>Tienda con control de inventario real.</p>
 </div>
 
 <!-- SHOP -->
@@ -204,8 +246,13 @@ margin-top:8px;
 
 <!-- CART -->
 <div class="cart" id="cart">
-<div class="cartTop">🛒 Carrito</div>
+<div class="cartTop">
+🛒 Carrito
+<button class="closeBtn" onclick="toggleCart()">✕</button>
+</div>
+
 <div class="cartBody" id="cartList"></div>
+
 <div class="cartFooter">
 Total: $<span id="total">0</span>
 </div>
@@ -215,91 +262,34 @@ Total: $<span id="total">0</span>
 <button class="adminBtn" onclick="toggleAdmin()">Admin</button>
 
 <div class="admin" id="admin">
-<h3>📊 Admin Dashboard</h3>
 
-<div class="sectionTitle">Agregar producto</div>
+<div class="adminHeader">
+🍔 Panel McBeauty
+<button class="closeBtn" onclick="toggleAdmin()">✕</button>
+</div>
+
+<h3>Agregar producto</h3>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
 <button onclick="addProduct()">Agregar</button>
 
-<div class="sectionTitle">Inventario</div>
 <div id="adminList"></div>
 </div>
 
 <script>
 
-/* INVENTARIO (NO TOCADO) */
+/* INVENTARIO ORIGINAL */
 let products = [
-{
-name:"AOA Brush Cleaning Egg",
-price:45,
-img:"egg_black.jpg",
-options:["black","purple"],
-stock:{black:2,purple:1}
-},
-{
-name:"AOA Cuticle Revitalizing Pen",
-price:55,
-img:"cuticle_peach.jpg",
-options:["peach","strawberry","rose"],
-stock:{peach:1,strawberry:2,rose:2}
-},
-{
-name:"AOA Makeup Remover Wipes - sin aroma",
-price:50,
-img:"wipes.jpg",
-options:["sin aroma"],
-stock:{"sin aroma":5}
-},
-{
-name:"AOA Retro Chic Lipstick",
-price:70,
-img:"lipstick_mod.jpg",
-options:["mod"],
-stock:{mod:1}
-},
-{
-name:"AOA Foot Mask Chamomile",
-price:65,
-img:"foot_chamomile.jpg",
-options:["chamomile"],
-stock:{chamomile:2}
-},
-{
-name:"AOA Foot Peeling Mask",
-price:75,
-img:"foot_peeling.jpg",
-options:["peeling"],
-stock:{peeling:2}
-},
-{
-name:"AOA Acne Patches 10mm",
-price:65,
-img:"acne_patches.jpg",
-options:["10mm"],
-stock:{"10mm":3}
-},
-{
-name:"AOA Magical Lip Stain",
-price:75,
-img:"lip_kuu.jpg",
-options:["kuu","hime"],
-stock:{kuu:1,hime:1}
-},
-{
-name:"AOA Headband Soft",
-price:45,
-img:"headband_pink_ears.jpg",
-options:["pink","purple"],
-stock:{pink:1,purple:1}
-},
-{
-name:"AOA Wonder Blender",
-price:45,
-img:"blender_pink.jpg",
-options:["pink","black"],
-stock:{pink:1,black:1}
-}
+{name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
+{name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
+{name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
+{name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
+{name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
+{name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",options:["peeling"],stock:{peeling:2}},
+{name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}},
+{name:"AOA Magical Lip Stain",price:75,img:"lip_kuu.jpg",options:["kuu","hime"],stock:{kuu:1,hime:1}},
+{name:"AOA Headband Soft",price:45,img:"headband_pink_ears.jpg",options:["pink","purple"],stock:{pink:1,purple:1}},
+{name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",options:["pink","black"],stock:{pink:1,black:1}}
 ];
 
 let cart=[];
@@ -311,7 +301,6 @@ let box=document.getElementById("products");
 box.innerHTML="";
 
 products.forEach((p,i)=>{
-
 let opts=p.options.map(o=>`<option value="${o}">${o}</option>`).join("");
 
 box.innerHTML+=`
@@ -351,7 +340,6 @@ let sel=document.getElementById("opt"+i).value;
 if((p.stock[sel]??0)<=0) return alert("Agotado");
 
 p.stock[sel]--;
-
 cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
@@ -387,7 +375,7 @@ document.getElementById("total").innerText=total.toFixed(2);
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE (FIX STOCK) */
+/* REMOVE + RESTORE STOCK */
 function removeItem(name,opt){
 for(let i=cart.length-1;i>=0;i--){
 if(cart[i].name===name && cart[i].option===opt){
@@ -395,18 +383,15 @@ if(cart[i].name===name && cart[i].option===opt){
 total-=cart[i].price;
 cart.splice(i,1);
 
-/* RESTAURA STOCK */
 for(let p of products){
 if(p.name===name){
 p.stock[opt]=(p.stock[opt]||0)+1;
 break;
 }
 }
-
 break;
 }
 }
-
 render();
 renderCart();
 }
@@ -420,11 +405,13 @@ document.getElementById(sec).classList.add("active");
 /* CART */
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
+document.getElementById("admin").classList.remove("open");
 }
 
 /* ADMIN */
 function toggleAdmin(){
 document.getElementById("admin").classList.toggle("open");
+document.getElementById("cart").classList.remove("open");
 renderAdmin();
 }
 
@@ -437,16 +424,15 @@ products.forEach((p,i)=>{
 box.innerHTML+=`
 <div class="adminCard">
 <b>${p.name}</b><br>
-$${p.price}
-<button onclick="del(${i})" style="margin-top:6px;background:red;color:#fff;border:none;padding:6px;border-radius:6px">
-Eliminar
-</button>
+Precio: $${p.price}<br>
+Stock: ${Object.entries(p.stock).map(s=>s[0]+": "+s[1]).join(" | ")}<br>
+<button onclick="del(${i})">Eliminar</button>
 </div>
 `;
 });
 }
 
-/* ADD PRODUCT VALIDADO */
+/* ADD PRODUCT */
 function addProduct(){
 if(!n.value || !p.value) return alert("Completa los campos");
 
@@ -460,7 +446,6 @@ stock:{default:5}
 
 n.value="";
 p.value="";
-
 render();
 }
 
