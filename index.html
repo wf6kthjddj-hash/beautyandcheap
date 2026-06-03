@@ -2,23 +2,24 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄 | Store Pro</title>
+<title>Beauty & Cheap 💄 Pro Store</title>
 
 <style>
 body{
 margin:0;
-font-family:system-ui,Arial;
-background:#f5f5f7;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+background:#f4f4f7;
 color:#111;
 }
 
 /* HEADER */
 header{
-background:#fff;
-padding:14px;
+background:rgba(255,255,255,.9);
+backdrop-filter:blur(10px);
+padding:16px;
 text-align:center;
 font-weight:600;
-border-bottom:1px solid #eee;
+border-bottom:1px solid #eaeaea;
 position:sticky;
 top:0;
 z-index:1000;
@@ -27,46 +28,67 @@ z-index:1000;
 /* GRID */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:16px;
-padding:18px;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+padding:22px;
+max-width:1200px;
+margin:auto;
 }
 
+/* CARD */
 .card{
 background:#fff;
-border-radius:14px;
-padding:12px;
-box-shadow:0 5px 15px rgba(0,0,0,.06);
+border-radius:18px;
+padding:14px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+transition:.25s;
+border:1px solid #eee;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 18px 40px rgba(0,0,0,.12);
 }
 
 .card img{
 width:100%;
-height:180px;
+height:220px;
 object-fit:cover;
-border-radius:12px;
+border-radius:14px;
 }
 
+/* TEXT */
+h4{margin:6px 0;font-size:16px;font-weight:600;}
+p{margin:4px 0;opacity:.8}
+
+/* SELECT */
 select{
 width:100%;
-padding:8px;
-margin-top:6px;
-border-radius:10px;
+padding:10px;
+margin-top:8px;
+border-radius:12px;
 border:1px solid #ddd;
+background:#fafafa;
 }
 
-button{
-cursor:pointer;
-}
-
-/* BOTONES */
+/* BUTTON */
 .buy{
 width:100%;
 margin-top:10px;
-padding:10px;
+padding:11px;
 border:none;
-background:#111;
+background:linear-gradient(135deg,#111,#333);
 color:#fff;
-border-radius:10px;
+border-radius:12px;
+cursor:pointer;
+font-weight:600;
+}
+
+/* STOCK */
+.stock{
+font-size:12px;
+margin-top:6px;
+opacity:.6;
 }
 
 /* CART */
@@ -80,15 +102,15 @@ background:#fff;
 border-left:1px solid #eee;
 transform:translateX(100%);
 transition:.3s;
-z-index:9999;
 display:flex;
 flex-direction:column;
+z-index:9999;
 }
 
 .cart.open{transform:translateX(0)}
 
 .cartTop{
-padding:14px;
+padding:16px;
 font-weight:600;
 border-bottom:1px solid #eee;
 }
@@ -96,13 +118,13 @@ border-bottom:1px solid #eee;
 .cartBody{
 flex:1;
 overflow:auto;
-padding:12px;
+padding:14px;
 }
 
 .cartItem{
 border:1px solid #eee;
-padding:10px;
-border-radius:12px;
+padding:12px;
+border-radius:14px;
 margin-bottom:10px;
 }
 
@@ -113,46 +135,39 @@ border:none;
 padding:6px 10px;
 border-radius:8px;
 margin-top:6px;
+cursor:pointer;
 }
 
 .cartFooter{
-padding:12px;
+padding:14px;
 border-top:1px solid #eee;
-}
-
-.checkoutBtn{
-width:100%;
-padding:12px;
-background:#111;
-color:#fff;
-border:none;
-border-radius:10px;
 font-weight:600;
 }
 
 /* ADMIN */
 .adminBtn{
 position:fixed;
-left:15px;
-bottom:15px;
+left:18px;
+bottom:18px;
 background:#111;
 color:#fff;
 border:none;
-padding:10px 14px;
+padding:12px 16px;
 border-radius:999px;
+cursor:pointer;
 }
 
 .adminPanel{
 position:fixed;
 left:0;
 top:0;
-width:360px;
+width:380px;
 height:100%;
 background:#111;
 color:#fff;
 transform:translateX(-110%);
 transition:.3s;
-padding:12px;
+padding:14px;
 overflow:auto;
 z-index:10000;
 }
@@ -161,23 +176,20 @@ z-index:10000;
 
 input{
 width:100%;
-padding:8px;
-margin:5px 0;
-border-radius:8px;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
 border:none;
 }
 
-.small{
-font-size:12px;
-opacity:.7;
-}
+hr{opacity:.2;margin:14px 0}
 </style>
 </head>
 
 <body>
 
 <header>
-💄 Beauty & Cheap Store Pro
+💄 Beauty & Cheap Pro Store
 <button onclick="toggleCart()" style="position:absolute;right:15px;top:10px">
 🛒 <span id="count">0</span>
 </button>
@@ -191,22 +203,19 @@ opacity:.7;
 <div class="cartBody" id="cartList"></div>
 <div class="cartFooter">
 Total: $<span id="total">0</span>
-<button class="checkoutBtn" onclick="checkout()">Pagar WhatsApp</button>
 </div>
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" onclick="loginAdmin()">Admin</button>
+<button class="adminBtn" onclick="openAdmin()">Admin</button>
 
 <div class="adminPanel" id="admin">
-<h3>📦 Shopify Admin</h3>
-
+<h3>Panel Admin</h3>
 <button onclick="closeAdmin()">Cerrar</button>
 
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
-<input id="i" placeholder="Imagen">
 <button onclick="addProduct()">Agregar</button>
 
 <hr>
@@ -214,35 +223,22 @@ Total: $<span id="total">0</span>
 <h4>Inventario</h4>
 <div id="adminList"></div>
 
-<hr>
-
-<h4>📊 Ventas</h4>
-<div id="orders"></div>
-
 </div>
 
 <script>
 
-/* 🔥 INVENTARIO ORIGINAL (NO TOCADO, SOLO ESTRUCTURA ESTABLE) */
-let products = JSON.parse(localStorage.getItem("products")) || [
+/* 💄 INVENTARIO REAL (TU BASE ORIGINAL RESTAURADA) */
+let products = [
 {name:"AOA Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
 {name:"Makeup Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
 {name:"Lipstick Retro",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
-{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}}
+{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
+{name:"Acne Patches",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}}
 ];
 
 let cart=[];
 let total=0;
-
-/* ORDERS */
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-/* SAVE */
-function save(){
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("orders",JSON.stringify(orders));
-}
 
 /* RENDER */
 function render(){
@@ -263,20 +259,20 @@ box.innerHTML+=`
 ${opts}
 </select>
 
-<div class="small" id="stock${i}"></div>
+<div class="stock" id="stock${i}"></div>
 
 <button class="buy" onclick="add(${i})">Agregar</button>
 </div>
 `;
 
-updateStock(i);
+update(i);
 });
 
 renderAdmin();
 }
 
 /* STOCK */
-function updateStock(i){
+function update(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 let s=p.stock[sel]??0;
@@ -284,12 +280,12 @@ let s=p.stock[sel]??0;
 document.getElementById("stock"+i).innerText="Stock: "+s;
 }
 
-/* ADD CART */
+/* ADD */
 function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 
-if((p.stock[sel]??0)<=0) return alert("Agotado");
+if((p.stock[sel]??0)<=0)return alert("Agotado");
 
 p.stock[sel]--;
 
@@ -298,7 +294,6 @@ total+=p.price;
 
 render();
 renderCart();
-save();
 }
 
 /* CART */
@@ -341,35 +336,15 @@ break;
 renderCart();
 }
 
-/* CHECKOUT */
-function checkout(){
-orders.push({
-date:new Date().toLocaleString(),
-items:cart,
-total:total
-});
-
-save();
-
-let msg="🛒 Pedido:%0A";
-cart.forEach(c=>{
-msg+=`- ${c.name} (${c.option})%0A`;
-});
-msg+=`Total: $${total}`;
-
-window.open("https://wa.me/52TU_NUMERO?text="+encodeURIComponent(msg));
+/* CART */
+function toggleCart(){
+document.getElementById("cart").classList.toggle("open");
 }
 
-/* ADMIN LOGIN */
-function loginAdmin(){
-let u=prompt("Usuario");
-let p=prompt("Contraseña");
-
-if(u==="admin" && p==="1234"){
+/* ADMIN */
+function openAdmin(){
 document.getElementById("admin").classList.add("open");
 renderAdmin();
-renderOrders();
-}
 }
 
 function closeAdmin(){
@@ -383,26 +358,11 @@ box.innerHTML="";
 
 products.forEach((p,i)=>{
 box.innerHTML+=`
-<div style="background:#222;padding:10px;margin-bottom:8px">
+<div style="background:#222;padding:10px;margin-bottom:8px;border-radius:8px">
 <b>${p.name}</b> - $${p.price}
-<button onclick="del(${i})" style="margin-top:5px;background:red;color:#fff;border:none">
+<button onclick="del(${i})" style="margin-top:6px;background:red;color:#fff;border:none;padding:6px;border-radius:6px">
 Eliminar
 </button>
-</div>
-`;
-});
-}
-
-/* ORDERS */
-function renderOrders(){
-let box=document.getElementById("orders");
-box.innerHTML="";
-
-orders.forEach(o=>{
-box.innerHTML+=`
-<div style="background:#222;padding:8px;margin-bottom:5px">
-${o.date}<br>
-Total: $${o.total}
 </div>
 `;
 });
@@ -413,23 +373,20 @@ function addProduct(){
 products.push({
 name:n.value,
 price:+p.value,
-img:i.value,
+img:"default.jpg",
 options:["default"],
 stock:{default:5}
 });
 
-save();
 render();
 }
 
 /* DELETE */
 function del(i){
 products.splice(i,1);
-save();
 render();
 }
 
-/* INIT */
 render();
 
 </script>
