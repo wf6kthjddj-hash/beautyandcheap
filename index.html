@@ -15,7 +15,6 @@ justify-content:space-between;
 border-bottom:1px solid #ddd;
 position:sticky;
 top:0;
-z-index:1000;
 }
 
 .section{display:none;padding:20px}
@@ -50,7 +49,6 @@ border-radius:8px;
 border:1px solid #ddd;
 }
 
-/* BUTTON */
 button{
 cursor:pointer;
 padding:8px;
@@ -127,8 +125,8 @@ width:100%;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Tienda de belleza organizada</h2>
-<p>Stock, variantes y control de inventario funcional.</p>
+<h2>✨ Tienda de belleza accesible</h2>
+<p>Control de stock simple y funcional.</p>
 </div>
 
 <!-- SHOP -->
@@ -145,11 +143,20 @@ width:100%;
 <!-- ADMIN -->
 <div class="admin" id="admin">
 
-<h3>Admin</h3>
+<h3>Admin Login</h3>
 
-<input id="name" placeholder="Nombre producto">
+<div id="loginBox">
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="panel" style="display:none">
+
+<h3>Panel Admin</h3>
+
+<input id="name" placeholder="Producto">
 <input id="price" placeholder="Precio">
-<input id="variant" placeholder="Color / Olor (opcional)">
 <button onclick="addProduct()">Agregar / Sumar stock</button>
 
 <hr>
@@ -158,18 +165,42 @@ width:100%;
 
 </div>
 
+</div>
+
 <script>
 
-/* INVENTARIO */
-let products = [
-{id:1,name:"AOA Brush Egg",price:45,img:"egg_black.jpg",variants:["black","purple"],stock:3},
-{id:2,name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",variants:["peach","strawberry"],stock:5},
-{id:3,name:"Wipes sin aroma",price:50,img:"wipes.jpg",variants:["sin aroma"],stock:5}
+/* 🔐 ADMIN */
+let adminUser="admin";
+let adminPass="1234";
+
+/* 🧠 INVENTARIO (TU BASE ORIGINAL) */
+let products=[
+{id:1,name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",stock:3},
+{id:2,name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",stock:5},
+{id:3,name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",stock:5},
+{id:4,name:"AOA Retro Chic Lipstick",price:70,img:"lipstick_mod.jpg",stock:1},
+{id:5,name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",stock:2},
+{id:6,name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",stock:2},
+{id:7,name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",stock:3},
+{id:8,name:"AOA Magical Lip Stain",price:75,img:"lip_kuu.jpg",stock:2},
+{id:9,name:"AOA Headband Soft",price:45,img:"headband_pink_ears.jpg",stock:2},
+{id:10,name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",stock:2}
 ];
 
 let cart=[];
 
-/* SHOP */
+/* 🔐 LOGIN */
+function login(){
+if(user.value===adminUser && pass.value===adminPass){
+loginBox.style.display="none";
+panel.style.display="block";
+renderAdmin();
+}else{
+alert("Contraseña incorrecta");
+}
+}
+
+/* 🛒 RENDER SHOP */
 function render(){
 
 let box=document.getElementById("products");
@@ -177,19 +208,20 @@ box.innerHTML="";
 
 products.forEach(p=>{
 
-let opt = (p.variants||[]).map(v=>`<option>${v}</option>`).join("");
+let status = p.stock>0
+? `<span style="color:green;font-weight:600">Disponible</span>`
+: `<span style="color:red;font-weight:600">Agotado</span>`;
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}">
+<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
+<p>Stock: ${p.stock} — ${status}</p>
 
-<select id="v${p.id}">
-${opt}
-</select>
-
-<button class="buy" onclick="add(${p.id})">Agregar</button>
+<button class="buy" onclick="add(${p.id})" ${p.stock<=0?'disabled':''}>
+Agregar
+</button>
 </div>
 `;
 });
@@ -198,21 +230,19 @@ renderCart();
 renderAdmin();
 }
 
-/* ADD CART */
+/* ➕ ADD CART */
 function add(id){
 
 let p=products.find(x=>x.id===id);
-let v=document.getElementById("v"+id)?.value || "";
-
-if(p.stock<=0) return alert("Agotado");
+if(!p || p.stock<=0) return;
 
 p.stock--;
-cart.push({id:p.id,name:p.name,variant:v,price:p.price});
+cart.push({id:p.id,name:p.name,price:p.price});
 
 render();
 }
 
-/* CART */
+/* 🛒 CART */
 function renderCart(){
 
 let box=document.getElementById("cartList");
@@ -221,7 +251,7 @@ box.innerHTML="";
 cart.forEach((c,i)=>{
 box.innerHTML+=`
 <div>
-<b>${c.name}</b> ${c.variant?`(${c.variant})`:``}
+<b>${c.name}</b>
 <button onclick="removeItem(${i})">Eliminar</button>
 </div>
 `;
@@ -230,41 +260,36 @@ box.innerHTML+=`
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE */
+/* ❌ REMOVE */
 function removeItem(i){
 
 let item=cart[i];
-
 let p=products.find(x=>x.id===item.id);
+
 if(p) p.stock++;
 
 cart.splice(i,1);
 render();
 }
 
-/* ADMIN */
+/* ➕ PRODUCT */
 function addProduct(){
 
 let n=name.value.trim();
 let pr=+price.value;
-let v=variant.value.trim();
 
-if(!n) return alert("Nombre requerido");
+if(!n) return;
 
-let existing = products.find(p=>p.name.toLowerCase()===n.toLowerCase());
+let existing=products.find(p=>p.name.toLowerCase()===n.toLowerCase());
 
 if(existing){
 existing.stock++;
-if(v && !existing.variants.includes(v)){
-existing.variants.push(v);
-}
 }else{
 products.push({
 id:Date.now(),
 name:n,
 price:pr||50,
 img:"default.jpg",
-variants:v?[v]:[],
 stock:5
 });
 }
@@ -279,11 +304,11 @@ document.getElementById(s).classList.add("active");
 }
 
 function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
+cart.classList.toggle("open");
 }
 
 function toggleAdmin(){
-document.getElementById("admin").classList.toggle("open");
+admin.classList.toggle("open");
 }
 
 render();
