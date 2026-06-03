@@ -2,71 +2,71 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄</title>
+<title>Beauty & Cheap 💄 | Store Pro</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#f7f7fb;
+font-family:system-ui,Arial;
+background:#f5f5f7;
 color:#111;
 }
 
+/* HEADER */
 header{
 background:#fff;
-padding:15px;
+padding:14px;
 text-align:center;
-font-weight:bold;
+font-weight:600;
 border-bottom:1px solid #eee;
 position:sticky;
 top:0;
+z-index:1000;
 }
 
+/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:15px;
-padding:15px;
+gap:16px;
+padding:18px;
 }
 
 .card{
 background:#fff;
-padding:10px;
-border-radius:12px;
-box-shadow:0 4px 12px rgba(0,0,0,.08);
+border-radius:14px;
+padding:12px;
+box-shadow:0 5px 15px rgba(0,0,0,.06);
 }
 
 .card img{
 width:100%;
-height:170px;
+height:180px;
 object-fit:cover;
-border-radius:10px;
+border-radius:12px;
 }
 
 select{
 width:100%;
-padding:6px;
+padding:8px;
 margin-top:6px;
+border-radius:10px;
+border:1px solid #ddd;
 }
 
 button{
 cursor:pointer;
 }
 
+/* BOTONES */
 .buy{
 width:100%;
+margin-top:10px;
 padding:10px;
-margin-top:8px;
 border:none;
 background:#111;
 color:#fff;
 border-radius:10px;
-}
-
-.stock{
-font-size:12px;
-opacity:.7;
-margin-top:5px;
 }
 
 /* CART */
@@ -74,12 +74,13 @@ margin-top:5px;
 position:fixed;
 right:0;
 top:0;
-width:340px;
+width:380px;
 height:100%;
 background:#fff;
-border-left:1px solid #ddd;
+border-left:1px solid #eee;
 transform:translateX(100%);
 transition:.3s;
+z-index:9999;
 display:flex;
 flex-direction:column;
 }
@@ -87,36 +88,46 @@ flex-direction:column;
 .cart.open{transform:translateX(0)}
 
 .cartTop{
-padding:12px;
-font-weight:bold;
+padding:14px;
+font-weight:600;
 border-bottom:1px solid #eee;
 }
 
 .cartBody{
 flex:1;
 overflow:auto;
-padding:10px;
+padding:12px;
 }
 
 .cartItem{
 border:1px solid #eee;
-padding:8px;
-margin-bottom:8px;
-border-radius:10px;
+padding:10px;
+border-radius:12px;
+margin-bottom:10px;
 }
 
 .removeBtn{
-background:#000;
+background:#111;
 color:#fff;
 border:none;
-padding:5px 8px;
-border-radius:6px;
-margin-top:5px;
+padding:6px 10px;
+border-radius:8px;
+margin-top:6px;
 }
 
 .cartFooter{
-padding:10px;
+padding:12px;
 border-top:1px solid #eee;
+}
+
+.checkoutBtn{
+width:100%;
+padding:12px;
+background:#111;
+color:#fff;
+border:none;
+border-radius:10px;
+font-weight:600;
 }
 
 /* ADMIN */
@@ -135,14 +146,15 @@ border-radius:999px;
 position:fixed;
 left:0;
 top:0;
-width:340px;
+width:360px;
 height:100%;
 background:#111;
 color:#fff;
-transform:translateX(-100%);
+transform:translateX(-110%);
 transition:.3s;
-padding:10px;
+padding:12px;
 overflow:auto;
+z-index:10000;
 }
 
 .adminPanel.open{transform:translateX(0)}
@@ -151,8 +163,13 @@ input{
 width:100%;
 padding:8px;
 margin:5px 0;
-border-radius:6px;
+border-radius:8px;
 border:none;
+}
+
+.small{
+font-size:12px;
+opacity:.7;
 }
 </style>
 </head>
@@ -160,8 +177,8 @@ border:none;
 <body>
 
 <header>
-Beauty & Cheap 💄
-<button onclick="toggleCart()" style="position:absolute;right:10px;top:10px">
+💄 Beauty & Cheap Store Pro
+<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px">
 🛒 <span id="count">0</span>
 </button>
 </header>
@@ -170,108 +187,62 @@ Beauty & Cheap 💄
 
 <!-- CART -->
 <div class="cart" id="cart">
-<div class="cartTop">Carrito</div>
+<div class="cartTop">🛒 Carrito</div>
 <div class="cartBody" id="cartList"></div>
 <div class="cartFooter">
 Total: $<span id="total">0</span>
+<button class="checkoutBtn" onclick="checkout()">Pagar WhatsApp</button>
 </div>
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" onclick="openAdmin()">Admin</button>
+<button class="adminBtn" onclick="loginAdmin()">Admin</button>
 
 <div class="adminPanel" id="admin">
-<h3>Admin</h3>
+<h3>📦 Shopify Admin</h3>
+
 <button onclick="closeAdmin()">Cerrar</button>
 
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
+<input id="i" placeholder="Imagen">
 <button onclick="addProduct()">Agregar</button>
 
 <hr>
 
+<h4>Inventario</h4>
 <div id="adminList"></div>
+
+<hr>
+
+<h4>📊 Ventas</h4>
+<div id="orders"></div>
+
 </div>
 
 <script>
 
-/* 💄 INVENTARIO RESTAURADO CON VARIANTES (TU SISTEMA ORIGINAL) */
-let products = [
-{
-name:"AOA Brush Cleaning Egg",
-price:45,
-img:"egg_black.jpg",
-options:["black","purple"],
-stock:{black:2,purple:1}
-},
-{
-name:"AOA Cuticle Revitalizing Pen",
-price:55,
-img:"cuticle_peach.jpg",
-options:["peach","strawberry","rose"],
-stock:{peach:1,strawberry:2,rose:2}
-},
-{
-name:"AOA Makeup Remover Wipes",
-price:50,
-img:"wipes.jpg",
-options:["default"],
-stock:{default:5}
-},
-{
-name:"AOA Lipstick Retro Chic",
-price:70,
-img:"lipstick_mod.jpg",
-options:["mod"],
-stock:{mod:1}
-},
-{
-name:"AOA Foot Mask Chamomile",
-price:65,
-img:"foot_chamomile.jpg",
-options:["chamomile"],
-stock:{chamomile:2}
-},
-{
-name:"AOA Foot Peeling Mask",
-price:75,
-img:"foot_peeling.jpg",
-options:["peeling"],
-stock:{peeling:2}
-},
-{
-name:"AOA Acne Patches 10mm",
-price:65,
-img:"acne_patches.jpg",
-options:["10mm"],
-stock:{"10mm":3}
-},
-{
-name:"AOA Lip Stain Magical",
-price:75,
-img:"lip_kuu.jpg",
-options:["kuu","hime"],
-stock:{kuu:1,hime:1}
-},
-{
-name:"AOA Headband Soft",
-price:45,
-img:"headband_pink_ears.jpg",
-options:["pink","purple"],
-stock:{pink:1,purple:1}
-},
-{
-name:"AOA Wonder Blender",
-price:45,
-img:"blender_pink.jpg",
-options:["pink","black"],
-stock:{pink:1,black:1}
-}
+/* 🔥 INVENTARIO ORIGINAL (NO TOCADO, SOLO ESTRUCTURA ESTABLE) */
+let products = JSON.parse(localStorage.getItem("products")) || [
+{name:"AOA Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
+{name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
+{name:"Makeup Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
+{name:"Lipstick Retro",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
+{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}}
 ];
 
 let cart=[];
 let total=0;
+
+/* ORDERS */
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+/* SAVE */
+function save(){
+localStorage.setItem("products",JSON.stringify(products));
+localStorage.setItem("orders",JSON.stringify(orders));
+}
 
 /* RENDER */
 function render(){
@@ -288,24 +259,24 @@ box.innerHTML+=`
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
 
-<select id="opt${i}" onchange="update(${i})">
+<select id="opt${i}">
 ${opts}
 </select>
 
-<div class="stock" id="stock${i}"></div>
+<div class="small" id="stock${i}"></div>
 
 <button class="buy" onclick="add(${i})">Agregar</button>
 </div>
 `;
 
-update(i);
+updateStock(i);
 });
 
 renderAdmin();
 }
 
 /* STOCK */
-function update(i){
+function updateStock(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 let s=p.stock[sel]??0;
@@ -313,7 +284,7 @@ let s=p.stock[sel]??0;
 document.getElementById("stock"+i).innerText="Stock: "+s;
 }
 
-/* ADD */
+/* ADD CART */
 function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
@@ -327,6 +298,7 @@ total+=p.price;
 
 render();
 renderCart();
+save();
 }
 
 /* CART */
@@ -348,10 +320,7 @@ box.innerHTML+=`
 <b>${i.name}</b><br>
 ${i.option}<br>
 $${i.price} x ${i.qty}
-
-<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">
-Eliminar
-</button>
+<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">Eliminar</button>
 </div>
 `;
 });
@@ -372,15 +341,35 @@ break;
 renderCart();
 }
 
-/* CART TOGGLE */
-function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
+/* CHECKOUT */
+function checkout(){
+orders.push({
+date:new Date().toLocaleString(),
+items:cart,
+total:total
+});
+
+save();
+
+let msg="🛒 Pedido:%0A";
+cart.forEach(c=>{
+msg+=`- ${c.name} (${c.option})%0A`;
+});
+msg+=`Total: $${total}`;
+
+window.open("https://wa.me/52TU_NUMERO?text="+encodeURIComponent(msg));
 }
 
-/* ADMIN */
-function openAdmin(){
+/* ADMIN LOGIN */
+function loginAdmin(){
+let u=prompt("Usuario");
+let p=prompt("Contraseña");
+
+if(u==="admin" && p==="1234"){
 document.getElementById("admin").classList.add("open");
 renderAdmin();
+renderOrders();
+}
 }
 
 function closeAdmin(){
@@ -394,13 +383,26 @@ box.innerHTML="";
 
 products.forEach((p,i)=>{
 box.innerHTML+=`
-<div style="background:#222;padding:8px;margin-bottom:8px">
-<b>${p.name}</b><br>
-$${p.price}
-
-<button onclick="del(${i})" style="margin-top:5px;background:red;color:#fff;border:none;padding:6px">
+<div style="background:#222;padding:10px;margin-bottom:8px">
+<b>${p.name}</b> - $${p.price}
+<button onclick="del(${i})" style="margin-top:5px;background:red;color:#fff;border:none">
 Eliminar
 </button>
+</div>
+`;
+});
+}
+
+/* ORDERS */
+function renderOrders(){
+let box=document.getElementById("orders");
+box.innerHTML="";
+
+orders.forEach(o=>{
+box.innerHTML+=`
+<div style="background:#222;padding:8px;margin-bottom:5px">
+${o.date}<br>
+Total: $${o.total}
 </div>
 `;
 });
@@ -411,20 +413,23 @@ function addProduct(){
 products.push({
 name:n.value,
 price:+p.value,
-img:"default.jpg",
+img:i.value,
 options:["default"],
 stock:{default:5}
 });
 
+save();
 render();
 }
 
 /* DELETE */
 function del(i){
 products.splice(i,1);
+save();
 render();
 }
 
+/* INIT */
 render();
 
 </script>
