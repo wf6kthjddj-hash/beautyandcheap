@@ -27,7 +27,6 @@ z-index:1000;
 }
 
 .brand{font-weight:800}
-
 .nav{display:flex;gap:14px;align-items:center}
 .nav button{background:none;border:none;cursor:pointer;font-weight:500}
 
@@ -54,7 +53,6 @@ box-shadow:0 10px 30px rgba(0,0,0,.08);
 transition:.25s;
 border:1px solid #eee;
 }
-
 .card:hover{transform:translateY(-6px)}
 
 .card img{
@@ -105,7 +103,6 @@ display:flex;
 flex-direction:column;
 z-index:9999;
 }
-
 .cart.open{transform:translateX(0)}
 
 .cartTop{
@@ -140,7 +137,7 @@ border-top:1px solid #eee;
 font-weight:700;
 }
 
-/* ADMIN MCC MENU */
+/* ADMIN MODERNO */
 .adminBtn{
 position:fixed;
 left:18px;
@@ -160,63 +157,56 @@ left:0;
 top:0;
 width:460px;
 height:100%;
-background:#ffbc0d;
+background:#f7f7f8;
 color:#111;
 transform:translateX(-110%);
 transition:.3s;
 padding:16px;
 overflow:auto;
 z-index:10000;
+border-right:1px solid #ddd;
 }
-
 .admin.open{transform:translateX(0)}
 
 .adminHeader{
-background:#d40000;
+background:#111;
 color:#fff;
 padding:14px;
-border-radius:12px;
+border-radius:10px;
 margin-bottom:12px;
-font-weight:800;
-text-align:center;
-position:relative;
+font-weight:700;
 }
 
 .adminCard{
 background:#fff;
-border-radius:14px;
+border:1px solid #e5e5e5;
+border-radius:12px;
 padding:12px;
 margin-top:10px;
-box-shadow:0 6px 18px rgba(0,0,0,.15);
-border-left:6px solid #d40000;
+box-shadow:0 2px 8px rgba(0,0,0,.05);
 }
 
-.adminCard b{display:block}
+.adminCard b{display:block;margin-bottom:4px}
+
+.admin button{
+background:#d60000;
+color:#fff;
+border:none;
+padding:8px 10px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+margin-top:6px;
+}
+.admin button:hover{opacity:.9}
 
 .admin input{
 width:100%;
 padding:10px;
 margin:6px 0;
 border-radius:10px;
-border:none;
+border:1px solid #ddd;
 outline:none;
-}
-
-.closeBtn{
-position:absolute;
-top:10px;
-right:10px;
-background:#000;
-color:#fff;
-border:none;
-width:32px;
-height:32px;
-border-radius:50%;
-cursor:pointer;
-font-weight:bold;
-display:flex;
-align-items:center;
-justify-content:center;
 }
 </style>
 </head>
@@ -235,8 +225,8 @@ justify-content:center;
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>✨ Experiencia premium de belleza</h2>
-<p>Tienda con control de inventario real.</p>
+<h2>✨ Tienda profesional con inventario real</h2>
+<p>Sistema tipo POS + control de stock inteligente.</p>
 </div>
 
 <!-- SHOP -->
@@ -248,7 +238,11 @@ justify-content:center;
 <div class="cart" id="cart">
 <div class="cartTop">
 🛒 Carrito
-<button class="closeBtn" onclick="toggleCart()">✕</button>
+<button class="closeBtn" onclick="toggleCart()" style="
+position:absolute;right:10px;top:10px;
+background:#000;color:#fff;border:none;
+width:32px;height:32px;border-radius:50%;
+cursor:pointer;">✕</button>
 </div>
 
 <div class="cartBody" id="cartList"></div>
@@ -264,21 +258,25 @@ Total: $<span id="total">0</span>
 <div class="admin" id="admin">
 
 <div class="adminHeader">
-🍔 Panel McBeauty
-<button class="closeBtn" onclick="toggleAdmin()">✕</button>
+🍔 McBeauty Control Panel
+<button onclick="toggleAdmin()" style="
+float:right;background:#333;color:#fff;
+border:none;width:28px;height:28px;border-radius:50%;
+cursor:pointer;">✕</button>
 </div>
 
-<h3>Agregar producto</h3>
-<input id="n" placeholder="Nombre">
-<input id="p" placeholder="Precio">
-<button onclick="addProduct()">Agregar</button>
+<h3>Agregar / Aumentar stock</h3>
+
+<input id="n" placeholder="Nombre del producto">
+<input id="p" placeholder="Precio (solo si es nuevo)">
+<button onclick="addProduct()">Procesar</button>
 
 <div id="adminList"></div>
 </div>
 
 <script>
 
-/* INVENTARIO ORIGINAL */
+/* INVENTARIO */
 let products = [
 {name:"AOA Brush Cleaning Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
 {name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
@@ -332,7 +330,7 @@ if(!sel) sel=p.options[0];
 document.getElementById("stock"+i).innerText="Stock: "+(p.stock[sel]??0);
 }
 
-/* ADD */
+/* ADD CART */
 function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
@@ -375,11 +373,10 @@ document.getElementById("total").innerText=total.toFixed(2);
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE + RESTORE STOCK */
+/* REMOVE */
 function removeItem(name,opt){
 for(let i=cart.length-1;i>=0;i--){
 if(cart[i].name===name && cart[i].option===opt){
-
 total-=cart[i].price;
 cart.splice(i,1);
 
@@ -415,7 +412,7 @@ document.getElementById("cart").classList.remove("open");
 renderAdmin();
 }
 
-/* ADMIN */
+/* ADMIN PANEL */
 function renderAdmin(){
 let box=document.getElementById("adminList");
 box.innerHTML="";
@@ -423,35 +420,54 @@ box.innerHTML="";
 products.forEach((p,i)=>{
 box.innerHTML+=`
 <div class="adminCard">
-<b>${p.name}</b><br>
-Precio: $${p.price}<br>
-Stock: ${Object.entries(p.stock).map(s=>s[0]+": "+s[1]).join(" | ")}<br>
-<button onclick="del(${i})">Eliminar</button>
+<b>${p.name}</b>
+<div style="font-size:12px;opacity:.7">Precio: $${p.price}</div>
+<div style="font-size:12px;margin:4px 0">
+Stock: ${Object.entries(p.stock).map(s=>s[0]+": "+s[1]).join(" | ")}
+</div>
+<button onclick="addStock(${i})">+ Stock</button>
+<button onclick="del(${i})" style="background:#333;margin-left:6px">Eliminar</button>
 </div>
 `;
 });
 }
 
-/* ADD PRODUCT */
-function addProduct(){
-if(!n.value || !p.value) return alert("Completa los campos");
+/* STOCK + */
+function addStock(i){
+let p=products[i];
+let key=Object.keys(p.stock)[0];
+p.stock[key]=(p.stock[key]||0)+1;
+render();
+}
 
+/* ADD / SEARCH INTELIGENTE */
+function addProduct(){
+if(!n.value) return alert("Escribe un nombre");
+
+let name=n.value.trim();
+let price=+p.value || 0;
+
+/* búsqueda flexible */
+let existing=products.find(x =>
+x.name.toLowerCase().includes(name.toLowerCase())
+);
+
+if(existing){
+let key=Object.keys(existing.stock)[0];
+existing.stock[key]=(existing.stock[key]||0)+1;
+alert("Stock agregado al producto existente");
+}else{
 products.push({
-name:n.value,
-price:+p.value,
+name:name,
+price:price,
 img:"default.jpg",
 options:["default"],
 stock:{default:5}
 });
+}
 
 n.value="";
 p.value="";
-render();
-}
-
-/* DELETE */
-function del(i){
-products.splice(i,1);
 render();
 }
 
