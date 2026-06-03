@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄 Pro Store</title>
+<title>Beauty & Cheap 💄 | Premium Store</title>
 
 <style>
 body{
@@ -12,17 +12,45 @@ background:#f4f4f7;
 color:#111;
 }
 
-/* HEADER */
+/* HEADER SEPHORA STYLE */
 header{
-background:rgba(255,255,255,.9);
-backdrop-filter:blur(10px);
-padding:16px;
-text-align:center;
-font-weight:600;
-border-bottom:1px solid #eaeaea;
+background:rgba(255,255,255,.95);
+backdrop-filter:blur(12px);
+padding:14px 20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
 position:sticky;
 top:0;
 z-index:1000;
+}
+
+.header-left{
+font-weight:700;
+letter-spacing:.5px;
+}
+
+.header-right{
+display:flex;
+gap:14px;
+align-items:center;
+}
+
+header button{
+background:none;
+border:none;
+cursor:pointer;
+font-weight:500;
+}
+
+.cartBtn{
+background:#111;
+color:#fff;
+padding:8px 12px;
+border-radius:999px;
+border:none;
+cursor:pointer;
 }
 
 /* GRID */
@@ -35,7 +63,7 @@ max-width:1200px;
 margin:auto;
 }
 
-/* CARD */
+/* CARD PREMIUM */
 .card{
 background:#fff;
 border-radius:18px;
@@ -57,11 +85,16 @@ object-fit:cover;
 border-radius:14px;
 }
 
-/* TEXT */
-h4{margin:6px 0;font-size:16px;font-weight:600;}
-p{margin:4px 0;opacity:.8}
+h4{
+margin:8px 0;
+font-size:16px;
+}
 
-/* SELECT */
+p{
+margin:4px 0;
+opacity:.8;
+}
+
 select{
 width:100%;
 padding:10px;
@@ -71,7 +104,6 @@ border:1px solid #ddd;
 background:#fafafa;
 }
 
-/* BUTTON */
 .buy{
 width:100%;
 margin-top:10px;
@@ -84,7 +116,6 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* STOCK */
 .stock{
 font-size:12px;
 margin-top:6px;
@@ -189,13 +220,28 @@ hr{opacity:.2;margin:14px 0}
 <body>
 
 <header>
-💄 Beauty & Cheap Pro Store
-<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px">
+<div class="header-left">💄 Beauty & Cheap</div>
+
+<div class="header-right">
+<button onclick="show('home')">Inicio</button>
+<button onclick="show('shop')">Tienda</button>
+
+<button class="cartBtn" onclick="toggleCart()">
 🛒 <span id="count">0</span>
 </button>
+</div>
 </header>
 
+<!-- HOME -->
+<div id="home" class="section active" style="padding:20px">
+<h2>✨ Belleza accesible con estilo premium</h2>
+<p>Catálogo inspirado en tiendas tipo Sephora.</p>
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="section">
 <div class="grid" id="products"></div>
+</div>
 
 <!-- CART -->
 <div class="cart" id="cart">
@@ -222,19 +268,22 @@ Total: $<span id="total">0</span>
 
 <h4>Inventario</h4>
 <div id="adminList"></div>
-
 </div>
 
 <script>
 
-/* 💄 INVENTARIO REAL (TU BASE ORIGINAL RESTAURADA) */
+/* 💄 INVENTARIO REAL RESTAURADO + AJUSTE WIPES */
 let products = [
 {name:"AOA Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
-{name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
-{name:"Makeup Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
-{name:"Lipstick Retro",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
-{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
-{name:"Acne Patches",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}}
+{name:"AOA Cuticle Revitalizing Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
+{name:"AOA Makeup Remover Wipes - sin aroma",price:50,img:"wipes.jpg",options:["sin aroma"],stock:{"sin aroma":5}},
+{name:"AOA Lipstick Retro Chic",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
+{name:"AOA Foot Mask Chamomile",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}},
+{name:"AOA Foot Peeling Mask",price:75,img:"foot_peeling.jpg",options:["peeling"],stock:{peeling:2}},
+{name:"AOA Acne Patches 10mm",price:65,img:"acne_patches.jpg",options:["10mm"],stock:{"10mm":3}},
+{name:"AOA Magical Girl Lip Stain",price:75,img:"lip_kuu.jpg",options:["kuu","hime"],stock:{kuu:1,hime:1}},
+{name:"AOA Soft Headband",price:45,img:"headband_pink_ears.jpg",options:["pink","purple"],stock:{pink:1,purple:1}},
+{name:"AOA Wonder Blender",price:45,img:"blender_pink.jpg",options:["pink","black"],stock:{pink:1,black:1}}
 ];
 
 let cart=[];
@@ -285,7 +334,7 @@ function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 
-if((p.stock[sel]??0)<=0)return alert("Agotado");
+if((p.stock[sel]??0)<=0) return alert("Agotado");
 
 p.stock[sel]--;
 
@@ -341,6 +390,12 @@ function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
 }
 
+/* NAV */
+function show(sec){
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(sec).classList.add("active");
+}
+
 /* ADMIN */
 function openAdmin(){
 document.getElementById("admin").classList.add("open");
@@ -351,7 +406,6 @@ function closeAdmin(){
 document.getElementById("admin").classList.remove("open");
 }
 
-/* ADMIN LIST */
 function renderAdmin(){
 let box=document.getElementById("adminList");
 box.innerHTML="";
