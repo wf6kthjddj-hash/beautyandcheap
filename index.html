@@ -80,12 +80,12 @@ z-index:9999;
 
 .cartBody{flex:1;overflow:auto;padding:10px}
 
-/* ADMIN */
+/* ADMIN - MÁS GRANDE */
 .admin{
 position:fixed;
 left:0;
 top:0;
-width:560px;
+width:680px; /* 🔥 MÁS GRANDE */
 height:100%;
 background:#111;
 color:#fff;
@@ -116,6 +116,13 @@ margin-top:6px;
 hr{border:0;border-top:1px solid #333;margin:14px 0}
 
 .small{font-size:12px;opacity:.8}
+
+/* BOTONES CART */
+.removeBtn{
+background:#ff3b3b;
+color:#fff;
+margin-right:5px;
+}
 </style>
 </head>
 
@@ -173,17 +180,9 @@ Verificar compra
 
 <hr>
 
-<h4>🔐 Generar código de venta</h4>
-<button onclick="generateCode()">Generar código único</button>
-<div id="codesList"></div>
-
-<hr>
-
-<h4>Agregar producto</h4>
-<input id="pname" placeholder="Nombre">
-<input id="pprice" placeholder="Precio">
-<input id="pimg" placeholder="Imagen">
-<button onclick="addProduct()">Agregar</button>
+<h4>🔐 Cambiar contraseña</h4>
+<input id="newPass" type="password" placeholder="Nueva contraseña">
+<button onclick="changePassword()">Actualizar contraseña</button>
 
 <hr>
 
@@ -195,13 +194,10 @@ Verificar compra
 
 <script>
 
-/* 🔐 ADMIN */
+/* ADMIN */
 let ADMIN_USER = localStorage.getItem("adminUser") || "admin";
 let ADMIN_PASS = localStorage.getItem("adminPass") || "1234";
 let logged = localStorage.getItem("logged")==="true";
-
-/* 🧠 CÓDIGOS PRO */
-let validCodes = JSON.parse(localStorage.getItem("codes") || "[]");
 
 /* INVENTARIO */
 let products=[
@@ -227,23 +223,19 @@ let products=[
 let cart=[];
 let pendingCode=null;
 
-/* 🔧 SAFE RENDER */
+/* RENDER */
 function render(){
 
-let q=(document.getElementById("search")?.value || "").toLowerCase();
-
+let q=document.getElementById("search")?.value?.toLowerCase()||"";
 let box=document.getElementById("products");
-if(!box) return;
-
 box.innerHTML="";
 
-(products||[])
-.filter(p=>p.name.toLowerCase().includes(q))
+products.filter(p=>p.name.toLowerCase().includes(q))
 .forEach(p=>{
 
 box.innerHTML+=`
 <div class="card">
-<img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>$${p.price}</p>
 <p class="small">Stock: ${p.stock}</p>
@@ -257,37 +249,29 @@ Agregar
 
 renderCart();
 renderAdmin();
-syncUI();
 }
 
-/* 🛒 SAFE ADD */
+/* CART */
 function add(id){
 let p=products.find(x=>x.id===id);
 if(!p || p.stock<=0) return;
 
 let count=cart.filter(c=>c.id===id).length;
-
-if(count >= p.stock){
-alert("Sin stock disponible");
-return;
-}
+if(count>=p.stock){alert("Sin stock");return;}
 
 cart.push({...p});
 render();
 }
 
-/* CART */
 function renderCart(){
 let box=document.getElementById("cartList");
-if(!box) return;
-
 box.innerHTML="";
 let total=0;
 
 let grouped={};
 
 cart.forEach(c=>{
-grouped[c.id] = grouped[c.id] || {...c,qty:0};
+grouped[c.id]=grouped[c.id]||{...c,qty:0};
 grouped[c.id].qty++;
 });
 
@@ -298,7 +282,10 @@ box.innerHTML+=`
 <div>
 <b>${item.name}</b><br>
 Cantidad: ${item.qty}<br>
-$${item.price*item.qty}
+$${item.price*item.qty}<br>
+
+<button class="removeBtn" onclick="removeOne(${item.id})">-1</button>
+<button onclick="removeAll(${item.id})">Eliminar</button>
 </div>
 <hr>
 `;
@@ -308,13 +295,23 @@ document.getElementById("count").innerText=cart.length;
 document.getElementById("total").innerText=total;
 }
 
-/* 💳 CHECKOUT */
+/* 🧨 CART DELETE */
+function removeOne(id){
+let i=cart.findIndex(c=>c.id===id);
+if(i>-1) cart.splice(i,1);
+render();
+}
+
+function removeAll(id){
+cart=cart.filter(c=>c.id!==id);
+render();
+}
+
+/* WHATSAPP */
 function checkout(){
 if(cart.length===0){alert("Carrito vacío");return;}
 
-pendingCode=Math.floor(100000+Math.random()*900000);
-
-alert("Código generado: "+pendingCode);
+pendingCode=Math.floor(1000+Math.random()*9000);
 
 let msg="Compra:%0A";
 cart.forEach(c=>{
@@ -326,52 +323,26 @@ msg+=`%0ACódigo: ${pendingCode}`;
 window.open("https://wa.me/52TU_NUMERO_AQUI?text="+msg,"_blank");
 }
 
-/* 🔐 VERIFY PRO */
+/* VERIFY */
 function verifyCode(){
 let code=document.getElementById("codeInput").value;
 
-if(validCodes.includes(code)){
+if(code==pendingCode){
 
 cart.forEach(c=>{
 let p=products.find(x=>x.id===c.id);
 if(p && p.stock>0) p.stock--;
 });
 
-validCodes = validCodes.filter(c=>c!==code);
-localStorage.setItem("codes",JSON.stringify(validCodes));
-
 cart=[];
-alert("Compra confirmada ✔");
-
+pendingCode=null;
 render();
 
-}else{
-alert("Código inválido ❌");
-}
-}
-
-/* 🔑 GENERADOR PRO */
-function generateCode(){
-let code="BC-"+Math.floor(1000+Math.random()*9000);
-
-validCodes.push(code);
-localStorage.setItem("codes",JSON.stringify(validCodes));
-
-renderCodes();
+alert("Compra confirmada ✔");
+}else alert("Código incorrecto");
 }
 
-function renderCodes(){
-let box=document.getElementById("codesList");
-if(!box) return;
-
-box.innerHTML="<h5>Códigos activos:</h5>";
-
-validCodes.forEach(c=>{
-box.innerHTML+=`<div>${c}</div>`;
-});
-}
-
-/* ADMIN FIX */
+/* ADMIN */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -398,39 +369,27 @@ if(!a||!b) return;
 
 a.style.display=logged?"none":"block";
 b.style.display=logged?"block":"none";
-
-if(logged) renderCodes();
 }
 
-/* ADMIN PRODUCTOS */
-function renderAdmin(){
-if(!logged) return;
-let box=document.getElementById("adminList");
-if(!box) return;
+/* PASSWORD */
+function changePassword(){
+let np=document.getElementById("newPass").value;
+if(np.length<4) return alert("Muy corta");
 
-box.innerHTML="";
+ADMIN_PASS=np;
+localStorage.setItem("adminPass",np);
 
-products.forEach(p=>{
-box.innerHTML+=`
-<div>
-<input value="${p.name}" onchange="p.name=this.value">
-<input value="${p.price}" onchange="p.price=+this.value">
-<input value="${p.stock}" onchange="p.stock=+this.value">
-</div>
-<hr>
-`;
-});
+alert("Contraseña actualizada ✔");
 }
 
-/* NAV SAFE */
+/* NAV */
 function show(s){
 document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
-let sec=document.getElementById(s);
-if(sec) sec.classList.add("active");
+document.getElementById(s).classList.add("active");
 }
 
 function openCart(){document.getElementById("cart").classList.toggle("open");}
-function openAdmin(){document.getElementById("admin").classList.toggle("open");if(logged)renderCodes();}
+function openAdmin(){document.getElementById("admin").classList.toggle("open");if(logged)render();}
 
 render();
 
