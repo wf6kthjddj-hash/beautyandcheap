@@ -2,188 +2,157 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Beauty & Cheap 💄 Stable</title>
+<title>Beauty & Cheap 💄</title>
 
 <style>
 body{
 margin:0;
-font-family:system-ui,Segoe UI,Arial;
-background:#f6f6f8;
+font-family:Arial;
+background:#f7f7fb;
 color:#111;
 }
 
 header{
 background:#fff;
-padding:16px;
+padding:15px;
 text-align:center;
-font-weight:600;
+font-weight:bold;
 border-bottom:1px solid #eee;
 position:sticky;
 top:0;
-z-index:1000;
-}
-
-nav{
-display:flex;
-justify-content:center;
-gap:15px;
-background:#fff;
-padding:10px;
-border-bottom:1px solid #eee;
-}
-
-nav button{
-background:none;
-border:none;
-cursor:pointer;
 }
 
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:18px;
-padding:20px;
+gap:15px;
+padding:15px;
 }
 
 .card{
 background:#fff;
-border-radius:14px;
-padding:12px;
-box-shadow:0 6px 18px rgba(0,0,0,.06);
+padding:10px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
 
 .card img{
 width:100%;
-height:190px;
+height:170px;
 object-fit:cover;
-border-radius:12px;
+border-radius:10px;
 }
 
 select{
 width:100%;
-padding:8px;
+padding:6px;
 margin-top:6px;
-border-radius:10px;
-border:1px solid #ddd;
 }
 
-button.buy{
+button{
+cursor:pointer;
+}
+
+.buy{
 width:100%;
-margin-top:10px;
 padding:10px;
+margin-top:8px;
 border:none;
 background:#111;
 color:#fff;
 border-radius:10px;
-cursor:pointer;
 }
 
+.stock{
+font-size:12px;
+opacity:.7;
+margin-top:5px;
+}
+
+/* CART */
 .cart{
 position:fixed;
 right:0;
 top:0;
-width:360px;
+width:340px;
 height:100%;
 background:#fff;
-border-left:1px solid #eee;
+border-left:1px solid #ddd;
 transform:translateX(100%);
 transition:.3s;
-z-index:9999;
+display:flex;
+flex-direction:column;
 }
 
 .cart.open{transform:translateX(0)}
 
-.cartHeader{
-padding:14px;
+.cartTop{
+padding:12px;
+font-weight:bold;
 border-bottom:1px solid #eee;
-font-weight:600;
 }
 
 .cartBody{
-padding:12px;
+flex:1;
 overflow:auto;
-height:calc(100% - 140px);
+padding:10px;
 }
 
 .cartItem{
 border:1px solid #eee;
-padding:10px;
-border-radius:12px;
-margin-bottom:10px;
-}
-
-.cartRow{
-display:flex;
-justify-content:space-between;
-margin-top:8px;
+padding:8px;
+margin-bottom:8px;
+border-radius:10px;
 }
 
 .removeBtn{
-background:#111;
+background:#000;
 color:#fff;
 border:none;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
-font-size:12px;
+padding:5px 8px;
+border-radius:6px;
+margin-top:5px;
 }
 
 .cartFooter{
-padding:12px;
+padding:10px;
 border-top:1px solid #eee;
 }
 
+/* ADMIN */
 .adminBtn{
 position:fixed;
-left:20px;
-bottom:20px;
+left:15px;
+bottom:15px;
 background:#111;
 color:#fff;
 border:none;
-padding:12px 16px;
+padding:10px 14px;
 border-radius:999px;
-cursor:pointer;
-z-index:10001;
 }
 
 .adminPanel{
 position:fixed;
 left:0;
 top:0;
-width:360px;
+width:340px;
 height:100%;
 background:#111;
 color:#fff;
-padding:12px;
-transform:translateX(-110%);
+transform:translateX(-100%);
 transition:.3s;
-z-index:10000;
+padding:10px;
 overflow:auto;
 }
 
 .adminPanel.open{transform:translateX(0)}
 
-.closeAdmin{
-background:none;
-border:none;
-color:#fff;
-font-size:18px;
-float:right;
-cursor:pointer;
-}
-
 input{
 width:100%;
 padding:8px;
 margin:5px 0;
-border-radius:8px;
+border-radius:6px;
 border:none;
-}
-
-.stock{
-font-size:12px;
-opacity:.7;
-margin-top:4px;
 }
 </style>
 </head>
@@ -192,78 +161,117 @@ margin-top:4px;
 
 <header>
 Beauty & Cheap 💄
-<button onclick="toggleCart()" style="position:absolute;right:15px;top:10px;">
+<button onclick="toggleCart()" style="position:absolute;right:10px;top:10px">
 🛒 <span id="count">0</span>
 </button>
 </header>
 
-<nav>
-<button onclick="show('home')">Inicio</button>
-<button onclick="show('shop')">Tienda</button>
-</nav>
-
-<div id="home" class="section" style="padding:20px">
-<h2>✨ Beauty & Cheap</h2>
-</div>
-
-<div id="shop" class="section">
 <div class="grid" id="products"></div>
-</div>
 
 <!-- CART -->
 <div class="cart" id="cart">
-<div class="cartHeader">🛒 Carrito</div>
-
-<div class="cartBody" id="list"></div>
-
+<div class="cartTop">Carrito</div>
+<div class="cartBody" id="cartList"></div>
 <div class="cartFooter">
 Total: $<span id="total">0</span>
 </div>
 </div>
 
 <!-- ADMIN -->
-<button class="adminBtn" onclick="login()">Admin</button>
+<button class="adminBtn" onclick="openAdmin()">Admin</button>
 
 <div class="adminPanel" id="admin">
-<button class="closeAdmin" onclick="closeAdmin()">✖</button>
-
-<h3>Panel Admin</h3>
+<h3>Admin</h3>
+<button onclick="closeAdmin()">Cerrar</button>
 
 <h4>Agregar producto</h4>
 <input id="n" placeholder="Nombre">
 <input id="p" placeholder="Precio">
-<input id="i" placeholder="Imagen">
 <button onclick="addProduct()">Agregar</button>
 
-<hr style="opacity:.2">
+<hr>
 
-<h4>Productos</h4>
 <div id="adminList"></div>
-
 </div>
 
 <script>
 
-/* ADMIN */
-let USER="admin";
-let PASS=localStorage.getItem("pass")||"1234";
-
-/* INVENTARIO RESTAURADO */
-let products=JSON.parse(localStorage.getItem("db"))||[
-{name:"Brush Egg",price:45,img:"egg_black.jpg",options:["black","purple"],stock:{black:2,purple:1}},
-{name:"Cuticle Pen",price:55,img:"cuticle_peach.jpg",options:["peach","strawberry","rose"],stock:{peach:1,strawberry:2,rose:2}},
-{name:"Wipes",price:50,img:"wipes.jpg",options:["default"],stock:{default:5}},
-{name:"Lipstick",price:70,img:"lipstick_mod.jpg",options:["mod"],stock:{mod:1}},
-{name:"Foot Mask",price:65,img:"foot_chamomile.jpg",options:["chamomile"],stock:{chamomile:2}}
+/* 💄 INVENTARIO RESTAURADO CON VARIANTES (TU SISTEMA ORIGINAL) */
+let products = [
+{
+name:"AOA Brush Cleaning Egg",
+price:45,
+img:"egg_black.jpg",
+options:["black","purple"],
+stock:{black:2,purple:1}
+},
+{
+name:"AOA Cuticle Revitalizing Pen",
+price:55,
+img:"cuticle_peach.jpg",
+options:["peach","strawberry","rose"],
+stock:{peach:1,strawberry:2,rose:2}
+},
+{
+name:"AOA Makeup Remover Wipes",
+price:50,
+img:"wipes.jpg",
+options:["default"],
+stock:{default:5}
+},
+{
+name:"AOA Lipstick Retro Chic",
+price:70,
+img:"lipstick_mod.jpg",
+options:["mod"],
+stock:{mod:1}
+},
+{
+name:"AOA Foot Mask Chamomile",
+price:65,
+img:"foot_chamomile.jpg",
+options:["chamomile"],
+stock:{chamomile:2}
+},
+{
+name:"AOA Foot Peeling Mask",
+price:75,
+img:"foot_peeling.jpg",
+options:["peeling"],
+stock:{peeling:2}
+},
+{
+name:"AOA Acne Patches 10mm",
+price:65,
+img:"acne_patches.jpg",
+options:["10mm"],
+stock:{"10mm":3}
+},
+{
+name:"AOA Lip Stain Magical",
+price:75,
+img:"lip_kuu.jpg",
+options:["kuu","hime"],
+stock:{kuu:1,hime:1}
+},
+{
+name:"AOA Headband Soft",
+price:45,
+img:"headband_pink_ears.jpg",
+options:["pink","purple"],
+stock:{pink:1,purple:1}
+},
+{
+name:"AOA Wonder Blender",
+price:45,
+img:"blender_pink.jpg",
+options:["pink","black"],
+stock:{pink:1,black:1}
+}
 ];
 
 let cart=[];
 let total=0;
-
-/* SAVE */
-function save(){
-localStorage.setItem("db",JSON.stringify(products));
-}
 
 /* RENDER */
 function render(){
@@ -299,11 +307,10 @@ renderAdmin();
 /* STOCK */
 function update(i){
 let p=products[i];
-let sel=document.getElementById("opt"+i)?.value || p.options[0];
+let sel=document.getElementById("opt"+i).value;
 let s=p.stock[sel]??0;
 
-let el=document.getElementById("stock"+i);
-if(el) el.innerText="Stock: "+s;
+document.getElementById("stock"+i).innerText="Stock: "+s;
 }
 
 /* ADD */
@@ -311,21 +318,20 @@ function add(i){
 let p=products[i];
 let sel=document.getElementById("opt"+i).value;
 
-if((p.stock[sel]??0)<=0)return alert("Agotado");
+if((p.stock[sel]??0)<=0) return alert("Agotado");
 
 p.stock[sel]--;
 
 cart.push({name:p.name,option:sel,price:p.price});
 total+=p.price;
 
-save();
-renderCart();
 render();
+renderCart();
 }
 
 /* CART */
 function renderCart(){
-let box=document.getElementById("list");
+let box=document.getElementById("cartList");
 box.innerHTML="";
 
 let grouped={};
@@ -339,12 +345,13 @@ else grouped[k].qty++;
 Object.values(grouped).forEach(i=>{
 box.innerHTML+=`
 <div class="cartItem">
-<h4>${i.name}</h4>
-<small>${i.option}</small>
-<div class="cartRow">
-<span>$${i.price} x ${i.qty}</span>
-<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">Eliminar</button>
-</div>
+<b>${i.name}</b><br>
+${i.option}<br>
+$${i.price} x ${i.qty}
+
+<button class="removeBtn" onclick="removeItem('${i.name}','${i.option}')">
+Eliminar
+</button>
 </div>
 `;
 });
@@ -353,7 +360,7 @@ document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=cart.length;
 }
 
-/* REMOVE FIX */
+/* REMOVE */
 function removeItem(name,opt){
 for(let i=cart.length-1;i>=0;i--){
 if(cart[i].name===name && cart[i].option===opt){
@@ -365,14 +372,15 @@ break;
 renderCart();
 }
 
-/* ADMIN LOGIN */
-function login(){
-let u=prompt("Usuario:");
-let p=prompt("Contraseña:");
-if(u===USER && p===PASS){
+/* CART TOGGLE */
+function toggleCart(){
+document.getElementById("cart").classList.toggle("open");
+}
+
+/* ADMIN */
+function openAdmin(){
 document.getElementById("admin").classList.add("open");
 renderAdmin();
-}
 }
 
 function closeAdmin(){
@@ -386,11 +394,11 @@ box.innerHTML="";
 
 products.forEach((p,i)=>{
 box.innerHTML+=`
-<div style="background:#222;padding:10px;margin-bottom:8px;border-radius:8px">
+<div style="background:#222;padding:8px;margin-bottom:8px">
 <b>${p.name}</b><br>
-$${p.price}<br>
+$${p.price}
 
-<button onclick="del(${i})" style="margin-top:6px;background:red;color:#fff;border:none;padding:6px;border-radius:6px">
+<button onclick="del(${i})" style="margin-top:5px;background:red;color:#fff;border:none;padding:6px">
 Eliminar
 </button>
 </div>
@@ -403,31 +411,18 @@ function addProduct(){
 products.push({
 name:n.value,
 price:+p.value,
-img:i.value,
+img:"default.jpg",
 options:["default"],
 stock:{default:5}
 });
 
-save();
 render();
 }
 
 /* DELETE */
 function del(i){
 products.splice(i,1);
-save();
 render();
-}
-
-/* NAV */
-function show(s){
-document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
-document.getElementById(s).classList.add("active");
-}
-
-/* CART TOGGLE */
-function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
 }
 
 render();
